@@ -7,6 +7,7 @@
   import Door from '../rapier/world/Door.svelte'
   import Player from './Player.svelte'
   import Ground from '../rapier/world/Ground.svelte'
+  import CakeGen from './CakeGen.svelte'
   let playerMesh: Mesh
   let positionHasBeenSet = false
   const smoothPlayerPosX = spring(0)
@@ -38,14 +39,17 @@
   position.y={0.01}
 />
 <CollisionGroups groups={[0, 15]}>
-  <Ground />
+  <Ground seed={window && (+prompt("Seed?") || undefined) } />
 </CollisionGroups>
 <CollisionGroups groups={[0]}>
   <Player
     position={[0, 10, 3]}
   />
   <Door />
-  <AutoColliders shape={'cuboid'} friction={0} restitution={3}>
+  <CakeGen />
+</CollisionGroups>
+<CollisionGroups memberships={[5]} filter={[0]}>
+  <AutoColliders shape={'cuboid'} friction={0} restitution={0}>
     <T.Mesh
       receiveShadow
       castShadow

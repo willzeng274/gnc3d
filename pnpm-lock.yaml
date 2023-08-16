@@ -8,6 +8,9 @@ dependencies:
   '@tweakpane/core':
     specifier: ^2.0.0
     version: 2.0.0
+  alea:
+    specifier: ^1.0.1
+    version: 1.0.1
   simplex-noise:
     specifier: ^4.0.1
     version: 4.0.1
@@ -36,7 +39,7 @@ devDependencies:
     version: 0.6.2(@theatre/core@0.6.2)
   '@threlte/core':
     specifier: latest
-    version: 6.0.3(svelte@4.2.0)(three@0.153.0)
+    version: 6.0.4(svelte@4.2.0)(three@0.153.0)
   '@threlte/extras':
     specifier: latest
     version: 5.2.0(svelte@4.2.0)(three@0.153.0)
@@ -45,7 +48,7 @@ devDependencies:
     version: 1.0.4(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0)
   '@threlte/theatre':
     specifier: latest
-    version: 2.1.0(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.3)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0)
+    version: 2.1.0(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.4)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0)
   '@types/three':
     specifier: ^0.152.1
     version: 0.152.1
@@ -428,8 +431,8 @@ packages:
       '@theatre/dataverse': 0.6.2
     dev: true
 
-  /@threlte/core@6.0.3(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-5fTK+iQGeXpqU3HVKp6CkWIXa1KlUxarvChQU+GhU1ScgmqFn791S0fQsFammrufqNLEWzpG8IG0q1iE7fpQkQ==}
+  /@threlte/core@6.0.4(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-M4uUoFMyR9VqsbpQTW24xGEk3oMR3rg8AJ9hZi2/Hsthd5dIqlyKzuL46YOiE9xzucn1xbjc9YVQp9/npN2cJg==}
     peerDependencies:
       svelte: '>=4'
       three: '>=0.133'
@@ -462,7 +465,7 @@ packages:
       three: 0.153.0
     dev: true
 
-  /@threlte/theatre@2.1.0(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.3)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0):
+  /@threlte/theatre@2.1.0(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.4)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0):
     resolution: {integrity: sha512-ipgnzsQ7iGUed/ibgwqUnePqp7H0c1Pn6mvmG0lTpt/pEnw628jyO8ck2zc/4UP7ZYbSgclL0jIminuhOQlXew==}
     peerDependencies:
       '@theatre/core': '>=0.6'
@@ -474,7 +477,7 @@ packages:
     dependencies:
       '@theatre/core': 0.6.2
       '@theatre/studio': 0.6.2(@theatre/core@0.6.2)
-      '@threlte/core': 6.0.3(svelte@4.2.0)(three@0.153.0)
+      '@threlte/core': 6.0.4(svelte@4.2.0)(three@0.153.0)
       '@threlte/extras': 5.2.0(svelte@4.2.0)(three@0.153.0)
       svelte: 4.2.0
       three: 0.153.0
@@ -523,6 +526,10 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
+
+  /alea@1.0.1:
+    resolution: {integrity: sha512-QU+wv+ziDXaMxRdsQg/aH7sVfWdhKps5YP97IIwFkHCsbDZA3k87JXoZ5/iuemf4ntytzIWeScrRpae8+lDrXA==}
+    dev: false
 
   /anymatch@3.1.3:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}

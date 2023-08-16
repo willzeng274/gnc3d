@@ -11,7 +11,11 @@
 
   let open = false
   let objectsInSensor = 0
-  $: open = objectsInSensor > 0
+  $: {
+    if (objectsInSensor < 0) objectsInSensor = 0
+    if (objectsInSensor > 1) objectsInSensor = 1
+    open = objectsInSensor > 0
+  }
 
   let group: Group
   let doorRigidBody: RapierRigidBody
@@ -36,6 +40,7 @@
   }
 
   $: if (group && doorRigidBody) applyDoorRotation($doorRotation)
+  $: console.log(objectsInSensor)
 </script>
 
 <T.Group bind:ref={group}>
@@ -72,7 +77,7 @@
   <HTML
     transform
     position.y={3}
-    pointerEvents={'none'}
+    pointerEvents="none"
   >
     {#key open}
       <small
@@ -113,6 +118,7 @@
 
   <CollisionGroups groups={[15]}>
     <T.Group position={[0, 1.5, 0]}>
+      <!-- args={[1, 1.35, 1.5]} -->
       <Collider
         shape={'cuboid'}
         args={[1, 1.35, 1.5]}

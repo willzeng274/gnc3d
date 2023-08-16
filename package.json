@@ -31,6 +31,7 @@
   "type": "module",
   "dependencies": {
     "@tweakpane/core": "^2.0.0",
+    "alea": "^1.0.1",
     "simplex-noise": "^4.0.1",
     "three-gltf-exporter": "^0.0.1",
     "tweakpane": "^4.0.0"

@@ -1,10 +1,3 @@
-<script
-  lang="ts"
-  context="module"
->
-  // const geometry = new BoxGeometry(0.25, 0.25, 0.25)
-  // const material = new MeshStandardMaterial()
-</script>
 <script lang="ts">
   import { score } from '$lib/store';
   import { T } from '@threlte/core'
@@ -19,7 +12,7 @@
 
   export let position: Parameters<Vector3['set']>
   export let rotation: Parameters<Euler['set']>
-  export let touch: boolean
+  export let touch: 0 | 1 | 2
   // let rigidBody: RapierRigidBody
   // $: rigidBody && (rigidBody.userData = {
   //   ...rigidBody.userData,
@@ -61,14 +54,17 @@
 
 {#if $cake}
   <T.Group
-    {position}
-    {rotation}
+    position={[position[0] * 10, position[1] * 10, position[2] * 10]}
+    rotation={[rotation[0] * 10, rotation[1] * 10, rotation[2] * 10, rotation[3]]}
     scale={0.1}
   >
-    <RigidBody type={'dynamic'} on:collisionenter={({ targetRigidBody }) => {
+    <RigidBody type={'dynamic'} on:collisionenter={({ targetCollider, targetRigidBody }) => {
       if (targetRigidBody?.userData?.name === "player") {
-        touch = true;
+        touch = 1;
         score.update((score) => score + 1);
+      } else if (targetCollider.handle === 5e-324) {
+        // alert("TOUCHING WATER");
+        touch = 2;
       }
     }}>
       <AutoColliders shape='cuboid'>

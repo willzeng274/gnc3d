@@ -30,11 +30,11 @@
   $: $actions[action]?.play()
   $: transitionTo(currentActionKey, 0.2)
   function transitionTo(nextActionKey: ActionName, duration = 1) {
-    console.log("Called", nextActionKey, action)
+    // console.log("Called", nextActionKey, action)
     const currentAction = $actions[action]
     const nextAction = $actions[nextActionKey]
     if (!nextAction || currentAction === nextAction) return
-    console.log(nextActionKey)
+    // console.log(nextActionKey)
     // Function inspired by: https://github.com/mrdoob/three.js/blob/master/examples/webgl_animation_skinning_blending.html
     nextAction.enabled = true
     if (currentAction) {

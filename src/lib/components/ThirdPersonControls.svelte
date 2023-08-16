@@ -1,8 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy } from 'svelte'
   import { Camera, Vector2, Vector3, Quaternion } from 'three'
+  import type { Group } from 'three';
   import { useThrelte, useParent, useFrame } from '@threlte/core'
-  export let object
+  export let object: Group
   export let rotateSpeed = 1.0
   $: if (object) {
     // console.log(object)
@@ -19,8 +20,10 @@
     // // Rotate the object using rotateOnAxis()
     // object.rotateOnAxis(rotationAxis, rotationAngle)
   }
-  export let idealOffset = { x: -0.5, y: 2, z: -3 }
-  export let idealLookAt = { x: 0, y: 1, z: 5 }
+  // export let idealOffset = { x: -0.5, y: 2, z: -3 }
+  export let idealOffset = { x: 0, y: 0, z: -5 }
+  // export let idealLookAt = { x: 0, y: 1, z: 5 }
+  export let idealLookAt = { x: 0, y: 0, z: 0 }
   const currentPosition = new Vector3()
   const currentLookAt = new Vector3()
   let isOrbiting = false
@@ -29,6 +32,7 @@
   const rotateEnd = new Vector2()
   const rotateDelta = new Vector2()
   const axis = new Vector3(0, 1, 0)
+  const axis2 = new Vector3(0, 0, 1)
   const rotationQuat = new Quaternion()
   const { renderer, invalidate } = useThrelte()
   const domElement = renderer.domElement
@@ -53,9 +57,11 @@
   // This is basically your update function
   useFrame((_, delta) => {
     // the object's position is bound to the prop
-    if (!object) return
-    // camera is based on character so we rotation character first
+    if (!object || !$camera) return
+    // camera is based on character so we rotate the character first
     rotationQuat.setFromAxisAngle(axis, -rotateDelta.x * rotateSpeed * delta)
+    object.quaternion.multiply(rotationQuat)
+    rotationQuat.setFromAxisAngle(axis2, -rotateDelta.y * rotateSpeed * delta)
     object.quaternion.multiply(rotationQuat)
     // then we calculate our ideal's
     const offset = vectorFromObject(idealOffset)
