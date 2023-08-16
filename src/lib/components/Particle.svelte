@@ -15,7 +15,7 @@
   import { BoxGeometry, MeshStandardMaterial, Vector3, Mesh } from 'three'
   // import GLTFExporter from 'three-gltf-exporter';
   // import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
-  import type { RigidBody as RapierRigidBody } from '@dimforge/rapier3d-compat'
+  // import type { RigidBody as RapierRigidBody } from '@dimforge/rapier3d-compat'
 
   export let position: Parameters<Vector3['set']>
   export let rotation: Parameters<Euler['set']>
@@ -33,7 +33,7 @@
       Material_MR: MeshStandardMaterial
     }
   }>('/models/cake.glb')
-  const helmet = derived(gltf, (gltf) => {
+  const cake = derived(gltf, (gltf) => {
     if (!gltf || !gltf.nodes['spider_cookie']) return
     // console.log(gltf.nodes.spider_cookie)
     var center = new Vector3();
@@ -59,7 +59,7 @@
   })
 </script>
 
-{#if $helmet}
+{#if $cake}
   <T.Group
     {position}
     {rotation}
@@ -74,8 +74,8 @@
       <AutoColliders shape='cuboid'>
         <T.Mesh
           castShadow
-          geometry={$helmet.geometry}
-          material={$helmet.material}
+          geometry={$cake.geometry}
+          material={$cake.material}
         />
       </AutoColliders>
     </RigidBody>

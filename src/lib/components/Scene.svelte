@@ -1,6 +1,6 @@
 <script lang="ts">
   import { T, useFrame } from '@threlte/core'
-  import { Environment } from '@threlte/extras'
+  // import { Environment } from '@threlte/extras'
   import { AutoColliders, CollisionGroups, Debug } from '@threlte/rapier'
   import { spring } from 'svelte/motion'
   import { BoxGeometry, Mesh, MeshStandardMaterial, Vector3 } from 'three'
@@ -24,10 +24,10 @@
     if (!positionHasBeenSet) positionHasBeenSet = true
   })
 </script>
-<Environment
-  path="/hdr/"
-  files="shanghai_riverside_1k.hdr"
-/>
+<!-- <Environment -->
+<!--   path="/hdr/" -->
+<!--   files="shanghai_riverside_1k.hdr" -->
+<!-- /> -->
 <T.DirectionalLight
   castShadow
   position={[8, 20, -3]}
@@ -42,11 +42,10 @@
 </CollisionGroups>
 <CollisionGroups groups={[0]}>
   <Player
-    bind:playerMesh
-    position={[0, 2, 3]}
+    position={[0, 10, 3]}
   />
   <Door />
-  <AutoColliders shape={'cuboid'}>
+  <AutoColliders shape={'cuboid'} friction={0} restitution={3}>
     <T.Mesh
       receiveShadow
       castShadow
