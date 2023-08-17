@@ -56,6 +56,7 @@
   <Door />
   <CakeGen />
   <Woman />
+  <!-- <Woman /> -->
 </CollisionGroups>
 <CollisionGroups memberships={[5]} filter={[0]}>
   <AutoColliders shape={'cuboid'} friction={0.15} restitution={0.1}>

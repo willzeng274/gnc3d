@@ -123,11 +123,13 @@
     // Step 3: Normalize
     cameraForward.normalize().multiplyScalar(-(backward - forward) * multi * speed);
     cameraRight.normalize().multiplyScalar((right - left) * multi * speed);
-    if (cameraRight && cameraForward) {
-
+    if ((backward - forward) && (right - left)) {
+      t.x = (cameraForward.x + cameraRight.x) * 0.7071;
+      t.z = (cameraForward.z + cameraRight.z) * 0.7071;
+    } else {
+      t.x = cameraForward.x + cameraRight.x;
+      t.z = cameraForward.z + cameraRight.z;
     }
-    t.x = cameraForward.x + cameraRight.x;
-    t.z = cameraForward.z + cameraRight.z;
     // velVec.applyEuler(new Euler().copy(capsule.rotation)).multiplyScalar(speed)
     // don't override falling velocity
     const linVel = rigidBody.linvel()

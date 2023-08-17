@@ -27,8 +27,8 @@
         if ($playerPos && xbotRef && rigidBody && !$death) {
             // a - 2.5 and b + 3.5 if refreshed?? Idk
             const a: number = $playerPos[0] - selfPos[0], b: number = $playerPos[2] - selfPos[2], c: number = Math.sqrt(a**2 + b**2);
-            // const speed = $freeze ? 0 : 0.1 / c;
-            const speed = $freeze ? 0 : 0.2 / c;
+            const speed = $freeze ? 0 : 0.1 / c;
+            // const speed = $freeze ? 0 : 0.2 / c;
             // console.log(position);
             // console.log(selfPos, "distance: ", c);
             // selfPos[0] += a*speed;
@@ -95,7 +95,7 @@
                 on:collisionenter={({ targetRigidBody }) => {
                     // @ts-ignore
                     if (targetRigidBody?.userData?.name === 'player') {
-                        death.set(true);
+                        // death.set(true);
                         // console.log("Adding force NOW!")
                         // const v = targetRigidBody.linvel();
                         // targetRigidBody.addForce({ x: -Math.sign(v.x) * 2000, y: 2000, z: -Math.sign(v.z)  * 2000}, true);
