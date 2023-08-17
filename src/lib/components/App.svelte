@@ -6,6 +6,8 @@
   import { death, freeze, score } from '$lib/store';
   let counter = 0;
   let frozen = 0;
+  let seed: number = 0;
+  let seedMenu = true;
   // 6 because it decrements the first time
   death.subscribe((d) => d && (counter = 5));
   setInterval(() => {
@@ -35,22 +37,33 @@
 
 <dialog class="score">Score: {$score}</dialog>
 <dialog class="freeze">Frozen for: {frozen}</dialog>
+<dialog class:seedMenu>
+  Enter a map seed:
+  <input type="number" bind:value={seed} />
+  <button on:click={() => seedMenu = false}>Submit</button>
+</dialog>
 
 <dialog class:deathMenu={$death}>
   <p>You died!</p>
   <p>You will respawn in {counter}</p>
 </dialog>
 
+{#if !seedMenu}
 <Canvas>
   <World gravity={[0, -19.62, 0]}>
-    <Scene />
+    <Scene {seed} />
   </World>
 </Canvas>
+{/if}
 
 <style>
   :global(canvas) {
     width: 100% !important;
     height: 100% !important;
+  }
+
+  .seedMenu {
+    display: block;
   }
 
   .score {

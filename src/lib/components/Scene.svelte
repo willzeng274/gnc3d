@@ -12,6 +12,7 @@
 	import Woman from '$lib/rapier/world/Woman.svelte';
   let playerMesh: Mesh
   let positionHasBeenSet = false
+  export let seed: number;
   // let position: [number, number, number] = [0, 10, 3];
   const smoothPlayerPosX = spring(0)
   const smoothPlayerPosZ = spring(0)
@@ -42,12 +43,13 @@
   position.y={0.01}
 />
 <CollisionGroups groups={[0, 15]}>
-  <Ground seed={(function() {
+  <!-- <Ground seed={(function() {
     if (!window) return undefined;
     // const input = prompt("Seed");
     const input = 1;
     return input === null ? undefined : (+input || undefined);
-  })()} />
+  })()} /> -->
+  <Ground {seed} />
 </CollisionGroups>
 <CollisionGroups groups={[0]}>
   <Player />

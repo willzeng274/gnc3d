@@ -100,6 +100,7 @@
                         // const v = targetRigidBody.linvel();
                         // targetRigidBody.addForce({ x: -Math.sign(v.x) * 2000, y: 2000, z: -Math.sign(v.z)  * 2000}, true);
                         // targetRigidBody.addForce({ x: 0, y: 2000, z: 0}, true);
+                        // targetRigidBody.applyImpulse({ x: 0, y: 2000, z: 0 }, true);
                     }
                 }}
                 on:collisionexit={({ targetRigidBody }) => {
