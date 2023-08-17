@@ -8,8 +8,11 @@
   import Player from './Player.svelte'
   import Ground from '../rapier/world/Ground.svelte'
   import CakeGen from './CakeGen.svelte'
+	// import Ybot from './models/Ybot.svelte';
+	import Woman from '$lib/rapier/world/Woman.svelte';
   let playerMesh: Mesh
   let positionHasBeenSet = false
+  // let position: [number, number, number] = [0, 10, 3];
   const smoothPlayerPosX = spring(0)
   const smoothPlayerPosZ = spring(0)
   const t3 = new Vector3()
@@ -39,23 +42,28 @@
   position.y={0.01}
 />
 <CollisionGroups groups={[0, 15]}>
-  <Ground seed={window && (+prompt("Seed?") || undefined) } />
+  <Ground seed={(function() {
+    if (!window) return undefined;
+    // const input = prompt("Seed");
+    const input = 1;
+    return input === null ? undefined : (+input || undefined);
+  })()} />
 </CollisionGroups>
 <CollisionGroups groups={[0]}>
-  <Player
-    position={[0, 10, 3]}
-  />
+  <Player />
   <Door />
   <CakeGen />
+  <Woman />
 </CollisionGroups>
 <CollisionGroups memberships={[5]} filter={[0]}>
-  <AutoColliders shape={'cuboid'} friction={0} restitution={0}>
+  <AutoColliders shape={'cuboid'} friction={0.15} restitution={0.1}>
+    <!-- used to be 2.55 in height -->
     <T.Mesh
       receiveShadow
       castShadow
       position.x={30 + 0.7 + 0.15}
       position.y={1.275}
-      geometry={new BoxGeometry(60, 2.55, 0.15)}
+      geometry={new BoxGeometry(60, 50, 0.15)}
       material={new MeshStandardMaterial({
         transparent: true,
         opacity: 0.5,
@@ -67,7 +75,7 @@
       castShadow
       position.x={-30 - 0.7 - 0.15}
       position.y={1.275}
-      geometry={new BoxGeometry(60, 2.55, 0.15)}
+      geometry={new BoxGeometry(60, 50, 0.15)}
       material={new MeshStandardMaterial({
         transparent: true,
         opacity: 0.5,

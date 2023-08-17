@@ -47,7 +47,7 @@ for (let i = 0; i <= 200; i++) {
         const minHeight = -20;
         const maxHeight = 30;
         const h = Math.max(minHeight, Math.min(maxHeight, noiseValue + islandRadius - distanceFromCenter));
-
+        
         // Update the vertex position
         // @ts-ignore
         vertices[index + 2] = h - 50;
@@ -90,3 +90,34 @@ for (let i = 0; i <= 200; i++) {
 //   @ts-ignore
 //   vertices[i+2] = (mountains + rocks) * mountainHeight;
 // }
+
+
+
+// How to rotate character based on camera
+    // camera is based on character so we rotate the character first
+    // if (rotateDelta.x !== 0) {
+    //   rotationQuatX.setFromAxisAngle(axisX, -rotateDelta.x * rotateSpeed * delta)
+    //   object.quaternion.multiply(rotationQuatX)
+    // }
+    // if (rotateDelta.y !== 0) {
+    //   rotationQuatY.setFromAxisAngle(axisY, -rotateDelta.y * rotateSpeed * delta)
+    //   object.quaternion.multiply(rotationQuatY)
+    // }
+    // then we calculate our ideal's
+    // const offset = vectorFromObject(idealOffset)
+    // const lookAt = vectorFromObject(idealLookAt)
+    // and how far we should move towards them
+    // const t = 1.0 - Math.pow(0.001, delta)
+    // currentPosition.lerp(offset, t)
+    // currentLookAt.lerp(lookAt, t)
+    // then finally set the camera
+    // $camera.position.copy(currentPosition)
+    // $camera.lookAt(currentLookAt)
+
+    // function vectorFromObject(vec: { x: number; y: number; z: number }) {
+    //     const { x, y, z } = vec
+    //     const ideal = new Vector3(x, y, z)
+    //     ideal.applyQuaternion(object.quaternion)
+    //     ideal.add(new Vector3(object.position.x, object.position.y, object.position.z))
+    //     return ideal
+    //   }

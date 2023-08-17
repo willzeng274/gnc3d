@@ -5,14 +5,15 @@
   import { AutoColliders, Collider, RigidBody } from '@threlte/rapier'
   import type { Euler } from 'three'
   import { derived } from 'svelte/store'
-  import { BoxGeometry, MeshStandardMaterial, Vector3, Mesh } from 'three'
+  import { BoxGeometry, MeshStandardMaterial, Vector3, Mesh, MeshBasicMaterial } from 'three'
   // import GLTFExporter from 'three-gltf-exporter';
   // import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
   // import type { RigidBody as RapierRigidBody } from '@dimforge/rapier3d-compat'
-
+  type cakeType = 'normal' | 'frozen' | 'gold';
   export let position: Parameters<Vector3['set']>
   export let rotation: Parameters<Euler['set']>
-  export let touch: 0 | 1 | 2
+  export let touch: 0 | 1 | 2;
+  export let type: cakeType;
   // let rigidBody: RapierRigidBody
   // $: rigidBody && (rigidBody.userData = {
   //   ...rigidBody.userData,
@@ -68,12 +69,21 @@
       }
     }}>
       <AutoColliders shape='cuboid'>
+        <!-- $cake.material can suck my nuts -->
         <T.Mesh
           castShadow
           geometry={$cake.geometry}
-          material={$cake.material}
+          material={type === 'frozen' ? new MeshBasicMaterial({ color: 0x00f2ff }) : type === 'gold' ? new MeshBasicMaterial({ color: 0xffd500 }) : new MeshBasicMaterial({ color: 0x00000 })}
         />
       </AutoColliders>
     </RigidBody>
   </T.Group>
 {/if}
+
+<!-- color picker lol -->
+
+<!-- <style>
+  body {
+    color: #ffd500;
+  }
+</style> -->

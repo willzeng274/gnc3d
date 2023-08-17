@@ -3,18 +3,19 @@
   import { T, useFrame } from '@threlte/core'
   import { RigidBody, CollisionGroups, Collider, useRapier } from '@threlte/rapier'
   // import { onDestroy } from 'svelte'
-  import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group } from 'three';
-  import type { OrbitControls as ObC } from 'three/examples/jsm/controls/OrbitControls';
+  import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion, Matrix4 } from 'three';
+  // import { OrbitControls as ObC } from 'three/examples/jsm/controls/OrbitControls';
   // import PointerLockControls from './PointerLockControls.svelte'
-  // import Controller from './ThirdPersonControls.svelte'
+  import Controller from './ThirdPersonControls.svelte'
+  import { playerPos, death, score } from '$lib/store';
   // import Xbot from './models/Xbot.svelte'
 	import Ybot from './models/Ybot.svelte';
-	import { HTML, OrbitControls } from '@threlte/extras';
+	// import { HTML } from '@threlte/extras';
 	// import { plane } from '$lib/store';
 	// import { width, x_units, y_units, height as mapHeight } from '$lib/constants';
   // import SceneBackup from './Scene_backup.svelte';
-  const { world } = useRapier();
-  export let position: [x: number, y: number, z: number] = [0, 0, 0]
+  // const { world } = useRapier();
+  // export let position: [x: number, y: number, z: number];
   let radius = 0.45 // used to be 0.3
   let height = 2 // used to be 1.7
   export let speed = 6
@@ -29,28 +30,34 @@
   let model: THREE.Group = new Group()
   let ground = false;
   let capsule: THREE.Group
-  let capRef: ObC
+  let capRef: THREE.Group
   let collider: RapierCollider
   let currentActionKey: any = 'idle'
-  let death = false;
-  // $: if (capsule) {
-  //   capRef = capsule
-  // }
+  // let death = false;
+  $: if (capsule) {
+    capRef = capsule
+  }
   $: {
-    if (death) {
+    if ($death) {
+      score.set(0);
       setTimeout(() => {
         rigidBody.setTranslation({
           x: 0,
           y: 10,
           z: 3
+        }, false);
+        rigidBody.setLinvel({
+          x: 0,
+          y: 0,
+          z: 0
         }, true);
-        death = false
+        death.set(false);
       }, 5000)
     }
   }
-  const t = new Vector3()
-  let characterController = world.createCharacterController(0.01);
-  characterController.enableAutostep(0.5, 0.2, true);
+  const t = new Vector3();
+  // let characterController = world.createCharacterController(0.01);
+  // characterController.enableAutostep(1, 0.01, true);
   // characterController.enableSnapToGround(0.5);
   // const lockControls = () => lock()
   // const { renderer } = useThrelte()
@@ -75,7 +82,7 @@
   // }
   
   $: {
-    if (death) {
+    if ($death) {
       currentActionKey = 'tpose'
     } else if (!ground) {
       currentActionKey = 'fall'
@@ -88,75 +95,84 @@
     }
     // console.log(currentActionKey)
   }
-  useFrame(() => {
-    if (!rigidBody || !capsule || death) return
+  let prevPos = 0;
+  let velY = 0;
+  // let prevVel = 0;
+  useFrame((_, deltaTime) => {
+    // console.log("dt: ", 1 / deltaTime);
+    if (!rigidBody || !capsule || $death) return
     // get direction
     // const velVec = t.fromArray([0, 0, backward - forward])
-    const multi = 0.5 + shift;
+    const multi = shift ? 1 : 0.5;
+    // const multi = shift ? 10 : 8;
     // console.log(forward)
-    const velVec = t.fromArray([(right - left) * multi, 0, (backward - forward) * multi])
+    // const velVec = t.fromArray([(right - left) * multi, 0, (backward - forward) * multi]);
+    // const velVec = t.fromArray([0, 0, 0]);
     // sort rotate and multiply by speed
-    velVec.applyEuler(cam.rotation).multiplyScalar(speed)
+    // console.log("Before: ", velVec);
+    // velVec.applyEuler(cam.rotation).multiplyScalar(speed);
+    const cameraForward = new Vector3();
+    const cameraRight = new Vector3();
+    cam.getWorldDirection(cameraForward);
+    cameraRight.crossVectors(cameraForward, new Vector3(0, 1, 0));
+
+    // Step 2: Project to 2D Plane
+    cameraForward.y = 0;
+    cameraRight.y = 0;
+
+    // Step 3: Normalize
+    cameraForward.normalize().multiplyScalar(-(backward - forward) * multi * speed);
+    cameraRight.normalize().multiplyScalar((right - left) * multi * speed);
+    if (cameraRight && cameraForward) {
+
+    }
+    t.x = cameraForward.x + cameraRight.x;
+    t.z = cameraForward.z + cameraRight.z;
     // velVec.applyEuler(new Euler().copy(capsule.rotation)).multiplyScalar(speed)
     // don't override falling velocity
     const linVel = rigidBody.linvel()
-    t.y = linVel.y
+    t.y = linVel.y;
     // finally set the velocities and wake up the body
-    const pos = rigidBody.translation()
+    const pos = rigidBody.translation();
+    velY = (pos.y - prevPos) / deltaTime;
+    // console.log((velY - prevVel) / deltaTime);
+    prevPos = pos.y;
+    // prevVel = velY;
     // weird behaviour with sensors? Idk how I fixed it
-    characterController.computeColliderMovement(
-      collider,
-      {
-        x: t.x / 30,
-        y: t.y / 30,
-        z: t.z / 30
-      },
-      undefined,
-      15
-    );
-    let correctedMovement = characterController.computedMovement();
+    // characterController.computeColliderMovement(
+    //   collider,
+    //   {
+    //     // 30 frames apparently...
+    //     x: t.x * deltaTime,
+    //     y: t.y * deltaTime,
+    //     z: t.z * deltaTime
+    //   },
+    //   undefined,
+    //   15
+    // );
+    // let correctedMovement = characterController.computedMovement();
+    // t.x = correctedMovement.x / deltaTime;
+    // t.y = correctedMovement.y / deltaTime;
+    // t.z = correctedMovement.z / deltaTime;
+    // console.log(correctedMovement)
     // console.log(pos.y)
     // alert(pos.y + "\n" + t.y + "\n" + correctedMovement.y)
-    rigidBody.setTranslation({
-      x: pos.x + correctedMovement.x,
-      y: pos.y + correctedMovement.y,
-      z: pos.z + correctedMovement.z
-    }, true)
+    rigidBody.setLinvel(t, true)
     // rigidBody.setLinvel(t, true)
     // when body position changes update position prop for camera
-    position = [pos.x, pos.y, pos.z]
-    capRef.update();
-    
-    if (right || left || forward || backward) {
-      const tempCameraVector = new Vector3();
-      const tempModelVector = new Vector3();
-      const xAxis = new Vector3(1, 0, 0);
-      cam.getWorldDirection(tempCameraVector);
-      const cameraDirection = tempCameraVector.setY(0).normalize();
-      
-      // Get the X-Z plane in which player is looking to compare with camera
-      model.getWorldDirection(tempModelVector);
-      const playerDirection = tempModelVector.setY(0).normalize();
+    playerPos.set([pos.x, pos.y, pos.z]);
 
-      // Get the angle to x-axis. z component is used to compare if the angle is clockwise or anticlockwise since angleTo returns a positive value
-      const cameraAngle = cameraDirection.angleTo(xAxis) * (cameraDirection.z > 0 ? 1 : -1);
-      const playerAngle = playerDirection.angleTo(xAxis) * (playerDirection.z > 0 ? 1 : -1);
-      
-      // Get the angle to rotate the player to face the camera. Clockwise positive
-      const angleToRotate = playerAngle - cameraAngle;
-      
-      // Get the shortest angle from clockwise angle to ensure the player always rotates the shortest angle
-      let sanitisedAngle = angleToRotate;
-      if(angleToRotate > Math.PI) {
-        sanitisedAngle = angleToRotate - 2 * Math.PI
-      }
-      if(angleToRotate < -Math.PI) {
-        sanitisedAngle = angleToRotate + 2 * Math.PI
-      }
-      // Rotate the model by a tiny value towards the camera direction
-      model.rotateY(
-        Math.max(-0.15, Math.min(sanitisedAngle, 0.15))
-      );
+    if (right || left || forward || backward) {
+      // Calculate the angle based on linear velocities, and for some reason it is inverted by half a period
+      const velAngle = Math.atan2(t.x, t.z) + Math.PI;
+
+      // Calculate the target rotation based on the angle
+      const targetRotation = new Quaternion();
+      targetRotation.setFromEuler(new Euler(0, velAngle, 0, 'YXZ'));
+
+      // Interpolate between current rotation and target rotation (slerp)
+      const maxRotationSpeed = 0.1; // Adjust the speed of rotation
+      model.quaternion.slerp(targetRotation, maxRotationSpeed);
     }
   })
   function onKeyDown(e: KeyboardEvent) {
@@ -202,9 +218,9 @@
         shift = 0
         break
       case ' ':
-        if (!ground || death) break;
+        if (!ground || $death) break;
         const livVel = rigidBody.linvel()
-        livVel.y = 5;
+        livVel.y = 6;
         // livVel.y = 30;
         rigidBody.setLinvel(livVel, true) 
         break
@@ -218,14 +234,14 @@
   on:keyup={onKeyUp}
 />
 
-{#if death}
+<!-- {#if $death}
   <HTML
     pointerEvents="none"
-    position.x={position[0]}
-    position.y={position[1]}
-    position.z={position[2]}
+    position.x={$playerPos[0]}
+    position.y={$playerPos[1]}
+    position.z={$playerPos[2]}
   >
-    {#key death}
+    {#key $death}
       <dialog
         class="display"
       >
@@ -233,36 +249,23 @@
       </dialog>
     {/key}
   </HTML>
-{/if}
+{/if} -->
 
 <T.Group 
-  position.y={position[1]}
-  position.x={position[0]}
-  position.z={position[2]}
+  position.y={0.9}
 >
-  <!-- position.x={position[0]}
-    position.y={position[1]}
-    position.z={position[2]}
-    on:create={({ ref }) => {
-      ref.lookAt(new Vector3(0, 2, 0))
-    }} -->
   <T.PerspectiveCamera
     makeDefault
     fov={120}
     bind:ref={cam}
   >
-    <OrbitControls
-      enableZoom={true}
-      target={position}
-      bind:ref={capRef}
-    />
-    <!-- <Controller bind:object={capRef} /> -->
+    <Controller bind:object={capRef} />
     <!-- <PointerLockControls bind:lock /> -->
   </T.PerspectiveCamera>
 </T.Group>
 <T.Group
   bind:ref={capsule}
-  {position}
+  position={$playerPos}
   rotation.y={Math.PI}
 >
   <RigidBody 
@@ -274,16 +277,31 @@
       <Collider
         bind:collider
         shape={'capsule'}
+        friction={0}
+        restitution={0.1}
         args={[height / 2 - radius, radius]}
         on:collisionenter={e => {
           if (e.targetRigidBody) {
             return;
           }
-          if (e.targetCollider.handle === 0) ground = true;
+          if (e.targetCollider.handle === 0) {
+            ground = true;
+            // console.log("GROUND NOW")
+            if (velY < -10) {
+              // alert("hmm");
+              // console.log(velY)
+              // This won't work if the character fell from > 3000 N of forces
+              const v = rigidBody.linvel();
+              const t = rigidBody.translation();
+              rigidBody.setTranslation({ x: t.x, y: $playerPos[1] + 0.1, z: t.z }, false);
+              rigidBody.setLinvel({ x: v.x, y: -(velY / 2), z: v.z }, true);
+              // rigidBody.setTranslation(, true);
+            }
+          }
           // console.log(e.targetCollider.handle, e.targetCollider.handle === 5e-324)
-          if (e.targetCollider.handle === 5e-324) death = true;
+          if (e.targetCollider.handle === 5e-324) death.set(true)
         }}
-        on:collisionexit={e => (e.targetRigidBody || e.targetCollider.handle !== 0) || [(ground = false), /* console.log */]}
+        on:collisionexit={e => (e.targetRigidBody || e.targetCollider.handle !== 0) || [(ground = false), rigidBody.resetForces(true)/* console.log */]}
       />
       <Ybot bind:currentActionKey bind:ref={model}>
         <svelte:fragment slot="fallback">
@@ -305,16 +323,3 @@
     </CollisionGroups>
   </RigidBody>
 </T.Group>
-
-<style>
-  .display {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    background-color: red;
-    width: 10em;
-    height: 10em;
-    user-select: none;
-  }
-</style>

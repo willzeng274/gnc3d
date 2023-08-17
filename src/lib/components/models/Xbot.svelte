@@ -23,33 +23,19 @@
     }
   }
 
-  const gltf = useGltf<GLTFResult>('/models/Xbot-transformed.glb', {"useDraco":true})
+  const gltf = useGltf<GLTFResult>('/models/Xbot-transformed.glb', {"useDraco":true});
   export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref)
   let group: THREE.Group
-  const component = forwardEventHandlers()
-  $: {
-    if (group) {
-      let completeBoundingBox = new Box3().setFromObject(group);
-      // nodes.Beta_Joints.geometry.computeBoundingBox(); // compute the bounding box of the the meshes geometry
-      // let box = nodes.Beta_Joints.geometry.boundingBox.clone(); // clone the calculated bounding box, because we have to translate it
-
-      // box.translate(nodes.Beta_Joints.position); // translate the geometries bounding box by the meshes position
-
-      // completeBoundingBox.set(box.max, box.min); // add the max and min values to your completeBoundingBox
-      let v3 = new Vector3();
-      completeBoundingBox.getCenter(v3);
-      // alert(v3.x + " " + v3.y + " " + v3.z)
-      group.position.set(-v3.x, -v3.y - 0.9, -v3.z)
-    }
-  }
+	const component = forwardEventHandlers()
   $: $actions[action]?.play()
-  $: transitionTo(currentActionKey, 0.2)
+  $: $actions[currentActionKey] && transitionTo(currentActionKey, 0.2)
+  // $: [transitionTo(currentActionKey, 0.2), $actions]
   function transitionTo(nextActionKey: ActionName, duration = 1) {
-    console.log("Called", nextActionKey, action)
+    // console.log("Called", nextActionKey, action)
     const currentAction = $actions[action]
     const nextAction = $actions[nextActionKey]
     if (!nextAction || currentAction === nextAction) return
-    console.log(nextActionKey)
+    // console.log(nextActionKey)
     // Function inspired by: https://github.com/mrdoob/three.js/blob/master/examples/webgl_animation_skinning_blending.html
     nextAction.enabled = true
     if (currentAction) {
@@ -67,15 +53,26 @@
     <slot name="fallback" />
   {:then gltf}
     <T.Group name="Scene" >
-      <T.Group name="Armature" scale={0.01} bind:ref={group}>
+      <T.Group
+        name="Armature"
+        rotation={[0, 0, 0,]}
+        scale={0.01}
+        bind:ref={group}
+        on:create={({ ref }) => {
+          ref.updateMatrixWorld(true);
+          let completeBoundingBox = new Box3().setFromObject(ref);
+          let v3 = new Vector3();
+          completeBoundingBox.getCenter(v3);
+          ref.position.set(-v3.x, -v3.y, -v3.z)
+        }}
+      >
         <T is={gltf.nodes.mixamorigHips} />
-        <T.SkinnedMesh name="Beta_Joints" geometry={gltf.nodes.Beta_Joints.geometry} material={gltf.materials.Beta_Joints_MAT} skeleton={gltf.nodes.Beta_Joints.skeleton} />
+        <T.SkinnedMesh name="Beta_Joints" geometry={gltf.nodes.Beta_Joints.geometry} material={gltf.materials['Beta_Joints_MAT']} skeleton={gltf.nodes.Beta_Joints.skeleton} />
         <T.SkinnedMesh name="Beta_Surface" geometry={gltf.nodes.Beta_Surface.geometry} material={gltf.materials['asdf1:Beta_HighLimbsGeoSG2']} skeleton={gltf.nodes.Beta_Surface.skeleton} />
       </T.Group>
     </T.Group>
   {:catch error}
     <slot name="error" {error} />
   {/await}
-
   <slot {ref} />
-</T>	
+</T>

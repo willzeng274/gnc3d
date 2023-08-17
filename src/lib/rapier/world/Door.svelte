@@ -40,12 +40,12 @@
   }
 
   $: if (group && doorRigidBody) applyDoorRotation($doorRotation)
-  $: console.log(objectsInSensor)
+  // $: console.log(objectsInSensor)
 </script>
 
 <T.Group bind:ref={group}>
   <!-- FRAME -->
-  <AutoColliders shape={'cuboid'}>
+  <AutoColliders shape={'cuboid'} friction={0.15} restitution={0.1}>
     <!-- SIDE FRAME A -->
     <T.Mesh
       receiveShadow
@@ -104,7 +104,7 @@
       bind:rigidBody={doorRigidBody}
       type={'kinematicPosition'}
     >
-      <AutoColliders shape={'cuboid'}>
+      <AutoColliders shape={'cuboid'} friction={0.15} restitution={0.1}>
         <T.Mesh
           receiveShadow
           castShadow

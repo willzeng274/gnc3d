@@ -1,7 +1,7 @@
 <script lang="ts">
   import type * as THREE from 'three'
   import { Group, Box3, Vector3 } from 'three'
-  import { T, type Props, type Events, type Slots, forwardEventHandlers } from '@threlte/core'
+  import { T, forwardEventHandlers } from '@threlte/core'
   import { useGltf, useGltfAnimations } from '@threlte/extras'
 
   // type $$Props = Props<THREE.Group>
@@ -28,7 +28,7 @@
   let group: THREE.Group
 	const component = forwardEventHandlers()
   $: $actions[action]?.play()
-  $: transitionTo(currentActionKey, 0.2)
+  $: $actions[currentActionKey] && transitionTo(currentActionKey, 0.2)
   function transitionTo(nextActionKey: ActionName, duration = 1) {
     // console.log("Called", nextActionKey, action)
     const currentAction = $actions[action]

@@ -2,8 +2,9 @@
 	import { useFrame } from '@threlte/core'
 	import type { Euler, Vector3 } from 'three'
 	import Particle from './Particle.svelte'
-	import { plane } from '$lib/store';
+	import { freeze, plane, score } from '$lib/store';
 	import { height, width, x_units, y_units } from '$lib/constants';
+	// import { HTML } from '@threlte/extras';
 	const getId = () => {
 		return Math.random().toString(16).slice(2)
 	}
@@ -13,7 +14,7 @@
 		// const x = (width / 2) - Math.random() * width;
 		// const z = (height / 2) - Math.random() * height;
 		const x = (Math.min(x_units, y_units) / 2.67) / 2 - Math.random() *  Math.min(x_units, y_units) / 2.67;
-		const z = (Math.min(x_units, y_units) / 2.67) / 2 - Math.random() * Math.min(x_units, y_units) / 2.67
+		const z = (Math.min(x_units, y_units) / 2.67) / 2 - Math.random() * Math.min(x_units, y_units) / 2.67;
 		if ($plane) {
 			// -150 to 150 with x
 			// 150 to -150 with y
@@ -50,15 +51,17 @@
 	const getRandomRotation = (): Parameters<Euler['set']> => {
 		return [Math.random() * 10, Math.random() * 10, Math.random() * 10]
 	}
+	type cakeType = 'normal' | 'frozen' | 'gold';
 	type Body = {
 		id: string
 		position: Parameters<Vector3['set']>
 		rotation: Parameters<Euler['set']>
-    	touch: 0 | 1 | 2
+    	touch: 0 | 1 | 2,
+		type: cakeType
 	}
 	let bodies: Body[] = []
-	let lastBodyMounted: number = 0
-	let bodyEveryMilliseconds = 10000
+	let lastBodyMounted: number = 0;
+	let bodyEveryMilliseconds = 10000;
 	// let longevityMilliseconds = 8000
 	useFrame(() => {
 		if (lastBodyMounted + bodyEveryMilliseconds < Date.now()) {
@@ -66,7 +69,8 @@
 				id: getId(),
 				position: getRandomPosition(),
 				rotation: getRandomRotation(),
-        		touch: 0
+        		touch: 0,
+				type: Math.random() > 0.5 ? 'normal' : (Math.random() > 0.3 ? 'frozen' : 'gold')
 			}, ...bodies]
 			lastBodyMounted = Date.now()
 			// console.log(bodies.length)
@@ -75,6 +79,11 @@
 		// if (bodies.length > 2) {
 		bodies = bodies.reduce((prev, curr) => {
 			if (curr.touch === 1) {
+				if (curr.type === 'frozen') {
+					freeze.update((f) => f + 1);
+				} else if (curr.type === 'gold') {
+					score.update((s) => s*2);
+				}
 				return prev;
 			}
 			if (curr.touch === 2) {
@@ -85,7 +94,8 @@
 					id: getId(),
 					position: getRandomPosition(),
 					rotation: curr.rotation,
-					touch: 0
+					touch: 0,
+					type: curr.type
 				}];
 			}
 			return [...prev, curr]
@@ -123,5 +133,22 @@
 	})
 </script>
 {#each bodies as body (body.id)}
-	<Particle position={body.position} rotation={body.rotation} bind:touch={body.touch} />
+	<Particle position={body.position} rotation={body.rotation} bind:touch={body.touch} type={body.type} />
 {/each}
+
+<!-- <style>
+	.frozen {
+		color: #00f2ff;
+		font-weight: bold;
+		text-align: center;
+		/* left: -25; */
+		padding-left: 0.5rem;
+		padding-right: 0.5rem;
+		padding-top: 0.25rem;
+		padding-bottom: 0.25rem;
+		color: rgb(255, 255, 255);
+		border-radius: 0.375rem;
+		position: absolute;
+		transform: translateX(-50%) translateY(-50%);
+	}
+</style> -->
