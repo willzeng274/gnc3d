@@ -38,6 +38,9 @@
             selfPos[0] = translation.x;
             selfPos[1] = translation.y;
             selfPos[2] = translation.z;
+            if (translation.y < -10) {
+                lv.y += 15;
+            }
             rigidBody.setLinvel({
                 x: a*speed * 30,
                 y: lv.y,

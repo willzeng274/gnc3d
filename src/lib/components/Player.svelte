@@ -99,7 +99,7 @@
   let velY = 0;
   // let prevVel = 0;
   useFrame((_, deltaTime) => {
-    // console.log("FPS: ", 1 / deltaTime);
+    console.log("FPS: ", 1 / deltaTime);
     if (!rigidBody || !capsule || $death) return
     // get direction
     // const velVec = t.fromArray([0, 0, backward - forward])
