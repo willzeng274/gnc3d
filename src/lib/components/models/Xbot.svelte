@@ -26,7 +26,8 @@
     }
   }
   // let curr: ThrelteGltf<GLTFResult>;
-  const gltf = useGltf<GLTFResult>('/models/Xbot-transformed.glb', {"useDraco":true});
+  // const gltf = useGltf<GLTFResult>('/models/Xbot-transformed.glb', {"useDraco":true});
+  const gltf = useGltf<GLTFResult>('/models/Xbot.glb');
   export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref)
   let group: THREE.Group
   // let bones: THREE.Skeleton, g1: THREE.Mesh<THREE.BufferGeometry>, g2: THREE.Mesh<THREE.BufferGeometry>, s1: THREE.Skeleton, s2: THREE.Skeleton, m1: THREE.Material, m2: THREE.Material;
@@ -108,8 +109,20 @@
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-  <!-- {#if bones && mesh1 && mesh2} -->
-    <T.Group name="Scene" >
+    <T 
+      is={SkeletonUtils.clone(gltf.scene)}
+      name="Scene"
+      on:create={({ ref }) => {
+        // console.log(ref)
+        ref.updateMatrixWorld(true);
+        let completeBoundingBox = new Box3().setFromObject(ref);
+        let v3 = new Vector3();
+        completeBoundingBox.getSize(v3);
+        ref.position.set(0, -v3.y / 2, 0);
+        // ref.updateMatrixWorld(true);
+      }}
+    />
+    <!-- <T.Group name="Scene" >
       <T.Group
         name="Armature"
         rotation={[0, 0, 0,]}
@@ -146,24 +159,8 @@
           material={gltf.materials['asdf1:Beta_HighLimbsGeoSG2']}
           skeleton={gltf.nodes.Beta_Surface.skeleton} 
         />
-        <!-- <T is={bones} />
-        <T is={mesh1} />
-        <T is={mesh2} /> -->
-        <!-- <T.SkinnedMesh
-          name="Beta_Joints"
-          geometry={g1}
-          material={m1}
-          skeleton={s1}
-        /> -->
-        <!-- <T.SkinnedMesh 
-          name="Beta_Surface"
-          geometry={g2}
-          material={m2}
-          skeleton={s2} 
-        /> -->
       </T.Group>
-    </T.Group>
-  <!-- {/if} -->
+    </T.Group> -->
   {:catch error}
     <slot name="error" {error} />
   {/await}

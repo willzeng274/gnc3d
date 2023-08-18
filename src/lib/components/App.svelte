@@ -25,7 +25,7 @@
       clearTimeout(tm);
       tm = setTimeout(() => {
         freeze.set(0);
-      }, 4000);
+      }, 3000);
       frozen = 2500;
     }
   })

@@ -3,6 +3,7 @@
   import { Group, Box3, Vector3 } from 'three'
   import { T, forwardEventHandlers } from '@threlte/core'
   import { useGltf, useGltfAnimations } from '@threlte/extras'
+  import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils'
 
   // type $$Props = Props<THREE.Group>
   // type $$Events = Events<THREE.Group>
@@ -23,7 +24,8 @@
     }
   }
 
-  const gltf = useGltf<GLTFResult>('/models/ybot-transformed.glb', {"useDraco":true})
+  // const gltf = useGltf<GLTFResult>('/models/ybot-transformed.glb', {"useDraco":true});
+  const gltf = useGltf<GLTFResult>('/models/ybot.glb');
   export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref)
   let group: THREE.Group
 	const component = forwardEventHandlers()
@@ -51,13 +53,27 @@
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Group name="Scene" >
+    <T 
+      is={SkeletonUtils.clone(gltf.scene)}
+      name="Scene"
+      on:create={({ ref }) => {
+        // console.log(ref)
+        ref.updateMatrixWorld(true);
+        let completeBoundingBox = new Box3().setFromObject(ref);
+        let v3 = new Vector3();
+        completeBoundingBox.getSize(v3);
+        ref.position.set(0, -v3.y / 2, 0);
+        // ref.updateMatrixWorld(true);
+      }}
+    />
+    <!-- <T.Group name="Scene" >
       <T.Group
         name="Armature"
         rotation={[Math.PI / 2, 0, 0,]}
         scale={0.01}
         bind:ref={group}
         on:create={({ ref }) => {
+          console.log(ref);
           ref.updateMatrixWorld(true);
           let completeBoundingBox = new Box3().setFromObject(ref);
           let v3 = new Vector3();
@@ -69,7 +85,7 @@
         <T.SkinnedMesh name="Alpha_Joints" geometry={gltf.nodes.Alpha_Joints.geometry} material={gltf.materials['Alpha_Joints_MAT.001']} skeleton={gltf.nodes.Alpha_Joints.skeleton} />
         <T.SkinnedMesh name="Alpha_Surface" geometry={gltf.nodes.Alpha_Surface.geometry} material={gltf.materials['Alpha_Body_MAT.001']} skeleton={gltf.nodes.Alpha_Surface.skeleton} />
       </T.Group>
-    </T.Group>
+    </T.Group> -->
   {:catch error}
     <slot name="error" {error} />
   {/await}

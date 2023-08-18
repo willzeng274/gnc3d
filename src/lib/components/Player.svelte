@@ -7,7 +7,7 @@
   // import { OrbitControls as ObC } from 'three/examples/jsm/controls/OrbitControls';
   // import PointerLockControls from './PointerLockControls.svelte'
   import Controller from './ThirdPersonControls.svelte'
-  import { playerPos, death, score } from '$lib/store';
+  import { playerPos, death, score, playerLinvel } from '$lib/store';
   // import Xbot from './models/Xbot.svelte'
 	import Ybot from './models/Ybot.svelte';
 	// import { HTML } from '@threlte/extras';
@@ -99,7 +99,7 @@
   let velY = 0;
   // let prevVel = 0;
   useFrame((_, deltaTime) => {
-    // console.log("dt: ", 1 / deltaTime);
+    // console.log("FPS: ", 1 / deltaTime);
     if (!rigidBody || !capsule || $death) return
     // get direction
     // const velVec = t.fromArray([0, 0, backward - forward])
@@ -124,8 +124,8 @@
     cameraForward.normalize().multiplyScalar(-(backward - forward) * multi * speed);
     cameraRight.normalize().multiplyScalar((right - left) * multi * speed);
     if ((backward - forward) && (right - left)) {
-      t.x = (cameraForward.x + cameraRight.x) * 0.7071;
-      t.z = (cameraForward.z + cameraRight.z) * 0.7071;
+      t.x = (cameraForward.x + cameraRight.x) * 0.7;
+      t.z = (cameraForward.z + cameraRight.z) * 0.7;
     } else {
       t.x = cameraForward.x + cameraRight.x;
       t.z = cameraForward.z + cameraRight.z;
@@ -162,6 +162,7 @@
     rigidBody.setLinvel(t, true)
     // rigidBody.setLinvel(t, true)
     // when body position changes update position prop for camera
+    playerLinvel.set([t.x, t.y, t.z]);
     playerPos.set([pos.x, pos.y, pos.z]);
 
     if (right || left || forward || backward) {
@@ -170,6 +171,7 @@
 
       // Calculate the target rotation based on the angle
       const targetRotation = new Quaternion();
+      // YXZ!!! not sure if this was a typo, but if it works then I am not going to touch it.
       targetRotation.setFromEuler(new Euler(0, velAngle, 0, 'YXZ'));
 
       // Interpolate between current rotation and target rotation (slerp)

@@ -4,5 +4,6 @@ import { writable } from 'svelte/store';
 export const score = writable<number>(0);
 export const plane = writable<ArrayLike<number> | null>(null);
 export const playerPos = writable<[number, number, number]>([0, 10, 3]);
+export const playerLinvel = writable<[number, number, number]>([0, 0, 0]);
 export const death = writable<boolean>(false);
 export const freeze = writable<number>(0);
