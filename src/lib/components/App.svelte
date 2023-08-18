@@ -9,14 +9,27 @@
   let seed: number = 0;
   let seedMenu = true;
   // 6 because it decrements the first time
-  death.subscribe((d) => d && (counter = 5));
-  setInterval(() => {
-    if (counter > 0) counter--;
-  }, 1000);
+  death.subscribe((d) => d && [(counter = 5), countDeath()]);
+  
+  function countDeath() {
+    const deathInv = setInterval(() => {
+      if (counter > 0) {
+        counter--;
+      } else {
+        clearInterval(deathInv);
+      }
+    }, 1000);
+  }
 
-  setInterval(() => {
-    if (frozen > 0) frozen-=50;
-  }, 50);
+  function countFrozen() {
+    const frozenInv = setInterval(() => {
+      if (frozen > 0) {
+        frozen-=50;
+      } else {
+        clearInterval(frozenInv);
+      }
+    }, 50);
+  }
 
   let tm: number;
 
@@ -27,6 +40,7 @@
         freeze.set(0);
       }, 3000);
       frozen = 2500;
+      countFrozen();
     }
   })
 </script>
@@ -49,7 +63,14 @@
 </dialog>
 
 {#if !seedMenu}
-<Canvas>
+<Canvas
+  rendererParameters={{
+    // precision: 'highp',
+    // antialias: false,
+    // logarithmicDepthBuffer: true,
+    powerPreference: 'high-performance'
+  }}
+>
   <World gravity={[0, -19.62, 0]}>
     <Scene {seed} />
   </World>

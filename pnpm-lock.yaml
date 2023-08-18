@@ -8,6 +8,9 @@ dependencies:
   '@dimforge/rapier3d':
     specifier: ^0.11.2
     version: 0.11.2
+  '@mapbox/martini':
+    specifier: ^0.2.0
+    version: 0.2.0
   '@tweakpane/core':
     specifier: ^2.0.0
     version: 2.0.0
@@ -42,16 +45,16 @@ devDependencies:
     version: 0.6.2(@theatre/core@0.6.2)
   '@threlte/core':
     specifier: latest
-    version: 6.0.4(svelte@4.2.0)(three@0.153.0)
+    version: 6.0.6(svelte@4.2.0)(three@0.153.0)
   '@threlte/extras':
     specifier: latest
     version: 5.2.0(svelte@4.2.0)(three@0.153.0)
   '@threlte/rapier':
     specifier: latest
-    version: 1.0.4(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0)
+    version: 1.1.0(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0)
   '@threlte/theatre':
     specifier: latest
-    version: 2.1.0(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.4)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0)
+    version: 2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0)
   '@types/three':
     specifier: ^0.152.1
     version: 0.152.1
@@ -320,6 +323,10 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
+  /@mapbox/martini@0.2.0:
+    resolution: {integrity: sha512-7hFhtkb0KTLEls+TRw/rWayq5EeHtTaErgm/NskVoXmtgAQu/9D299aeyj6mzAR/6XUnYRp2lU+4IcrYRFjVsQ==}
+    dev: false
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -438,8 +445,8 @@ packages:
       '@theatre/dataverse': 0.6.2
     dev: true
 
-  /@threlte/core@6.0.4(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-M4uUoFMyR9VqsbpQTW24xGEk3oMR3rg8AJ9hZi2/Hsthd5dIqlyKzuL46YOiE9xzucn1xbjc9YVQp9/npN2cJg==}
+  /@threlte/core@6.0.6(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-nB1MgGc/3vXmsbrgPVK9m9lTrFx5EdPB368oagzZZxzmqLD60aEmbRzF9JfyWtU59HP7KBLWC3Z8pXb883a4Sg==}
     peerDependencies:
       svelte: '>=4'
       three: '>=0.133'
@@ -460,8 +467,8 @@ packages:
       troika-three-text: 0.47.2(three@0.153.0)
     dev: true
 
-  /@threlte/rapier@1.0.4(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-EwHD9N8gDgOAXlF4bNuNE3lfCZ/K1Vs57ttWdiaBX++55Or5NbgDorxWlcyXJkbBHnGKYm+68kwLbZf1hEUgdg==}
+  /@threlte/rapier@1.1.0(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-H9L7pffrvmNYkt9qNSNxiRcewYgmJWTuvVgLL4Ma2h6fO5QkrsRKkNeaXZoOEUilbQCLvK2XxmhzwNr7HCPuvw==}
     peerDependencies:
       '@dimforge/rapier3d-compat': '>=0.11'
       svelte: '>=4'
@@ -472,8 +479,8 @@ packages:
       three: 0.153.0
     dev: true
 
-  /@threlte/theatre@2.1.0(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.4)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-ipgnzsQ7iGUed/ibgwqUnePqp7H0c1Pn6mvmG0lTpt/pEnw628jyO8ck2zc/4UP7ZYbSgclL0jIminuhOQlXew==}
+  /@threlte/theatre@2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-TjWjVgmZSWxLoo/KLC3KHEay4kDdh13yzESJxiu7+z1RT2ODJb4Edhuw7Ntz3fbAk/qRV5OJ79kPaEpOl/ahxQ==}
     peerDependencies:
       '@theatre/core': '>=0.6'
       '@theatre/studio': '>=0.6'
@@ -484,7 +491,7 @@ packages:
     dependencies:
       '@theatre/core': 0.6.2
       '@theatre/studio': 0.6.2(@theatre/core@0.6.2)
-      '@threlte/core': 6.0.4(svelte@4.2.0)(three@0.153.0)
+      '@threlte/core': 6.0.6(svelte@4.2.0)(three@0.153.0)
       '@threlte/extras': 5.2.0(svelte@4.2.0)(three@0.153.0)
       svelte: 4.2.0
       three: 0.153.0

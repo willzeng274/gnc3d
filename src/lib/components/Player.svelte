@@ -7,7 +7,7 @@
   // import { OrbitControls as ObC } from 'three/examples/jsm/controls/OrbitControls';
   // import PointerLockControls from './PointerLockControls.svelte'
   import Controller from './ThirdPersonControls.svelte'
-  import { playerPos, death, score, playerLinvel } from '$lib/store';
+  import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation } from '$lib/store';
   // import Xbot from './models/Xbot.svelte'
 	import Ybot from './models/Ybot.svelte';
 	// import { HTML } from '@threlte/extras';
@@ -93,13 +93,14 @@
     } else {
       currentActionKey = 'walk'
     }
+    playerAnimation.set(currentActionKey);
     // console.log(currentActionKey)
   }
   let prevPos = 0;
   let velY = 0;
   // let prevVel = 0;
   useFrame((_, deltaTime) => {
-    console.log("FPS: ", 1 / deltaTime);
+    // console.log("FPS: ", 1 / deltaTime);
     if (!rigidBody || !capsule || $death) return
     // get direction
     // const velVec = t.fromArray([0, 0, backward - forward])
@@ -134,6 +135,7 @@
     // don't override falling velocity
     const linVel = rigidBody.linvel()
     t.y = linVel.y;
+    // t.y = 1;
     // finally set the velocities and wake up the body
     const pos = rigidBody.translation();
     velY = (pos.y - prevPos) / deltaTime;
@@ -177,8 +179,9 @@
       // Interpolate between current rotation and target rotation (slerp)
       const maxRotationSpeed = 0.1; // Adjust the speed of rotation
       model.quaternion.slerp(targetRotation, maxRotationSpeed);
+      playerRotation.set([model.rotation.x, model.rotation.y, model.rotation.z]);
     }
-  })
+  });
   function onKeyDown(e: KeyboardEvent) {
     // console.log("Down", e.key)
     switch (e.key.toLowerCase()) {
@@ -224,9 +227,12 @@
       case ' ':
         if (!ground || $death) break;
         const livVel = rigidBody.linvel()
-        livVel.y = 6;
+        livVel.y = 5;
         // livVel.y = 30;
         rigidBody.setLinvel(livVel, true) 
+        // const tl = rigidBody.translation();
+        // tl.y += 50;
+        // rigidBody.setTranslation(tl, true);
         break
       default:
         break
@@ -288,6 +294,7 @@
           if (e.targetRigidBody) {
             return;
           }
+          console.log(e.targetCollider.handle);
           if (e.targetCollider.handle === 0) {
             ground = true;
             // console.log("GROUND NOW")

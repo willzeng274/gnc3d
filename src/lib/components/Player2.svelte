@@ -2,31 +2,38 @@
     import { T } from "@threlte/core";
     import { CollisionGroups, Collider, RigidBody } from "@threlte/rapier";
     import Xbot from './models/Xbot.svelte';
-    import { MeshBasicMaterial, CapsuleGeometry } from "three";
+    import { MeshBasicMaterial, CapsuleGeometry, Euler } from "three";
     // import type { Group } from "three";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 	import Ybot from "./models/Ybot.svelte";
     // import { death, freeze, playerPos } from "$lib/store";
 
+    type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
+    let radius = 0.45 // used to be 0.3
+    let height = 2 // used to be 1.7
     export let position: [number, number, number];
+    export let linvel: [number, number, number];
+    export let animation: ActionName;
+    export let rotation: [number, number, number];
     let rigidBody: RapierRigidBody;
     $: {
         if (rigidBody) {
+            // console.log("linvel", linvel[0], linvel[2]);
             rigidBody.setTranslation({
                 x: position[0],
                 y: Math.round(position[1] * 10) / 10,
                 z: position[2]
             }, false);
             rigidBody.setLinvel({
-                x: 0,
-                y: 1,
-                z: 0
+                x: linvel[0],
+                y: linvel[1],
+                z: linvel[2]
             }, true);
         }
     }
 </script>
-
-<T.Group {position} rotate={[0, Math.PI, 0]}>
+<!-- rotate={[0, Math.PI, 0]} -->
+<T.Group {position}>
     <!-- enable rotations for funny ragdoll -->
     <RigidBody
         bind:rigidBody
@@ -35,7 +42,9 @@
         <CollisionGroups memberships={[15]} filter={[0, 7]}>
             <Collider
                 shape={'capsule'}
-                args={[0.5, 0.3]}
+                friction={0}
+                restitution={0.1}
+                args={[height / 2 - radius, radius]}
                 on:collisionenter={({ targetRigidBody }) => {
                     // @ts-ignore
                     if (targetRigidBody?.userData?.name === 'player') {
@@ -54,7 +63,7 @@
                     }
                 }}
             />
-            <Ybot currentActionKey="idle">
+            <Ybot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]}>
                 <svelte:fragment slot="fallback">
                     <T.Mesh 
                         geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)}
@@ -62,6 +71,15 @@
                     />
                 </svelte:fragment>
             </Ybot>
+            <CollisionGroups groups={[15]}>
+                <T.Group position={[0, -height / 2 + radius, 0]}>
+                  <Collider
+                    sensor
+                    shape={'ball'}
+                    args={[radius * 1.2]}
+                  />
+                </T.Group>
+            </CollisionGroups>
         </CollisionGroups>
     </RigidBody>
 </T.Group>

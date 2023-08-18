@@ -1,9 +1,9 @@
 
 <script lang="ts">
   import App from '$lib/components/App.svelte';
-	import Scene from '$lib/components/_Scene.svelte';
-	import { Canvas } from '@threlte/core';
-	import { World } from '@threlte/rapier';
+	// import Scene from '$lib/components/Fps.svelte';
+	// import { Canvas } from '@threlte/core';
+	// import { World } from '@threlte/rapier';
   // import App from '$lib/components/_App.svelte';
 </script>
 

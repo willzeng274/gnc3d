@@ -5,7 +5,7 @@
   import { AutoColliders, Collider, RigidBody } from '@threlte/rapier'
   import type { Euler } from 'three'
   import { derived } from 'svelte/store'
-  import { BoxGeometry, MeshStandardMaterial, Vector3, Mesh, MeshBasicMaterial } from 'three'
+  import { MeshStandardMaterial, Vector3, Mesh, MeshBasicMaterial } from 'three'
   // import GLTFExporter from 'three-gltf-exporter';
   // import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
   // import type { RigidBody as RapierRigidBody } from '@dimforge/rapier3d-compat'

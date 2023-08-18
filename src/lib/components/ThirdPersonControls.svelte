@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onDestroy } from 'svelte'
+  import { afterUpdate, createEventDispatcher, onDestroy } from 'svelte'
   import { Camera, Vector2, Vector3 } from 'three'
   import type { Group } from 'three';
   import { useThrelte, useParent, useFrame } from '@threlte/core'
@@ -53,7 +53,7 @@
     domElement.removeEventListener('pointerleave', onPointerLeave);
     domElement.removeEventListener('pointerup', onPointerUp);
   })
-  // This is basically your update function
+  // This is basically update function
   useFrame(() => {
     // the object's position is bound to the prop
     if (!object || !$camera) return
@@ -70,6 +70,7 @@
     const lookAtDirection = target.clone().normalize().add(object.position);
     $camera.lookAt(lookAtDirection);
   });
+  
   function onWheel(event: WheelEvent) {
     // console.log(event.deltaY);
     idealOffset.z -= Math.floor(event.deltaY / 12);
