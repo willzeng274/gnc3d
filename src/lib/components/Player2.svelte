@@ -1,8 +1,8 @@
 <script lang="ts">
     import { T } from "@threlte/core";
     import { CollisionGroups, Collider, RigidBody } from "@threlte/rapier";
-    import Xbot from './models/Xbot.svelte';
-    import { MeshBasicMaterial, CapsuleGeometry, Euler } from "three";
+    // import Xbot from './models/Xbot.svelte';
+    import { MeshBasicMaterial, CapsuleGeometry } from "three";
     // import type { Group } from "three";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 	import Ybot from "./models/Ybot.svelte";
@@ -15,10 +15,13 @@
     export let linvel: [number, number, number];
     export let animation: ActionName;
     export let rotation: [number, number, number];
+    export let id: number;
     let rigidBody: RapierRigidBody;
     $: {
         if (rigidBody) {
             // console.log("linvel", linvel[0], linvel[2]);
+            (rigidBody.userData as any).id = id;
+            (rigidBody.userData as any).name = "player";
             rigidBody.setTranslation({
                 x: position[0],
                 y: Math.round(position[1] * 10) / 10,
@@ -39,7 +42,8 @@
         bind:rigidBody
         enabledRotations={[false, false, false]}
     >
-        <CollisionGroups memberships={[15]} filter={[0, 7]}>
+        <!-- <CollisionGroups memberships={[15]} filter={[0, 7]}> -->
+        <CollisionGroups groups={[0, 5]}>
             <Collider
                 shape={'capsule'}
                 friction={0}
@@ -48,6 +52,7 @@
                 on:collisionenter={({ targetRigidBody }) => {
                     // @ts-ignore
                     if (targetRigidBody?.userData?.name === 'player') {
+                        // send ws event
                         // death.set(true);
                         // console.log("Adding force NOW!")
                         // const v = targetRigidBody.linvel();

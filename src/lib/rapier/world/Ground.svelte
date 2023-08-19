@@ -3,14 +3,16 @@
   import { MeshStandardMaterial, PlaneGeometry, CanvasTexture } from 'three'
   import { DEG2RAD } from 'three/src/math/MathUtils'
   import { createNoise2D } from 'simplex-noise'
-  import { AutoColliders, Collider } from '@threlte/rapier'
+  import { AutoColliders, Collider, RigidBody } from '@threlte/rapier'
   import { plane } from '$lib/store'
 	import { height, width, x_units, y_units } from '$lib/constants';
   import alea from 'alea';
-	import { Quaternion, type Collider as RapierCollider } from '@dimforge/rapier3d-compat';
+	import { Quaternion, type RigidBody as RapierRigidBody, type Collider as RapierCollider } from '@dimforge/rapier3d-compat';
   // @ts-ignore
   // import Martini from '@mapbox/martini';
   export let seed: number | undefined;
+  let rigidBody: RapierRigidBody;
+  let water: RapierRigidBody;
   const geometry = new PlaneGeometry(width, height, x_units, y_units);
   const prng = seed ? alea(seed) : alea();
   const noise = createNoise2D(prng);
@@ -30,6 +32,13 @@
       collider.setRotation(rotationOffset);
     }
   }
+
+  $: rigidBody && (rigidBody.userData = {
+    name: "ground"
+  });
+  $: water && (water.userData = {
+    name: "water"
+  });
 
   // const textureImageData = textureContext.createImageData(100, 100);
   // const textureData = textureImageData.data;
@@ -143,7 +152,9 @@
     }
   }
   // 69420 will decide where to place building
-  let b = buildings[Math.floor((noise(69420, 69420)+1)/2*buildings.length)];
+  const ind = Math.floor((noise(69420, 69420)+1)/2*buildings.length);
+  console.log("Choosing from:", buildings.length, "Got:", ind);
+  let b = buildings[ind];
   // @ts-ignore
   vertices[b.index - 1] = 5; 
   // @ts-ignore
@@ -180,6 +191,7 @@
   textureContext.fillRect(b.j-2, b.i+1, 1, 1);
   textureContext.fillRect(b.j-2, b.i-2, 1, 1);
 
+  // Martini is removed because Debug mode = false removes the lag
 
   // const martini = new Martini(257);
   // const simplificationLevel = 8;
@@ -214,47 +226,59 @@
   //   }
   // }
 
-  // Put the modified pixel data into the ImageData object
-  // textureContext.putImageData(textureImageData, 0, 0);
-
   // Create Texture from canvas
   const texture = new CanvasTexture(textureCanvas);
-  console.log(texture)
+  console.log(texture);
+  const fl = new Float32Array(heights);
 
   // needed for lighting
   geometry.computeVertexNormals()
   plane.set([...vertices as number[]])
 </script>
 
+
+<!-- <T.Mesh
+  receiveShadow
+  {geometry}
+  material={new MeshStandardMaterial({ map: texture })}
+  rotation.x={DEG2RAD * -90}
+>
+  <T.MeshStandardMaterial />
+</T.Mesh> -->
 <!-- used to have a -0.5 offset, but it didn't look pretty -->
 <T.Group position={[0, -0.01, 0]}>
-  <AutoColliders shape="trimesh">
-  <!-- <Collider
-    shape="heightfield"
-    args={[gridSize, gridSize, heightArray, new Vector3(-1, 1, 1)]}
-    bind:collider
-  > -->
-    <T.Mesh
-      receiveShadow
-      {geometry}
-      material={new MeshStandardMaterial({ map: texture })}
-      rotation.x={DEG2RAD * -90}
-    >
-      <!-- <T.MeshStandardMaterial /> -->
-    </T.Mesh>
-  <!-- </Collider> -->
-  </AutoColliders>
+  <RigidBody type={"fixed"} bind:rigidBody>
+    <AutoColliders shape="trimesh">
+        <!-- <Collider
+          shape="heightfield"
+          args={[x_units, y_units, fl, new Vector3(-100, 1, 100)]}
+          bind:collider
+          on:collisionenter={(e) => console.log("Height works", e)}
+        > -->
+          <T.Mesh
+            receiveShadow
+            {geometry}
+            material={new MeshStandardMaterial({ map: texture })}
+            rotation.x={DEG2RAD * -90}
+          >
+            <!-- <T.MeshStandardMaterial /> -->
+          </T.Mesh>
+        <!-- </Collider> -->
+    </AutoColliders>
+  </RigidBody>
 </T.Group>
 
 
 <T.Group position={[0, -10, 0]}>
-  <AutoColliders shape={'cuboid'}>
-    <T.Mesh
-      receiveShadow
-      material={new MeshStandardMaterial({ color: 0x4f81ec, opacity: 0.2, transparent: true })}
-    >
-      <T.BoxGeometry args={[width, 1, height]} />
-      <!-- <T.MeshStandardMaterial /> -->
-    </T.Mesh>
-  </AutoColliders>
+  <RigidBody type="fixed" bind:rigidBody={water}>
+    <AutoColliders shape={'cuboid'}>
+      <T.Mesh
+        receiveShadow
+        material={new MeshStandardMaterial({ color: 0x4f81ec, opacity: 0.2, transparent: true })}
+      >
+        <T.BoxGeometry args={[width, 1, height]} />
+        <!-- <T.MeshStandardMaterial /> -->
+      </T.Mesh>
+    </AutoColliders>
+  </RigidBody>
 </T.Group>

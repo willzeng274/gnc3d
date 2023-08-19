@@ -5,22 +5,22 @@
     import { MeshBasicMaterial, CapsuleGeometry, Vector3 } from "three";
     import type { Group } from "three";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
-    import { death, freeze, playerPos } from "$lib/store";
+    import { death, freeze, playerPos, type ActionName } from "$lib/store";
     let inside = false;
     let rigidBody: RapierRigidBody;
     let playerRigid: RapierRigidBody;
     // export let position: [number, number, number] = [0, 10, 3];
     let xbotRef: Group;
-    let currentActionKey: any = 'run';
+    let currentActionKey: ActionName = 'running';
     // let selfRotate: [number, number, number] = [0, 0, 0];
     const axisY = new Vector3(0, 1, 0);
     let selfPos: [number, number, number] = [10, 2, 10];
     freeze.subscribe((fr) => {
         // alert(fr);
         if (fr) {
-            currentActionKey = 'sneak_pose';
+            currentActionKey = 'tpose';
         } else {
-            currentActionKey = 'run';
+            currentActionKey = 'running';
         }
     });
     $: {
@@ -98,7 +98,7 @@
                 on:collisionenter={({ targetRigidBody }) => {
                     // @ts-ignore
                     if (targetRigidBody?.userData?.name === 'player') {
-                        // death.set(true);
+                        death.set(true);
                         // console.log("Adding force NOW!")
                         // const v = targetRigidBody.linvel();
                         // targetRigidBody.addForce({ x: -Math.sign(v.x) * 2000, y: 2000, z: -Math.sign(v.z)  * 2000}, true);

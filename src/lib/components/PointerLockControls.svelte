@@ -1,12 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy } from 'svelte'
-  import { Euler, Camera } from 'three'
-  import { useThrelte, useParent } from '@threlte/core'
+  import { Euler, Camera, Group } from 'three'
+  import { useThrelte, useParent, useFrame } from '@threlte/core'
   // Set to constrain the pitch of the camera
   // Range is 0 to Math.PI radians
   export let minPolarAngle = 0 // radians
   export let maxPolarAngle = Math.PI // radians
   export let pointerSpeed = 1.0
+  export let object: Group;
+  export let plock: boolean;
   let isLocked = false
   const { renderer, invalidate } = useThrelte()
   const domElement = renderer.domElement
@@ -27,16 +29,30 @@
     invalidate('PointerLockControls: change event')
     dispatch('change')
   }
-  export const lock = () => domElement.requestPointerLock()
-  export const unlock = () => document.exitPointerLock()
-  domElement.addEventListener('mousemove', onMouseMove)
-  domElement.ownerDocument.addEventListener('pointerlockchange', onPointerlockChange)
-  domElement.ownerDocument.addEventListener('pointerlockerror', onPointerlockError)
+  export const lock = () => domElement.requestPointerLock();
+  export const unlock = () => document.exitPointerLock();
+  domElement.addEventListener('mousemove', onMouseMove);
+  domElement.addEventListener('wheel', onWheel);
+  domElement.addEventListener('click', lock);
+  domElement.ownerDocument.addEventListener('pointerlockchange', onPointerlockChange);
+  domElement.ownerDocument.addEventListener('pointerlockerror', onPointerlockError);
   onDestroy(() => {
-    domElement.removeEventListener('mousemove', onMouseMove)
-    domElement.ownerDocument.removeEventListener('pointerlockchange', onPointerlockChange)
-    domElement.ownerDocument.removeEventListener('pointerlockerror', onPointerlockError)
+    domElement.removeEventListener('mousemove', onMouseMove);
+    domElement.removeEventListener('wheel', onWheel);
+    domElement.removeEventListener('click', lock);
+    domElement.ownerDocument.removeEventListener('pointerlockchange', onPointerlockChange);
+    domElement.ownerDocument.removeEventListener('pointerlockerror', onPointerlockError);
   })
+  function onWheel(event: WheelEvent) {
+    console.log(event.deltaY / 16);
+    // console.log(idealOffset.z)
+    if (Math.floor(event.deltaY / 32) > 0) {
+      dispatch("unlock");
+      unlock();
+      isLocked = false;
+      plock = false;
+    }
+  }
   function onMouseMove(event: MouseEvent) {
     if (!isLocked) return
     if (!$camera) return
@@ -48,6 +64,12 @@
     $camera.quaternion.setFromEuler(_euler)
     onChange()
   }
+  useFrame(() => {
+    if (!$camera) return;
+    const v = object.position.clone();
+    v.y -= 1;
+    $camera.position.copy(v);
+  });
   function onPointerlockChange() {
     if (document.pointerLockElement === domElement) {
       dispatch('lock')

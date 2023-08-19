@@ -1,27 +1,31 @@
 <script lang="ts">
   import type { RigidBody as RapierRigidBody, Collider as RapierCollider } from '@dimforge/rapier3d-compat'
   import { T, useFrame } from '@threlte/core'
-  import { RigidBody, CollisionGroups, Collider, useRapier } from '@threlte/rapier'
-  // import { onDestroy } from 'svelte'
-  import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion, Matrix4 } from 'three';
+  import { RigidBody, CollisionGroups, Collider } from '@threlte/rapier'
+  // import { onDestroy } from 'svelte';
+  import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion, Matrix4, Mesh } from 'three';
   // import { OrbitControls as ObC } from 'three/examples/jsm/controls/OrbitControls';
-  // import PointerLockControls from './PointerLockControls.svelte'
-  import Controller from './ThirdPersonControls.svelte'
-  import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation } from '$lib/store';
+  import PointerLockControls from './PointerLockControls.svelte';
+  import Controller from './ThirdPersonControls.svelte';
+  import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket } from '$lib/store';
   // import Xbot from './models/Xbot.svelte'
 	import Ybot from './models/Ybot.svelte';
+  import Xbot from './models/Xbot.svelte';
 	// import { HTML } from '@threlte/extras';
 	// import { plane } from '$lib/store';
 	// import { width, x_units, y_units, height as mapHeight } from '$lib/constants';
   // import SceneBackup from './Scene_backup.svelte';
   // const { world } = useRapier();
+  export let sex: boolean;
+  export let host: boolean;
+  let isPLOCK = false;
   // export let position: [x: number, y: number, z: number];
   let radius = 0.45 // used to be 0.3
   let height = 2 // used to be 1.7
   export let speed = 6
-  let rigidBody: RapierRigidBody
-  // let lock: () => void
-  let cam: PerspectiveCamera
+  let rigidBody: RapierRigidBody;
+  let lock: undefined | (() => void);
+  let cam: PerspectiveCamera;
   let forward = 0
   let backward = 0
   let left = 0
@@ -59,12 +63,18 @@
   // let characterController = world.createCharacterController(0.01);
   // characterController.enableAutostep(1, 0.01, true);
   // characterController.enableSnapToGround(0.5);
-  // const lockControls = () => lock()
-  // const { renderer } = useThrelte()
+  // const lockControls = () => lock();
+  // const { renderer } = useThrelte();
   // renderer.domElement.addEventListener('click', lockControls)
   // onDestroy(() => {
   //   renderer.domElement.removeEventListener('click', lockControls)
   // })
+  $: {
+    console.log(isPLOCK);
+    if (isPLOCK && lock) {
+      lock();
+    }
+  }
   $: rigidBody && (rigidBody.userData = {
     ...rigidBody.userData as object,
     name: "player"
@@ -101,17 +111,11 @@
   // let prevVel = 0;
   useFrame((_, deltaTime) => {
     // console.log("FPS: ", 1 / deltaTime);
-    if (!rigidBody || !capsule || $death) return
-    // get direction
-    // const velVec = t.fromArray([0, 0, backward - forward])
+    if (!rigidBody || !capsule || $death) return;
+    // sex nerf will be an option in the lobby menu
+    // const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
     const multi = shift ? 1 : 0.5;
     // const multi = shift ? 10 : 8;
-    // console.log(forward)
-    // const velVec = t.fromArray([(right - left) * multi, 0, (backward - forward) * multi]);
-    // const velVec = t.fromArray([0, 0, 0]);
-    // sort rotate and multiply by speed
-    // console.log("Before: ", velVec);
-    // velVec.applyEuler(cam.rotation).multiplyScalar(speed);
     const cameraForward = new Vector3();
     const cameraRight = new Vector3();
     cam.getWorldDirection(cameraForward);
@@ -135,6 +139,7 @@
     // don't override falling velocity
     const linVel = rigidBody.linvel()
     t.y = linVel.y;
+    // t.y = 0;
     // t.y = 1;
     // finally set the velocities and wake up the body
     const pos = rigidBody.translation();
@@ -167,7 +172,8 @@
     playerLinvel.set([t.x, t.y, t.z]);
     playerPos.set([pos.x, pos.y, pos.z]);
 
-    if (right || left || forward || backward) {
+    // add isPLOCK condition here if necessary
+    if ((right || left || forward || backward)) {
       // Calculate the angle based on linear velocities, and for some reason it is inverted by half a period
       const velAngle = Math.atan2(t.x, t.z) + Math.PI;
 
@@ -231,7 +237,7 @@
         // livVel.y = 30;
         rigidBody.setLinvel(livVel, true) 
         // const tl = rigidBody.translation();
-        // tl.y += 50;
+        // tl.y = 500;
         // rigidBody.setTranslation(tl, true);
         break
       default:
@@ -244,23 +250,6 @@
   on:keyup={onKeyUp}
 />
 
-<!-- {#if $death}
-  <HTML
-    pointerEvents="none"
-    position.x={$playerPos[0]}
-    position.y={$playerPos[1]}
-    position.z={$playerPos[2]}
-  >
-    {#key $death}
-      <dialog
-        class="display"
-      >
-        You died!
-      </dialog>
-    {/key}
-  </HTML>
-{/if} -->
-
 <T.Group 
   position.y={0.9}
 >
@@ -269,8 +258,11 @@
     fov={120}
     bind:ref={cam}
   >
-    <Controller bind:object={capRef} />
-    <!-- <PointerLockControls bind:lock /> -->
+    {#if isPLOCK}
+      <PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} />
+    {:else}
+      <Controller bind:object={capRef} bind:plock={isPLOCK} />
+    {/if}
   </T.PerspectiveCamera>
 </T.Group>
 <T.Group
@@ -291,37 +283,74 @@
         restitution={0.1}
         args={[height / 2 - radius, radius]}
         on:collisionenter={e => {
+          // if (e.targetRigidBody) {
+          //   return;
+          // }
+          // console.log(e.targetCollider.handle);
           if (e.targetRigidBody) {
-            return;
-          }
-          console.log(e.targetCollider.handle);
-          if (e.targetCollider.handle === 0) {
-            ground = true;
-            // console.log("GROUND NOW")
-            if (velY < -10) {
-              // alert("hmm");
-              // console.log(velY)
-              // This won't work if the character fell from > 3000 N of forces
-              const v = rigidBody.linvel();
-              const t = rigidBody.translation();
-              rigidBody.setTranslation({ x: t.x, y: $playerPos[1] + 0.1, z: t.z }, false);
-              rigidBody.setLinvel({ x: v.x, y: -(velY / 2), z: v.z }, true);
-              // rigidBody.setTranslation(, true);
+            // @ts-ignore
+            if (e.targetRigidBody.userData?.name === "ground") {
+              ground = true;
+              // console.log("GROUND NOW")
+              if (velY < -10) {
+                // alert("hmm");
+                // console.log(velY)
+                // This won't work if the character fell from > 3000 N of forces
+                const v = rigidBody.linvel();
+                const t = rigidBody.translation();
+                rigidBody.setTranslation({ x: t.x, y: $playerPos[1] + 0.1, z: t.z }, false);
+                rigidBody.setLinvel({ x: v.x, y: -(velY / 2), z: v.z }, true);
+                // rigidBody.setTranslation(, true);
+              }
             }
+            if (host) {
+              // @ts-ignore
+              if (e.targetRigidBody.userData?.name === "player") {
+                // @ts-ignore
+                $socket?.send(new Uint8Array([2, e.targetRigidBody.userData?.id]));
+              }
+              // host cannot die to water
+              return;
+            }
+            // @ts-ignore
+            if (e.targetRigidBody.userData?.name === "water") death.set(true);
           }
-          // console.log(e.targetCollider.handle, e.targetCollider.handle === 5e-324)
-          if (e.targetCollider.handle === 5e-324) death.set(true)
         }}
-        on:collisionexit={e => (e.targetRigidBody || e.targetCollider.handle !== 0) || [(ground = false), rigidBody.resetForces(true)/* console.log */]}
+        on:collisionexit={e => {
+          // @ts-ignore
+          if (e.targetRigidBody && e.targetRigidBody.userData?.name === "ground") {
+            ground = false;
+            rigidBody.resetForces(false);
+          }
+          // (e.targetRigidBody || e.targetCollider.handle !== 0) || [(ground = false), rigidBody.resetForces(true)/* console.log */]
+        }}
       />
-      <Ybot bind:currentActionKey bind:ref={model}>
-        <svelte:fragment slot="fallback">
-          <T.Mesh 
+      {#if !isPLOCK}
+        {#if sex}
+          <Ybot bind:currentActionKey bind:ref={model}>
+            <svelte:fragment slot="fallback">
+              <T.Mesh 
+                geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)}
+                material={new MeshBasicMaterial({ color: 0xff0000 })}
+              />
+            </svelte:fragment>
+          </Ybot>
+        {:else}
+          <Xbot bind:currentActionKey bind:ref={model}>
+            <svelte:fragment slot="fallback">
+              <T.Mesh 
+                geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)}
+                material={new MeshBasicMaterial({ color: 0xff0000 })}
+              />
+            </svelte:fragment>
+          </Xbot>
+        {/if}
+      {:else}
+          <T.Mesh
             geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)}
-            material={new MeshBasicMaterial({ color: 0xff0000 })}
+            material={new MeshBasicMaterial({ transparent: true, opacity: 0 })}
           />
-        </svelte:fragment>
-      </Ybot>
+      {/if}
     </CollisionGroups>
     <CollisionGroups groups={[15]}>
       <T.Group position={[0, -height / 2 + radius, 0]}>

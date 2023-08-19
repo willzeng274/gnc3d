@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { afterUpdate, createEventDispatcher, onDestroy } from 'svelte'
+  import { createEventDispatcher, onDestroy } from 'svelte'
   import { Camera, Vector2, Vector3 } from 'three'
   import type { Group } from 'three';
   import { useThrelte, useParent, useFrame } from '@threlte/core'
   export let object: Group
   export let rotateSpeed = 1.0
+  export let plock: boolean;
   // $: if (object) {
     // console.log(object)
     // object.position.y = 10
@@ -21,14 +22,14 @@
     // object.rotateOnAxis(rotationAxis, rotationAngle)
   // }
   // export let idealOffset = { x: -0.5, y: 2, z: -3 }
-  export let idealOffset = { x: 0, y: 0, z: -5 }
-  let isOrbiting = false
-  let pointerDown = false
-  const rotateStart = new Vector2()
-  const rotateEnd = new Vector2()
-  const rotateDelta = new Vector2()
-  const { renderer, invalidate } = useThrelte()
-  const domElement = renderer.domElement
+  export let idealOffset = { x: 0, y: 0, z: -5 };
+  let isOrbiting = false;
+  let pointerDown = false;
+  const rotateStart = new Vector2();
+  const rotateEnd = new Vector2();
+  const rotateDelta = new Vector2();
+  const { renderer, invalidate } = useThrelte();
+  const domElement = renderer.domElement;
   const camera = useParent()
   const dispatch = createEventDispatcher()
   const cameraControls = {
@@ -37,7 +38,7 @@
     radius: idealOffset.z,
   };
   const isCamera = (p: any): p is Camera => {
-    return p.isCamera
+    return p.isCamera;
   }
   if (!isCamera($camera)) {
     throw new Error('Parent missing: <PointerLockControls> need to be a child of a <Camera>')
@@ -73,7 +74,12 @@
   
   function onWheel(event: WheelEvent) {
     // console.log(event.deltaY);
-    idealOffset.z -= Math.floor(event.deltaY / 12);
+    // console.log(idealOffset.z)
+    if (idealOffset.z === -2 && Math.round(event.deltaY / 32) < 0) {
+      console.log("TESTING")
+      plock = true;
+    }
+    idealOffset.z = Math.min(-2, idealOffset.z - Math.round(event.deltaY / 12));
   }
   function onPointerMove(event: PointerEvent) {
     const { x, y } = event;
@@ -93,7 +99,7 @@
     cameraControls.phi -= rotateDelta.y * 0.01;
 
     // Clamp phi to avoid flipping
-    cameraControls.phi = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraControls.phi));
+    cameraControls.phi = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, cameraControls.phi));
     invalidate('PointerLockcontrols: change event');
     dispatch('change');
   }

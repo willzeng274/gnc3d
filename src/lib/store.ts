@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 // import type { PlaneGeometry } from 'three';
 
-type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
+export type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
 
 export const score = writable<number>(0);
 export const plane = writable<ArrayLike<number> | null>(null);
@@ -11,3 +11,4 @@ export const playerAnimation = writable<ActionName>("tpose");
 export const playerRotation =writable<[number, number, number]>([0, 0, 0]);
 export const death = writable<boolean>(false);
 export const freeze = writable<number>(0);
+export const socket = writable<WebSocket | null>(null);
