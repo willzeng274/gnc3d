@@ -23,9 +23,6 @@ dependencies:
   three-gltf-exporter:
     specifier: ^0.0.1
     version: 0.0.1(three@0.153.0)
-  tweakpane:
-    specifier: ^4.0.0
-    version: 4.0.0
 
 devDependencies:
   '@dimforge/rapier3d-compat':
@@ -48,13 +45,13 @@ devDependencies:
     version: 6.0.6(svelte@4.2.0)(three@0.153.0)
   '@threlte/extras':
     specifier: latest
-    version: 5.2.0(svelte@4.2.0)(three@0.153.0)
+    version: 5.3.0(svelte@4.2.0)(three@0.153.0)
   '@threlte/rapier':
     specifier: latest
     version: 1.1.0(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0)
   '@threlte/theatre':
     specifier: latest
-    version: 2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0)
+    version: 2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.3.0)(svelte@4.2.0)(three@0.153.0)
   '@types/three':
     specifier: ^0.152.1
     version: 0.152.1
@@ -455,8 +452,8 @@ packages:
       three: 0.153.0
     dev: true
 
-  /@threlte/extras@5.2.0(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-hAijgQBK37gTpp2wGiSUQEb5y1+9x/V2S9kOCUiSb3A2O9+VlbDsjY4kYV1yck2nnewtlJf26mtRAyexrgjKoQ==}
+  /@threlte/extras@5.3.0(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-wblnA0IFo9bi/oz1Yy+B51zmkO9AkQfiHByRuF1++fQkxBm+Tt0q2olUZE8/H1h+4eQ/mEcV0uqFaMp0+iI2LA==}
     peerDependencies:
       svelte: '>=4'
       three: '>=0.133'
@@ -479,7 +476,7 @@ packages:
       three: 0.153.0
     dev: true
 
-  /@threlte/theatre@2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.2.0)(svelte@4.2.0)(three@0.153.0):
+  /@threlte/theatre@2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.3.0)(svelte@4.2.0)(three@0.153.0):
     resolution: {integrity: sha512-TjWjVgmZSWxLoo/KLC3KHEay4kDdh13yzESJxiu7+z1RT2ODJb4Edhuw7Ntz3fbAk/qRV5OJ79kPaEpOl/ahxQ==}
     peerDependencies:
       '@theatre/core': '>=0.6'
@@ -492,7 +489,7 @@ packages:
       '@theatre/core': 0.6.2
       '@theatre/studio': 0.6.2(@theatre/core@0.6.2)
       '@threlte/core': 6.0.6(svelte@4.2.0)(three@0.153.0)
-      '@threlte/extras': 5.2.0(svelte@4.2.0)(three@0.153.0)
+      '@threlte/extras': 5.3.0(svelte@4.2.0)(three@0.153.0)
       svelte: 4.2.0
       three: 0.153.0
     dev: true
@@ -1246,10 +1243,6 @@ packages:
   /tslib@2.6.1:
     resolution: {integrity: sha512-t0hLfiEKfMUoqhG+U1oid7Pva4bbDPHYfJNiB7BiIjRkj1pyC++4N3huJfqY6aRH6VTB0rvtzQwjM4K6qpfOig==}
     dev: true
-
-  /tweakpane@4.0.0:
-    resolution: {integrity: sha512-U1kbExuRj921my8EX7VHq+ajYoIIzlE7+4P94CtHkBBLw0ggq8ktyY6cUCHb/lOKrTUS7N0OKY1HawBcX4vecA==}
-    dev: false
 
   /typescript@5.1.6:
     resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
