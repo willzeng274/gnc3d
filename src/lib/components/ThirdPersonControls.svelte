@@ -2,7 +2,7 @@
   import { createEventDispatcher, onDestroy } from 'svelte'
   import { Camera, Vector2, Vector3 } from 'three'
   import type { Group } from 'three';
-  import { useThrelte, useParent, useFrame } from '@threlte/core'
+  import { useThrelte, useParent, useFrame } from '@threlte/core';
   export let object: Group
   export let rotateSpeed = 1.0
   export let plock: boolean;
@@ -30,8 +30,8 @@
   const rotateDelta = new Vector2();
   const { renderer, invalidate } = useThrelte();
   const domElement = renderer.domElement;
-  const camera = useParent()
-  const dispatch = createEventDispatcher()
+  const camera = useParent();
+  const dispatch = createEventDispatcher();
   const cameraControls = {
     theta: 0,
     phi: 0,
@@ -76,7 +76,7 @@
     // console.log(event.deltaY);
     // console.log(idealOffset.z)
     if (idealOffset.z === -2 && Math.round(event.deltaY / 32) < 0) {
-      console.log("TESTING")
+      // console.log("TESTING")
       plock = true;
     }
     idealOffset.z = Math.min(-2, idealOffset.z - Math.round(event.deltaY / 12));

@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import type * as THREE from 'three';
 // import type { PlaneGeometry } from 'three';
 
 export type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
@@ -12,3 +13,4 @@ export const playerRotation =writable<[number, number, number]>([0, 0, 0]);
 export const death = writable<boolean>(false);
 export const freeze = writable<number>(0);
 export const socket = writable<WebSocket | null>(null);
+export const camera = writable<THREE.PerspectiveCamera | null>(null);

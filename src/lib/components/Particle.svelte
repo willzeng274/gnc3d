@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { score } from '$lib/store';
+  import { score, socket } from '$lib/store';
   import { T } from '@threlte/core'
-  import { useGltf } from '@threlte/extras'
-  import { AutoColliders, Collider, RigidBody } from '@threlte/rapier'
+  import { HTML, useGltf, useSuspense } from '@threlte/extras'
+  import { AutoColliders, RigidBody } from '@threlte/rapier'
   import type { Euler } from 'three'
   import { derived } from 'svelte/store'
   import { MeshStandardMaterial, Vector3, Mesh, MeshBasicMaterial } from 'three'
@@ -14,19 +14,17 @@
   export let rotation: Parameters<Euler['set']>
   export let touch: 0 | 1 | 2;
   export let type: cakeType;
-  // let rigidBody: RapierRigidBody
-  // $: rigidBody && (rigidBody.userData = {
-  //   ...rigidBody.userData,
-  //   name: "yeetusfetus"
-  // })
-  const gltf = useGltf<{
+  export let host: boolean = true;
+  export let id: number;
+  const suspend = useSuspense();
+  const gltf = suspend(useGltf<{
     nodes: {
       'spider_cookie': Mesh
     }
     materials: {
       Material_MR: MeshStandardMaterial
     }
-  }>('/models/cake.glb')
+  }>('/models/cake.glb'));
   const cake = derived(gltf, (gltf) => {
     if (!gltf || !gltf.nodes['spider_cookie']) return
     // console.log(gltf.nodes.spider_cookie)
@@ -54,18 +52,35 @@
 </script>
 
 {#if $cake}
+  <!-- This is for debugging during multiplayer -->
+  <!-- <T.Group
+    position={position}
+  >
+    <HTML>
+      <h1 style="color: red;">{id}</h1>
+    </HTML>
+  </T.Group> -->
   <T.Group
     position={[position[0] * 10, position[1] * 10, position[2] * 10]}
     rotation={[rotation[0] * 10, rotation[1] * 10, rotation[2] * 10, rotation[3]]}
     scale={0.1}
   >
-    <RigidBody type={'dynamic'} on:collisionenter={({ targetCollider, targetRigidBody }) => {
-      if (targetRigidBody?.userData?.name === "player") {
+    <RigidBody type={'dynamic'} on:collisionenter={({ targetRigidBody }) => {
+      // host can score cakes so I don't have to care about physics not syncing
+      if (targetRigidBody?.userData?.name === "player" && ($socket == null || host)) {
+        $socket?.send(new Float32Array([4, id]));
         touch = 1;
         score.update((score) => score + 1);
-      } else if (targetCollider.handle === 5e-324) {
+        // TODO: fix this
+      } else if (targetRigidBody?.userData?.name === "water") {
         // alert("TOUCHING WATER");
         touch = 2;
+      } else if (targetRigidBody?.userData?.name === "player2" && host) {
+        // man I wish I can do Uint16
+        console.log("player touched cake");
+        $socket?.send(new Float32Array([4, id]));
+        touch = 1;
+        score.update((score) => score + 1);
       }
     }}>
       <AutoColliders shape='cuboid'>
@@ -78,6 +93,10 @@
       </AutoColliders>
     </RigidBody>
   </T.Group>
+{:else}
+  <HTML>
+    <div>HELP</div>
+  </HTML>
 {/if}
 
 <!-- color picker lol -->

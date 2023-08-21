@@ -1,8 +1,8 @@
 <script lang="ts">
   import type * as THREE from 'three'
-  import { Group, Box3, Vector3, MeshStandardMaterial } from 'three'
+  import { Group, Box3, Vector3 } from 'three'
   import { T, forwardEventHandlers } from '@threlte/core'
-  import { useGltf, useGltfAnimations } from '@threlte/extras'
+  import { useGltf, useGltfAnimations, useSuspense } from '@threlte/extras'
   import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils';
 	// import { Collider } from '@threlte/rapier';
 
@@ -12,6 +12,8 @@
 
   export let ref = new Group();
   export let currentActionKey: ActionName = 'idle';
+
+  const suspend = useSuspense();
   let action: ActionName = 'idle';
   type ActionName = "fall" | "idle" | "jump" | "running" | "tpose" | "walk";
   type GLTFResult = {
@@ -27,7 +29,7 @@
   }
   // let curr: ThrelteGltf<GLTFResult>;
   // const gltf = useGltf<GLTFResult>('/models/Xbot-transformed.glb', {"useDraco":true});
-  const gltf = useGltf<GLTFResult>('/models/Xbot.glb');
+  const gltf = suspend(useGltf<GLTFResult>('/models/Xbot.glb'));
   export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref)
   // let group: THREE.Group
   // let bones: THREE.Skeleton, g1: THREE.Mesh<THREE.BufferGeometry>, g2: THREE.Mesh<THREE.BufferGeometry>, s1: THREE.Skeleton, s2: THREE.Skeleton, m1: THREE.Material, m2: THREE.Material;

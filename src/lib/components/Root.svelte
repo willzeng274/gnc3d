@@ -14,6 +14,7 @@
 
             // console.log("what", curr);
         }
+        curr.parentElement?.removeChild(curr);
     });
 </script>
 

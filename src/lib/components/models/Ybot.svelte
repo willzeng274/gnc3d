@@ -1,8 +1,8 @@
 <script lang="ts">
   import type * as THREE from 'three'
-  import { Group, Box3, Vector3, MeshStandardMaterial } from 'three'
+  import { Group, Box3, Vector3 } from 'three'
   import { T, forwardEventHandlers } from '@threlte/core'
-  import { useGltf, useGltfAnimations } from '@threlte/extras'
+  import { useGltf, useGltfAnimations, useSuspense } from '@threlte/extras'
   import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils'
 
   // type $$Props = Props<THREE.Group>
@@ -11,6 +11,8 @@
 
   export let ref = new Group();
   export let currentActionKey: ActionName = 'idle';
+
+  const suspend = useSuspense();
   let action: ActionName = 'idle';
 
   type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
@@ -26,7 +28,7 @@
   }
 
   // const gltf = useGltf<GLTFResult>('/models/ybot-transformed.glb', {"useDraco":true});
-  const gltf = useGltf<GLTFResult>('/models/ybot.glb');
+  const gltf = suspend(useGltf<GLTFResult>('/models/ybot.glb'));
   export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref)
   // let group: THREE.Group
 	const component = forwardEventHandlers();

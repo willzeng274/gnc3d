@@ -1,0 +1,34 @@
+<script lang="ts">
+    import { Text } from '@threlte/extras';
+	import { useFrame, useThrelte } from '@threlte/core';
+    // import type * as THREE from 'three';
+	import type { TextMesh } from '@threlte/extras/dist/components/Text/Text.svelte';
+    // const direction = new Vector3();
+    export let username: string;
+    export let ypos: number;
+    let textObject: TextMesh;
+
+    const { camera } = useThrelte();
+
+    $: {
+        const cameraPosition = camera.current.position.clone();
+        cameraPosition.y = ypos + 1;
+        textObject?.lookAt(cameraPosition);
+    }
+
+    // useFrame(({ camera }, delta) => {
+    //     const cameraPosition = camera.current.position.clone();
+    //     cameraPosition.y = ypos + 1;
+    //     textObject?.lookAt(cameraPosition);
+    // })
+</script>
+
+<Text
+    text={username}
+    position.y={1}
+    color="white"
+    fontSize={.5}
+    anchorX="50%"
+    anchorY="100%"
+    bind:ref={textObject}
+/>

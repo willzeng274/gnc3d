@@ -2,15 +2,17 @@
   import type { RigidBody as RapierRigidBody, Collider as RapierCollider } from '@dimforge/rapier3d-compat'
   import { T, useFrame } from '@threlte/core'
   import { RigidBody, CollisionGroups, Collider } from '@threlte/rapier'
-  // import { onDestroy } from 'svelte';
-  import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion, Matrix4, Mesh } from 'three';
+  import { onDestroy } from 'svelte';
+  import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion } from 'three';
   // import { OrbitControls as ObC } from 'three/examples/jsm/controls/OrbitControls';
   import PointerLockControls from './PointerLockControls.svelte';
   import Controller from './ThirdPersonControls.svelte';
-  import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket } from '$lib/store';
+  import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, camera } from '$lib/store';
   // import Xbot from './models/Xbot.svelte'
 	import Ybot from './models/Ybot.svelte';
   import Xbot from './models/Xbot.svelte';
+	import Wizard from './models/Wizard.svelte';
+  import Username from './Username.svelte';
 	// import { HTML } from '@threlte/extras';
 	// import { plane } from '$lib/store';
 	// import { width, x_units, y_units, height as mapHeight } from '$lib/constants';
@@ -18,12 +20,14 @@
   // const { world } = useRapier();
   export let sex: boolean;
   export let host: boolean;
+  export let isWizardUnlocked: boolean;
+  export let username: string;
   let isPLOCK = false;
   // export let position: [x: number, y: number, z: number];
   let radius = 0.45 // used to be 0.3
   let height = 2 // used to be 1.7
   export let speed = 6
-  let rigidBody: RapierRigidBody;
+  let rigidBody: RapierRigidBody | undefined;
   let lock: undefined | (() => void);
   let cam: PerspectiveCamera;
   let forward = 0
@@ -45,16 +49,19 @@
     if ($death) {
       score.set(0);
       setTimeout(() => {
-        rigidBody.setTranslation({
-          x: 0,
-          y: 10,
-          z: 3
-        }, false);
-        rigidBody.setLinvel({
-          x: 0,
-          y: 0,
-          z: 0
-        }, true);
+        if (rigidBody) {
+          // the player might've left by now
+          rigidBody.setTranslation({
+            x: host ? 0 : Math.floor(Math.random() * 200) - 100,
+            y: 10,
+            z: host ? 3 : Math.floor(Math.random() * 200) - 100
+          }, false);
+          rigidBody.setLinvel({
+            x: 0,
+            y: 0,
+            z: 0
+          }, true);
+        }
         death.set(false);
       }, 5000)
     }
@@ -66,19 +73,15 @@
   // const lockControls = () => lock();
   // const { renderer } = useThrelte();
   // renderer.domElement.addEventListener('click', lockControls)
-  // onDestroy(() => {
-  //   renderer.domElement.removeEventListener('click', lockControls)
-  // })
+  onDestroy(() => {
+    rigidBody = undefined;
+  })
   $: {
     console.log(isPLOCK);
     if (isPLOCK && lock) {
       lock();
     }
   }
-  $: rigidBody && (rigidBody.userData = {
-    ...rigidBody.userData as object,
-    name: "player"
-  });
 
   // $: {
   //   console.log(position)
@@ -93,15 +96,15 @@
   
   $: {
     if ($death) {
-      currentActionKey = 'tpose'
+      currentActionKey = 'tpose';
     } else if (!ground) {
-      currentActionKey = 'fall'
+      currentActionKey = 'fall';
     } else if (!(right || left || forward || backward)) {
-      currentActionKey = 'idle'
+      currentActionKey = 'idle';
     } else if (shift) {
       currentActionKey = 'running'
     } else {
-      currentActionKey = 'walk'
+      currentActionKey = 'walk';
     }
     playerAnimation.set(currentActionKey);
     // console.log(currentActionKey)
@@ -112,6 +115,14 @@
   useFrame((_, deltaTime) => {
     // console.log("FPS: ", 1 / deltaTime);
     if (!rigidBody || !capsule || $death) return;
+    if (host && $freeze > 0) {
+      const linv = rigidBody.linvel();
+      linv.x = 0;
+      linv.z = 0;
+      rigidBody.setLinvel(linv, true);
+      playerLinvel.set([0, linv.y, 0])
+      return;
+    }
     // sex nerf will be an option in the lobby menu
     // const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
     const multi = shift ? 1 : 0.5;
@@ -146,6 +157,10 @@
     velY = (pos.y - prevPos) / deltaTime;
     // console.log((velY - prevVel) / deltaTime);
     prevPos = pos.y;
+
+    if (prevPos < -23 && ground) {
+      isWizardUnlocked = true;
+    }
     // prevVel = velY;
     // weird behaviour with sensors? Idk how I fixed it
     // characterController.computeColliderMovement(
@@ -231,7 +246,7 @@
         shift = 0
         break
       case ' ':
-        if (!ground || $death) break;
+        if (!ground || $death || !rigidBody) break;
         const livVel = rigidBody.linvel()
         livVel.y = 5;
         // livVel.y = 30;
@@ -250,9 +265,9 @@
   on:keyup={onKeyUp}
 />
 
-<T.Group 
+<!-- <T.Group 
   position.y={0.9}
->
+> -->
   <T.PerspectiveCamera
     makeDefault
     fov={120}
@@ -264,15 +279,17 @@
       <Controller bind:object={capRef} bind:plock={isPLOCK} />
     {/if}
   </T.PerspectiveCamera>
-</T.Group>
+<!-- </T.Group> -->
 <T.Group
   bind:ref={capsule}
   position={$playerPos}
   rotation.y={Math.PI}
 >
+  <Username {username} ypos={$playerPos[1]} />
   <RigidBody 
     bind:rigidBody
     enabledRotations={[false, false, false]}
+    userData={{ name: "player" }}
   >
     <CollisionGroups groups={[0, 5]}>
       <!-- ground has e.targetCollider.handle = 0 -->
@@ -292,7 +309,7 @@
             if (e.targetRigidBody.userData?.name === "ground") {
               ground = true;
               // console.log("GROUND NOW")
-              if (velY < -10) {
+              if (velY < -10 && rigidBody) {
                 // alert("hmm");
                 // console.log(velY)
                 // This won't work if the character fell from > 3000 N of forces
@@ -305,7 +322,7 @@
             }
             if (host) {
               // @ts-ignore
-              if (e.targetRigidBody.userData?.name === "player") {
+              if (e.targetRigidBody.userData?.name === "player2") {
                 // @ts-ignore
                 $socket?.send(new Uint8Array([2, e.targetRigidBody.userData?.id]));
               }
@@ -318,7 +335,7 @@
         }}
         on:collisionexit={e => {
           // @ts-ignore
-          if (e.targetRigidBody && e.targetRigidBody.userData?.name === "ground") {
+          if (e.targetRigidBody && e.targetRigidBody.userData?.name === "ground" && rigidBody) {
             ground = false;
             rigidBody.resetForces(false);
           }
@@ -326,7 +343,9 @@
         }}
       />
       {#if !isPLOCK}
-        {#if sex}
+        {#if isWizardUnlocked}
+          <Wizard bind:ref={model} />
+        {:else if sex}
           <Ybot bind:currentActionKey bind:ref={model}>
             <svelte:fragment slot="fallback">
               <T.Mesh 

@@ -1,11 +1,13 @@
 <script lang="ts">
-    import { T } from "@threlte/core";
+    import { T, useThrelte } from "@threlte/core";
     import { CollisionGroups, Collider, RigidBody } from "@threlte/rapier";
     // import Xbot from './models/Xbot.svelte';
-    import { MeshBasicMaterial, CapsuleGeometry } from "three";
+    // import { MeshBasicMaterial, CapsuleGeometry } from "three";
     // import type { Group } from "three";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 	import Ybot from "./models/Ybot.svelte";
+    import Xbot from './models/Xbot.svelte'
+	import Username from "./Username.svelte";
     // import { death, freeze, playerPos } from "$lib/store";
 
     type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
@@ -16,12 +18,12 @@
     export let animation: ActionName;
     export let rotation: [number, number, number];
     export let id: number;
+    export let sex: boolean;
+    export let username: string;
     let rigidBody: RapierRigidBody;
     $: {
         if (rigidBody) {
             // console.log("linvel", linvel[0], linvel[2]);
-            (rigidBody.userData as any).id = id;
-            (rigidBody.userData as any).name = "player";
             rigidBody.setTranslation({
                 x: position[0],
                 y: Math.round(position[1] * 10) / 10,
@@ -37,10 +39,19 @@
 </script>
 <!-- rotate={[0, Math.PI, 0]} -->
 <T.Group {position}>
+    <!-- <HTML
+        transform
+        position={[Math.floor(position[0] / 10) + 4.5, Math.floor(position[1] / 10) + 2, Math.floor(position[2] / 10) - 1.5]}
+        pointerEvents="none"
+    >
+        <p style="font-size: .5em; user-select: none; mouse-events: none">{username}</p>
+    </HTML> -->
+    <Username ypos={position[1]} {username} />
     <!-- enable rotations for funny ragdoll -->
     <RigidBody
         bind:rigidBody
         enabledRotations={[false, false, false]}
+        userData={{ id, name: "player2" }}
     >
         <!-- <CollisionGroups memberships={[15]} filter={[0, 7]}> -->
         <CollisionGroups groups={[0, 5]}>
@@ -68,14 +79,19 @@
                     }
                 }}
             />
-            <Ybot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]}>
+            <!-- <Ybot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]}>
                 <svelte:fragment slot="fallback">
                     <T.Mesh 
                         geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)}
                         material={new MeshBasicMaterial({ color: 0xff0000 })}
                     />
                 </svelte:fragment>
-            </Ybot>
+            </Ybot> -->
+            {#if sex}
+                <Ybot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+            {:else}
+                <Xbot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+            {/if}
             <CollisionGroups groups={[15]}>
                 <T.Group position={[0, -height / 2 + radius, 0]}>
                   <Collider

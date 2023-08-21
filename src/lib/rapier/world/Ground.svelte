@@ -11,8 +11,6 @@
   // @ts-ignore
   // import Martini from '@mapbox/martini';
   export let seed: number | undefined;
-  let rigidBody: RapierRigidBody;
-  let water: RapierRigidBody;
   const geometry = new PlaneGeometry(width, height, x_units, y_units);
   const prng = seed ? alea(seed) : alea();
   const noise = createNoise2D(prng);
@@ -32,13 +30,6 @@
       collider.setRotation(rotationOffset);
     }
   }
-
-  $: rigidBody && (rigidBody.userData = {
-    name: "ground"
-  });
-  $: water && (water.userData = {
-    name: "water"
-  });
 
   // const textureImageData = textureContext.createImageData(100, 100);
   // const textureData = textureImageData.data;
@@ -247,7 +238,7 @@
 </T.Mesh> -->
 <!-- used to have a -0.5 offset, but it didn't look pretty -->
 <T.Group position={[0, -0.01, 0]}>
-  <RigidBody type={"fixed"} bind:rigidBody>
+  <RigidBody type={"fixed"} userData={{ name: "ground" }}>
     <AutoColliders shape="trimesh">
         <!-- <Collider
           shape="heightfield"
@@ -270,7 +261,7 @@
 
 
 <T.Group position={[0, -10, 0]}>
-  <RigidBody type="fixed" bind:rigidBody={water}>
+  <RigidBody type="fixed" userData={{ name: "water" }}>
     <AutoColliders shape={'cuboid'}>
       <T.Mesh
         receiveShadow

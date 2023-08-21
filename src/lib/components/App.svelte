@@ -1,12 +1,13 @@
 <script lang="ts">
   // import { useTweakpane } from '../utils/useTweakpane'
-  import { Canvas } from '@threlte/core'
-  import { World } from '@threlte/rapier'
-  import Scene from './Scene.svelte'
+  import { T, Canvas } from '@threlte/core';
+  import { World } from '@threlte/rapier';
+  // import { Text } from '@threlte/extras';
+  import Scene from './Scene.svelte';
   import { death } from '$lib/store';
   let counter = 0;
   let seed: number = 0;
-  // let seedMenu = true;
+
   // 6 because it decrements the first time
   death.subscribe((d) => d && [(counter = 5), countDeath()]);
   
@@ -21,37 +22,39 @@
   }
 </script>
 
-<!-- {#if action}
-  <div use:action />
-{/if} -->
-
-<!-- <dialog class="score">Score: {$score}</dialog>
-<dialog class="freeze">Frozen for: {frozen}</dialog> -->
-<!-- <dialog class:seedMenu>
-  Enter a map seed:
-  <input type="number" bind:value={seed} />
-  <button on:click={() => seedMenu = false}>Submit</button>
-</dialog> -->
-
 <dialog class:deathMenu={$death}>
   <p>You died!</p>
   <p>You will respawn in {counter}</p>
 </dialog>
 
-<!-- {#if !seedMenu} -->
-  <Canvas
-    rendererParameters={{
-      // precision: 'highp',
-      // antialias: false,
-      // logarithmicDepthBuffer: true,
-      powerPreference: 'high-performance'
-    }}
-  >
-    <World gravity={[0, -19.62, 0]}>
-      <Scene {seed} />
-    </World>
-  </Canvas>
-<!-- {/if} -->
+<Canvas
+  rendererParameters={{
+    // precision: 'highp',
+    // antialias: false,
+    // logarithmicDepthBuffer: true,
+    powerPreference: 'high-performance'
+  }}
+>
+  <World gravity={[0, -19.62, 0]}>
+    <Scene {seed} />
+    <!-- <T.OrthographicCamera
+      zoom={80}
+      position={[0, 5, 10]}
+      on:create={({ ref }) => {
+        ref.lookAt(0, 0, 0)
+      }}
+    />
+    <T.DirectionalLight position={[0, 0, 0]} castShadow />
+    <Text
+      text={"Loading game assets"}
+      color="white"
+      fontSize={1}
+      anchorX="50%"
+      anchorY="100%"
+      rotation={[0, 0, 0]}
+    /> -->
+  </World>
+</Canvas>
 
 <style>
   :global(canvas) {

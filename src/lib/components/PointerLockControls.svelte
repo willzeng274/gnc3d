@@ -44,7 +44,7 @@
     domElement.ownerDocument.removeEventListener('pointerlockerror', onPointerlockError);
   })
   function onWheel(event: WheelEvent) {
-    console.log(event.deltaY / 16);
+    // console.log(event.deltaY / 16);
     // console.log(idealOffset.z)
     if (Math.floor(event.deltaY / 32) > 0) {
       dispatch("unlock");
@@ -66,9 +66,7 @@
   }
   useFrame(() => {
     if (!$camera) return;
-    const v = object.position.clone();
-    v.y -= 1;
-    $camera.position.copy(v);
+    $camera.position.copy(object.position);
   });
   function onPointerlockChange() {
     if (document.pointerLockElement === domElement) {

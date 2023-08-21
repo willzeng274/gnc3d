@@ -2,12 +2,14 @@
 	import { useFrame } from '@threlte/core'
 	import type { Euler, Vector3 } from 'three'
 	import Particle from './Particle.svelte'
-	import { freeze, plane, score } from '$lib/store';
+	import { freeze, plane, score, socket } from '$lib/store';
 	import { height, width, x_units, y_units } from '$lib/constants';
 	// import { HTML } from '@threlte/extras';
+	let counter = 0;
 	const getId = () => {
-		return Math.random().toString(16).slice(2)
+		return counter++;
 	}
+	export let host = false;
 	const getRandomPosition = (): Parameters<Vector3['set']> => {
 		// return [0.5 - Math.random() * 1, 5 - Math.random() * 1 + 10, 0.5 - Math.random() * 1]
 		// console.log("Called")
@@ -33,11 +35,11 @@
 			const vertices = $plane;
 			// margin of error = 1
 			if (vertices[realX + realZ + 2] === undefined) {
-				return getRandomPosition()
+				return getRandomPosition();
 			}
 			if (vertices[realX + realZ + 2] < 0) {
 				// console.log(realX / 3, realZ / 603, "Height: ", vertices[realX + realZ + 2])
-				return getRandomPosition()
+				return getRandomPosition();
 			}
 			// vertices[i*3 + 1] = realZ;
 			// console.log(vertices)
@@ -53,7 +55,7 @@
 	}
 	type cakeType = 'normal' | 'frozen' | 'gold';
 	type Body = {
-		id: string
+		id: number,
 		position: Parameters<Vector3['set']>
 		rotation: Parameters<Euler['set']>
     	touch: 0 | 1 | 2,
@@ -62,17 +64,35 @@
 	let bodies: Body[] = []
 	let lastBodyMounted: number = 0;
 	let bodyEveryMilliseconds = 10000;
+
+	function cakeTypeAsInt(cake: string): number {
+		if (cake === "normal") return 0;
+		if (cake === "frozen") return 1;
+		if (cake === "gold") return 2;
+		return -1;
+	}
 	// let longevityMilliseconds = 8000
 	useFrame(() => {
 		if (lastBodyMounted + bodyEveryMilliseconds < Date.now()) {
+			const id = getId();
+			const position = getRandomPosition();
+			const rotation = getRandomRotation();
+			const type = Math.random() > 0.5 ? 'normal' : (Math.random() > 0.3 ? 'frozen' : 'gold');
 			bodies = [{
-				id: getId(),
-				position: getRandomPosition(),
-				rotation: getRandomRotation(),
+				id,
+				position,
+				rotation,
         		touch: 0,
-				type: Math.random() > 0.5 ? 'normal' : (Math.random() > 0.3 ? 'frozen' : 'gold')
+				type
 			}, ...bodies]
-			lastBodyMounted = Date.now()
+			lastBodyMounted = Date.now();
+			if (host) {
+				// console.log("New cake at ", ...position);
+				// Euler's order is default
+				// bytesize = 4 + 3*4 + 3*4 + 4 = 8 * 4
+				const arr = new Float32Array([3, id, ...position, rotation[0], rotation[1], rotation[2], cakeTypeAsInt(type)])
+				$socket?.send(arr);
+			}
 			// console.log(bodies.length)
 		}
 		// map first to increase performance? I think both will end up with similar performance
@@ -133,7 +153,7 @@
 	})
 </script>
 {#each bodies as body (body.id)}
-	<Particle position={body.position} rotation={body.rotation} bind:touch={body.touch} type={body.type} />
+	<Particle id={body.id} position={body.position} rotation={body.rotation} bind:touch={body.touch} type={body.type} />
 {/each}
 
 <!-- <style>

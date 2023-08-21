@@ -4,9 +4,15 @@
     // frame rate testing
     
     let fps = 0;
+    let fpsAvg: number[] = [];
     useFrame((_, dt) => {
-        fps = Math.floor(1/dt);
+        // fps = Math.floor(1/dt);
+        fpsAvg = [...fpsAvg, Math.floor(1/dt)];
     });
+    setInterval(() => {
+        fps = Math.round(fpsAvg.reduce((n, curr) => n+curr, 0) / fpsAvg.length);
+        fpsAvg = [];
+    }, 1000);
 </script>
 
 <Root>
