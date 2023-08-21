@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { T } from '@threlte/core'
-  import { MeshStandardMaterial, PlaneGeometry, CanvasTexture } from 'three'
-  import { DEG2RAD } from 'three/src/math/MathUtils'
-  import { createNoise2D } from 'simplex-noise'
-  import { AutoColliders, Collider, RigidBody } from '@threlte/rapier'
-  import { plane } from '$lib/store'
+  import { T } from '@threlte/core';
+  import { MeshStandardMaterial, PlaneGeometry, CanvasTexture, RepeatWrapping, TextureLoader, Vector3, BoxGeometry, MathUtils } from 'three';
+  import { DEG2RAD } from 'three/src/math/MathUtils';
+  import { createNoise2D } from 'simplex-noise';
+  import { AutoColliders, RigidBody } from '@threlte/rapier'
+  import { plane } from '$lib/store';
 	import { height, width, x_units, y_units } from '$lib/constants';
   import alea from 'alea';
-	import { Quaternion, type RigidBody as RapierRigidBody, type Collider as RapierCollider } from '@dimforge/rapier3d-compat';
+	import { Quaternion, type Collider as RapierCollider } from '@dimforge/rapier3d-compat';
   // @ts-ignore
   // import Martini from '@mapbox/martini';
   export let seed: number | undefined;
@@ -34,25 +34,18 @@
   // const textureImageData = textureContext.createImageData(100, 100);
   // const textureData = textureImageData.data;
 
-  function getRandomColor() {
-    const minGreen = 0;
-    const maxGreen = 100;
-    const minBlue = 0;
-    const maxBlue = 255;
-    const minRed = 0;
-    const maxRed = 100;
-
-    const greenValue = Math.floor(Math.random() * (maxGreen - minGreen + 1)) + minGreen;
-    const blueValue = Math.floor(Math.random() * (maxBlue - minBlue + 1)) + minBlue;
-    const redValue = Math.floor(Math.random() * (maxRed - minRed + 1)) + minRed;
-
+  function generateRandomGreenShade() {
+    const redValue = Math.floor(Math.random() * 51);  // Low red value
+    const greenValue = Math.floor(Math.random() * 206) + 50;  // Vary green value between 50 and 255
+    const blueValue = Math.floor(Math.random() * 51);  // Low blue value
+    
     return `rgb(${redValue}, ${greenValue}, ${blueValue})`;
   }
 
   function getColorBasedOnHeight(h: number) {
     if (h === 30) {
       // return `rgb(0, 255, 0)`
-      return getRandomColor();
+      return generateRandomGreenShade();
     } else {
       // alert(h)
       return `rgb(${String(160 + (h-30) * 8)}, ${String(90 + (h-30)*5)}, 0)`
@@ -94,7 +87,8 @@
       if (h <= 5) {
         // ISSUE: For some reason quadruples the load time when set as "undefined"???
 
-        textureContext.fillStyle = `rgb(0, 8, 61)`;
+        // textureContext.fillStyle = `rgb(0, 8, 61)`;
+        textureContext.fillStyle = `rgb(79, 129, 236)`;
         textureContext.fillRect(j, i, 1, 1);
         // @ts-ignore
         vertices[index + 2] = -25;
@@ -220,11 +214,62 @@
   // Create Texture from canvas
   const texture = new CanvasTexture(textureCanvas);
   console.log(texture);
-  const fl = new Float32Array(heights);
 
   // needed for lighting
-  geometry.computeVertexNormals()
-  plane.set([...vertices as number[]])
+  geometry.computeVertexNormals();
+  plane.set([...vertices as number[]]);
+
+  import { Sky } from 'three/examples/jsm/objects/Sky';
+  import { Water } from 'three/examples/jsm/objects/Water';
+
+  const sun = new Vector3();
+
+  // Water
+
+  const waterGeometry = new PlaneGeometry( width, height );
+
+  const water = new Water(
+    waterGeometry,
+    {
+      textureWidth: 512,
+      textureHeight: 512,
+      waterNormals: new TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+
+        texture.wrapS = texture.wrapT = RepeatWrapping;
+
+      } ),
+      sunDirection: new Vector3(),
+      sunColor: 0xffffff,
+      waterColor: 0x001e0f,
+      distortionScale: 3.7,
+      fog: true
+    }
+  );
+
+  water.rotation.x = - Math.PI / 2;
+
+  const sky = new Sky();
+	sky.scale.setScalar(10000);
+
+  const parameters = {
+    elevation: 2,
+    azimuth: 180
+  };
+
+  const phi = MathUtils.degToRad( 90 - parameters.elevation );
+  const theta = MathUtils.degToRad( parameters.azimuth );
+
+  sun.setFromSphericalCoords( 1, phi, theta );
+
+  sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
+  water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
+
+  const skyUniforms = sky.material.uniforms;
+
+  skyUniforms[ 'turbidity' ].value = 10;
+  skyUniforms[ 'rayleigh' ].value = 2;
+  skyUniforms[ 'mieCoefficient' ].value = 0.005;
+  skyUniforms[ 'mieDirectionalG' ].value = 0.8;
 </script>
 
 
@@ -260,12 +305,21 @@
 </T.Group>
 
 
+<T
+  is={sky}
+/>
+
+<T
+  is={water}
+  position.y={-10}
+/>
+
 <T.Group position={[0, -10, 0]}>
   <RigidBody type="fixed" userData={{ name: "water" }}>
     <AutoColliders shape={'cuboid'}>
       <T.Mesh
         receiveShadow
-        material={new MeshStandardMaterial({ color: 0x4f81ec, opacity: 0.2, transparent: true })}
+        material={new MeshStandardMaterial({ color: 0x4f81ec, opacity: 0 /* used to be 0.2 */, transparent: true })}
       >
         <T.BoxGeometry args={[width, 1, height]} />
         <!-- <T.MeshStandardMaterial /> -->

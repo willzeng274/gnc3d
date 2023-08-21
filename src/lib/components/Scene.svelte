@@ -19,7 +19,7 @@
 	import Root from './Root.svelte';
 	import { onDestroy } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
-  import { scale as SvelteScale, fade } from 'svelte/transition';
+  import { scale as SvelteScale } from 'svelte/transition';
 	import Particle from './Particle.svelte';
 	import Wizard from './models/Wizard.svelte';
 
@@ -33,6 +33,11 @@
     opacity: 0
   });
 
+  function getRandomElementFromArray<G>(array: Array<G>) {
+    const randomIndex = Math.floor(Math.random() * array.length);
+    return array[randomIndex];
+  }
+
   export let seed: number | undefined;
   let realSeed: number | undefined;
   let isSuspend = true;
@@ -42,7 +47,7 @@
   let room: string = "";
   let host: boolean = false;
   let isWizardUnlocked: boolean = false;
-  let username: string = "Balls eater";
+  let username: string = getRandomElementFromArray<string>(["Phloyer", "Ghoyer", "Plaker", "Cayer", "Gholyer", "Paker", "Plost", "Chost", "Caklayer"]);
   interactivity();
   const scale = spring(1);
   const scale2 = spring(1);
@@ -686,7 +691,7 @@
       castShadow
       position.x={30 + 0.7 + 0.15}
       position.y={1.275}
-      geometry={new BoxGeometry(60, 50, 0.15)}
+      geometry={new BoxGeometry(60, 10, 0.15)}
       material={new MeshStandardMaterial({
         transparent: true,
         opacity: 0.5,
@@ -698,7 +703,7 @@
       castShadow
       position.x={-30 - 0.7 - 0.15}
       position.y={1.275}
-      geometry={new BoxGeometry(60, 50, 0.15)}
+      geometry={new BoxGeometry(60, 10, 0.15)}
       material={new MeshStandardMaterial({
         transparent: true,
         opacity: 0.5,

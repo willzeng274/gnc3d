@@ -5,6 +5,9 @@
   // import { Text } from '@threlte/extras';
   import Scene from './Scene.svelte';
   import { death } from '$lib/store';
+	// import { GLTF } from '@threlte/extras';
+	// import { DirectionalLight } from 'three';
+	// import Reaper from './models/Reaper.svelte';
   let counter = 0;
   let seed: number = 0;
 
@@ -35,24 +38,10 @@
     powerPreference: 'high-performance'
   }}
 >
+<!-- <T.DirectionalLight position={[0, 10, 10]} castShadow /> -->
+  <!-- <Reaper currentActionKey={"Reaper_Move"} /> -->
   <World gravity={[0, -19.62, 0]}>
     <Scene {seed} />
-    <!-- <T.OrthographicCamera
-      zoom={80}
-      position={[0, 5, 10]}
-      on:create={({ ref }) => {
-        ref.lookAt(0, 0, 0)
-      }}
-    />
-    <T.DirectionalLight position={[0, 0, 0]} castShadow />
-    <Text
-      text={"Loading game assets"}
-      color="white"
-      fontSize={1}
-      anchorX="50%"
-      anchorY="100%"
-      rotation={[0, 0, 0]}
-    /> -->
   </World>
 </Canvas>
 

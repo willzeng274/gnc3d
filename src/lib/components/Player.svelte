@@ -1,13 +1,14 @@
 <script lang="ts">
-  import type { RigidBody as RapierRigidBody, Collider as RapierCollider } from '@dimforge/rapier3d-compat'
-  import { T, useFrame } from '@threlte/core'
-  import { RigidBody, CollisionGroups, Collider } from '@threlte/rapier'
+  import type { RigidBody as RapierRigidBody, Collider as RapierCollider } from '@dimforge/rapier3d-compat';
+  import { T, useFrame } from '@threlte/core';
+  import { RigidBody, CollisionGroups, Collider } from '@threlte/rapier';
+  import { AudioListener, Audio } from '@threlte/extras';
   import { onDestroy } from 'svelte';
   import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion } from 'three';
   // import { OrbitControls as ObC } from 'three/examples/jsm/controls/OrbitControls';
   import PointerLockControls from './PointerLockControls.svelte';
   import Controller from './ThirdPersonControls.svelte';
-  import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, camera } from '$lib/store';
+  import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze } from '$lib/store';
   // import Xbot from './models/Xbot.svelte'
 	import Ybot from './models/Ybot.svelte';
   import Xbot from './models/Xbot.svelte';
@@ -265,21 +266,21 @@
   on:keyup={onKeyUp}
 />
 
-<!-- <T.Group 
-  position.y={0.9}
-> -->
-  <T.PerspectiveCamera
-    makeDefault
-    fov={120}
-    bind:ref={cam}
-  >
-    {#if isPLOCK}
-      <PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} />
-    {:else}
-      <Controller bind:object={capRef} bind:plock={isPLOCK} />
-    {/if}
-  </T.PerspectiveCamera>
-<!-- </T.Group> -->
+<T.PerspectiveCamera
+  makeDefault
+  fov={120}
+  bind:ref={cam}
+>
+  {#if isPLOCK}
+    <PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} />
+  {:else}
+    <Controller bind:object={capRef} bind:plock={isPLOCK} />
+  {/if}
+  <AudioListener />
+</T.PerspectiveCamera>
+
+<Audio src={'/audio/ocean.mp3'} autoplay loop volume={0.2} />
+
 <T.Group
   bind:ref={capsule}
   position={$playerPos}
