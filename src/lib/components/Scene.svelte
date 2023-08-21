@@ -38,7 +38,7 @@
 	import { scale as SvelteScale } from "svelte/transition";
 	import Particle from "./Particle.svelte";
 	import Wizard from "./models/Wizard.svelte";
-	import { PROD } from "$env/static/private";
+	import { PUBLIC_PROD } from "$env/static/public";
 
 	const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -193,7 +193,7 @@
 				);
 			}, 100);
 			console.log("WS seed:", seed);
-			const url = PROD === "true" ? "wss://gnc3d-backend.onrender.com/healthz" : "ws://localhost:8080";
+			const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/healthz" : "ws://localhost:8080";
 			// const url = "192.168.0.84";
 			const ws = new WebSocket(
 				`${url}?username=${username}&room=${room}&sex=${
