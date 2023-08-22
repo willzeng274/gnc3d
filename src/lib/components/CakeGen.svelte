@@ -90,7 +90,7 @@
 				// console.log("New cake at ", ...position);
 				// Euler's order is default
 				// bytesize = 4 + 3*4 + 3*4 + 4 = 8 * 4
-				const arr = new Float32Array([3, id, ...position, rotation[0], rotation[1], rotation[2], cakeTypeAsInt(type)])
+				const arr = new Float32Array([3, id, ...position, rotation[0], rotation[1], rotation[2], cakeTypeAsInt(type)]);
 				$socket?.send(arr);
 			}
 			// console.log(bodies.length)
