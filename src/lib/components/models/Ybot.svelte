@@ -27,8 +27,8 @@
     }
   }
 
-  // const gltf = useGltf<GLTFResult>('/models/ybot-transformed.glb', {"useDraco":true});
-  const gltf = suspend(useGltf<GLTFResult>('/models/ybot.glb'));
+  const gltf = suspend(useGltf<GLTFResult>('/models/ybot-transformed.glb', {"useDraco":"/"}));
+  // const gltf = suspend(useGltf<GLTFResult>('/models/ybot.glb'));
   export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref)
   // let group: THREE.Group
 	const component = forwardEventHandlers();

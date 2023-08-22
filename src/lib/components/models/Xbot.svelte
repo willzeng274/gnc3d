@@ -28,8 +28,8 @@
     }
   }
   // let curr: ThrelteGltf<GLTFResult>;
-  // const gltf = useGltf<GLTFResult>('/models/Xbot-transformed.glb', {"useDraco":true});
-  const gltf = suspend(useGltf<GLTFResult>('/models/Xbot.glb'));
+  const gltf = suspend(useGltf<GLTFResult>('/models/Xbot-transformed.glb', {"useDraco":"/"}));
+  // const gltf = suspend(useGltf<GLTFResult>('/models/Xbot.glb'));
   export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref)
   // let group: THREE.Group
   // let bones: THREE.Skeleton, g1: THREE.Mesh<THREE.BufferGeometry>, g2: THREE.Mesh<THREE.BufferGeometry>, s1: THREE.Skeleton, s2: THREE.Skeleton, m1: THREE.Material, m2: THREE.Material;
