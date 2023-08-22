@@ -282,6 +282,10 @@
 							// console.log("RECEIVED NAME", decodeURIComponent(new TextDecoder().decode(arr.subarray(3))));
 							console.log("RECEIVED PLAYER ID", arr[1]);
 							console.log("BYTE LENGTH", arr.byteLength);
+							if (host) {
+								// send current cakes to user (?) might cause undefined behaviours if host has connection issues
+								// nah im to lazy to implement this for now maybe tomorrow
+							}
 							players = [
 								...players,
 								{
@@ -298,7 +302,6 @@
 									rotation: [0, 0, 0],
 								},
 							];
-							// send current cakes to user (?) might be weird if host has connection issues
 						} else if (arr[0] === 69) {
 							realSeed = seed === 0 ? 1 : seed;
 							playerPos.set([0, 10, 3]);
@@ -857,12 +860,11 @@
 		flex-direction: column;
 		user-select: none;
 		opacity: 0.8;
+		top: 0;
 		background-color: white;
 		border: solid 1px black;
 		z-index: 1;
-		padding-top: 1.5em;
-		padding-left: 1em;
-		padding-right: 1em;
+		padding: 0 1em;
 	}
 
 	.freeze {
@@ -870,12 +872,11 @@
 		flex-direction: column;
 		user-select: none;
 		opacity: 0.8;
+		top: 0;
 		background-color: white;
 		border: solid 1px black;
 		z-index: 1;
-		padding-top: 1.5em;
-		padding-left: 1em;
-		padding-right: 1em;
+		padding: 0 1em;
 	}
 
 	.quitbtn {
