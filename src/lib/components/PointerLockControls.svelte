@@ -9,7 +9,13 @@
   export let pointerSpeed = 1.0
   export let object: Group;
   export let plock: boolean;
-  let isLocked = false
+  export let zooming: number;
+  $: {
+    if (zooming !== -1) {
+      zooming > 1 && (plock = false);
+    }
+  }
+  let isLocked = false;
   const { renderer, invalidate } = useThrelte()
   const domElement = renderer.domElement
   const camera = useParent()
@@ -32,14 +38,18 @@
   export const lock = () => domElement.requestPointerLock();
   export const unlock = () => document.exitPointerLock();
   domElement.addEventListener('mousemove', onMouseMove);
+  domElement.addEventListener('touchmove', onTouchMove);
   domElement.addEventListener('wheel', onWheel);
   domElement.addEventListener('click', lock);
+  domElement.addEventListener('touchend', onTouchEnd);
   domElement.ownerDocument.addEventListener('pointerlockchange', onPointerlockChange);
   domElement.ownerDocument.addEventListener('pointerlockerror', onPointerlockError);
   onDestroy(() => {
     domElement.removeEventListener('mousemove', onMouseMove);
+    domElement.removeEventListener('touchmove', onTouchMove);
     domElement.removeEventListener('wheel', onWheel);
     domElement.removeEventListener('click', lock);
+    domElement.removeEventListener('touchend', onTouchEnd);
     domElement.ownerDocument.removeEventListener('pointerlockchange', onPointerlockChange);
     domElement.ownerDocument.removeEventListener('pointerlockerror', onPointerlockError);
   })
@@ -54,15 +64,40 @@
     }
   }
   function onMouseMove(event: MouseEvent) {
-    if (!isLocked) return
-    if (!$camera) return
-    const { movementX, movementY } = event
-    _euler.setFromQuaternion($camera.quaternion)
-    _euler.y -= movementX * 0.002 * pointerSpeed
-    _euler.x -= movementY * 0.002 * pointerSpeed
-    _euler.x = Math.max(_PI_2 - maxPolarAngle, Math.min(_PI_2 - minPolarAngle, _euler.x))
-    $camera.quaternion.setFromEuler(_euler)
-    onChange()
+    if (!isLocked) return;
+    if (!$camera) return;
+    const { movementX, movementY } = event;
+    _euler.setFromQuaternion($camera.quaternion);
+    _euler.y -= movementX * 0.002 * pointerSpeed;
+    _euler.x -= movementY * 0.002 * pointerSpeed;
+    _euler.x = Math.max(_PI_2 - maxPolarAngle, Math.min(_PI_2 - minPolarAngle, _euler.x));
+    $camera.quaternion.setFromEuler(_euler);
+    onChange();
+  }
+  function onTouchEnd(event: TouchEvent) {
+    prev = null;
+  }
+  let prev: [number, number] | null = null;
+  function onTouchMove(event: TouchEvent) {
+    // console.log(event.touches)
+    // event.preventDefault();
+    if (!$camera) return;
+    const touch = event.touches[event.touches.length-1];
+    let movementX = 0, movementY = 0;
+    if (prev) {
+        // be aware that these only store the movement of the first touch in the touches array
+        movementX = touch.pageX - prev[0];
+        movementY = touch.pageY - prev[1];
+    }
+
+    prev = [touch.pageX, touch.pageY];
+    // console.log(movementX, movementY)
+    _euler.setFromQuaternion($camera.quaternion);
+    _euler.y -= movementX * 0.02 * pointerSpeed;
+    _euler.x -= movementY * 0.02 * pointerSpeed;
+    _euler.x = Math.max(_PI_2 - maxPolarAngle, Math.min(_PI_2 - minPolarAngle, _euler.x));
+    $camera.quaternion.setFromEuler(_euler);
+    onChange();
   }
   useFrame(() => {
     if (!$camera) return;
@@ -70,11 +105,11 @@
   });
   function onPointerlockChange() {
     if (document.pointerLockElement === domElement) {
-      dispatch('lock')
-      isLocked = true
+      dispatch('lock');
+      isLocked = true;
     } else {
-      dispatch('unlock')
-      isLocked = false
+      dispatch('unlock');
+      isLocked = false;
     }
   }
   function onPointerlockError() {

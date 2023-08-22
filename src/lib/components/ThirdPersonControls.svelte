@@ -23,6 +23,17 @@
   // }
   // export let idealOffset = { x: -0.5, y: 2, z: -3 }
   export let idealOffset = { x: 0, y: 0, z: -5 };
+  export let zooming: number;
+  $: {
+    if (zooming !== -1) {
+      if (zooming < 1) {
+        zooming = 0;
+        plock = true;
+      } else {
+        idealOffset.z = -zooming;
+      }
+    }
+  }
   let isOrbiting = false;
   let pointerDown = false;
   const rotateStart = new Vector2();
@@ -81,6 +92,7 @@
     }
     idealOffset.z = Math.min(-2, idealOffset.z - Math.round(event.deltaY / 12));
   }
+
   function onPointerMove(event: PointerEvent) {
     const { x, y } = event;
     if (pointerDown && !isOrbiting) {
@@ -103,16 +115,19 @@
     invalidate('PointerLockcontrols: change event');
     dispatch('change');
   }
+
   function onPointerDown(event: PointerEvent) {
     const { x, y } = event;
     rotateStart.set(x, y);
     pointerDown = true;
   }
+
   function onPointerUp() {
     rotateDelta.set(0, 0);
     pointerDown = false;
     isOrbiting = false;
   }
+  
   function onPointerLeave() {
     rotateDelta.set(0, 0);
     pointerDown = false;

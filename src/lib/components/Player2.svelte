@@ -37,15 +37,9 @@
         }
     }
 </script>
-<!-- rotate={[0, Math.PI, 0]} -->
+
 <T.Group {position}>
-    <!-- <HTML
-        transform
-        position={[Math.floor(position[0] / 10) + 4.5, Math.floor(position[1] / 10) + 2, Math.floor(position[2] / 10) - 1.5]}
-        pointerEvents="none"
-    >
-        <p style="font-size: .5em; user-select: none; mouse-events: none">{username}</p>
-    </HTML> -->
+
     <Username ypos={position[1]} {username} />
     <!-- enable rotations for funny ragdoll -->
     <RigidBody

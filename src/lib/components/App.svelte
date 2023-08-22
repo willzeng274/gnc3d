@@ -51,6 +51,8 @@
     position: fixed;
     width: 100% !important;
     height: 100% !important;
+    touch-action: none;
+    -ms-touch-action: none;
   }
 
   .deathMenu {

@@ -14,7 +14,7 @@
     let currentActionKey: ActionName = 'running';
     // let selfRotate: [number, number, number] = [0, 0, 0];
     const axisY = new Vector3(0, 1, 0);
-    let selfPos: [number, number, number] = [10, 2, 10];
+    let selfPos: [number, number, number] = [10, 3, 10];
     freeze.subscribe((fr) => {
         // alert(fr);
         if (fr) {
@@ -113,14 +113,7 @@
                     }
                 }}
             />
-            <Xbot {currentActionKey} bind:ref={xbotRef}>
-                <svelte:fragment slot="fallback">
-                    <T.Mesh 
-                    geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)}
-                    material={new MeshBasicMaterial({ color: 0xff0000 })}
-                    />
-                </svelte:fragment>
-            </Xbot>
+            <Xbot {currentActionKey} bind:ref={xbotRef} />
             <!-- <Collider
                 shape="ball"
                 args={[2]}
