@@ -467,7 +467,7 @@
 				}}
 			/>
 			<T.DirectionalLight position={[0, 10, 10]} castShadow />
-			<T.Group position.x={mobile ? -2 : -3} position.z={mobile ? 2 : 3} in={zoomIn} out={zoomOut}>
+			<T.Group position.x={mobile ? -1.5 : -3} position.z={mobile ? 1.5 : 3} in={zoomIn} out={zoomOut}>
 				<T.Group
 					rotation.y={rotation}
 					position.y={$scale}
@@ -517,7 +517,7 @@
 				</T.Mesh>
 			</T.Group>
 
-			<T.Group position.x={mobile ? 2 : 3} position.z={mobile ? -2 : -3} in={zoomIn} out={zoomOut}>
+			<T.Group position.x={mobile ? 1.5 : 3} position.z={mobile ? -1.5 : -3} in={zoomIn} out={zoomOut}>
 				<T.Group
 					rotation.y={rotation}
 					position.y={$scale2}
