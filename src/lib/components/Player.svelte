@@ -14,16 +14,19 @@
 	import Username from "./Username.svelte";
 	import Root from "./Root.svelte";
 	import type { JoystickManagerOptions } from "nipplejs";
+	import type { ActionName, Config } from "$lib/types";
+	import { DIED_OF_DEATH } from "$lib/constants";
 	export let sex: boolean;
 	export let host: boolean;
 	export let isWizardUnlocked: boolean;
 	export let username: string;
-  let zooming: number = -1;
-  let mobile: boolean = false;
-	let isPLOCK = false;
+	export let gameConfig: Config;
+	let zooming: number = -1;
+	let mobile: boolean = false;
+	let isPLOCK = gameConfig.fps;
 	let radius = 0.45; // used to be 0.3
 	let height = 2; // used to be 1.7
-	export let speed = 6;
+	const speed = 6;
 	let rigidBody: RapierRigidBody | undefined;
 	let lock: undefined | (() => void);
 	let cam: PerspectiveCamera;
@@ -37,10 +40,12 @@
 	let capsule: THREE.Group;
 	let capRef: THREE.Group;
 	let collider: RapierCollider;
-	let currentActionKey: any = "idle";
+	let currentActionKey: ActionName = "idle";
+
 	$: if (capsule) {
 		capRef = capsule;
 	}
+
 	$: {
 		if ($death) {
 			score.set(0);
@@ -73,6 +78,7 @@
 	onDestroy(() => {
 		rigidBody = undefined;
 	});
+
 	$: {
 		// console.log(isPLOCK);
 		if (isPLOCK && lock && !mobile) {
@@ -95,6 +101,7 @@
 		playerAnimation.set(currentActionKey);
 		// console.log(currentActionKey)
 	}
+
 	let prevPos = 0;
 	let velY = 0;
 	// let prevVel = 0;
@@ -122,7 +129,7 @@
 		cameraForward.y = 0;
 		cameraRight.y = 0;
 
-    // console.log(forward-backward, right-left);
+		// console.log(forward-backward, right-left);
 		// Normalize
 		cameraForward.normalize().multiplyScalar(-(backward - forward) * multi * speed);
 		cameraRight.normalize().multiplyScalar((right - left) * multi * speed);
@@ -145,14 +152,14 @@
 		// console.log((velY - prevVel) / deltaTime);
 		prevPos = pos.y;
 
-    // funny wizard man
+		// funny wizard man
 		if (prevPos < -23 && ground) {
 			isWizardUnlocked = true;
 		}
 
 		rigidBody.setLinvel(t, true);
-		
-    // update linvel and pos
+
+		// update linvel and pos
 		playerLinvel.set([t.x, t.y, t.z]);
 		playerPos.set([pos.x, pos.y, pos.z]);
 
@@ -172,6 +179,7 @@
 			playerRotation.set([model.rotation.x, model.rotation.y, model.rotation.z]);
 		}
 	});
+
 	function onKeyDown(e: KeyboardEvent) {
 		// console.log("Down", e.key)
 		switch (e.key.toLowerCase()) {
@@ -195,6 +203,7 @@
 				break;
 		}
 	}
+
 	function onKeyUp(e: KeyboardEvent) {
 		// console.log("Up", e.key)
 		switch (e.key.toLowerCase()) {
@@ -228,91 +237,95 @@
 				break;
 		}
 	}
-   
-  onMount(async () => {
-	document.addEventListener("contextmenu", (e) => e.preventDefault());
-    // @ts-ignore
-    (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) mobile = true})(navigator.userAgent||navigator.vendor||window['opera']);
-    if (!mobile) return;
-    const nipplejs = (await import("nipplejs")).default;
-    const options: JoystickManagerOptions = {
-      zone: document.getElementById('joystickWrapper1') ?? undefined,
-      size: 120,
-      multitouch: true,
-      maxNumberOfNipples: 2,
-      mode: 'static',
-      restJoystick: true,
-      shape: 'circle',
-      // position: { top: 20, left: 20 },
-      position: { top: '60px', left: '60px' },
-      dynamicPage: true,
-    }
 
-    const joyManager = nipplejs.create(options);
+	onMount(async () => {
+		// right click messes up everything
+		document.addEventListener("contextmenu", (e) => e.preventDefault());
+		// @ts-ignore
+		(function (a) {if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4)))mobile = true;})(navigator.userAgent || navigator.vendor || window["opera"]);
+		if (!mobile) return;
+		const nipplejs = (await import("nipplejs")).default;
+		const options: JoystickManagerOptions = {
+			zone: document.getElementById("joystickWrapper1") ?? undefined,
+			size: 120,
+			multitouch: true,
+			maxNumberOfNipples: 2,
+			mode: "static",
+			restJoystick: true,
+			shape: "circle",
+			// position: { top: 20, left: 20 },
+			position: { top: "60px", left: "60px" },
+			dynamicPage: true,
+		};
 
-    function customMulti(n: number) {
-      return (1 / ((Math.abs(n)-2)**2 + 2.3*(Math.abs(n) - 2))) + 1.756;
-    }
+		const joyManager = nipplejs.create(options);
 
-    // @ts-ignore
-    joyManager['0'].on('move', function (_, data) {
-      const fwd = data.vector.y;
-      const turn = data.vector.x;
-      // console.log(fwd, turn);
-      if (fwd > 0) {
-        forward = Math.min(customMulti(fwd) * 1.5, 1.5);
-        backward = 0;
-      } else if (fwd < 0) {
-        forward = 0;
-        backward = Math.min(customMulti(fwd) * 1.5, 1.5);
-      }
+		function customMulti(n: number) {
+			return 1 / ((Math.abs(n) - 2) ** 2 + 2.3 * (Math.abs(n) - 2)) + 1.756;
+		}
 
-      if (turn > 0) {
-        left = 0;
-        right = Math.min(customMulti(turn) * 1.5, 1.5);
-      } else if (turn < 0) {
-        left = Math.min(customMulti(turn) * 1.5, 1.5);
-        right = 0;
-      }
-      // console.log(forward - backward, right - left);
-      if (Math.sqrt(fwd ** 2 + turn**2) > 0.9) {
-        shift = 1;
-      } else {
-        shift = 0;
-      }
-    });
+		// @ts-ignore
+		joyManager["0"].on("move", function (_, data) {
+			const fwd = data.vector.y;
+			const turn = data.vector.x;
+			// console.log(fwd, turn);
+			if (fwd > 0) {
+				forward = Math.min(customMulti(fwd) * 1.5, 1.5);
+				backward = 0;
+			} else if (fwd < 0) {
+				forward = 0;
+				backward = Math.min(customMulti(fwd) * 1.5, 1.5);
+			}
 
-    // @ts-ignore
-    joyManager['0'].on('end', function (_) {
-      backward = 0;
-      forward = 0;
-      left = 0;
-      right = 0;
-    });
-  });
+			if (turn > 0) {
+				left = 0;
+				right = Math.min(customMulti(turn) * 1.5, 1.5);
+			} else if (turn < 0) {
+				left = Math.min(customMulti(turn) * 1.5, 1.5);
+				right = 0;
+			}
+			// console.log(forward - backward, right - left);
+			if (Math.sqrt(fwd ** 2 + turn ** 2) > 0.9) {
+				shift = 1;
+			} else {
+				shift = 0;
+			}
+		});
+
+		// @ts-ignore
+		joyManager["0"].on("end", function (_) {
+			backward = 0;
+			forward = 0;
+			left = 0;
+			right = 0;
+		});
+	});
 </script>
 
 {#if mobile}
-  <Root>
-    <!-- rip firefox users, they will not get vertical input range -->
-    <input type="range" min="0" max="100" bind:value={zooming} class="slider noSelect">
-    <div id="mobileInterface" class="noSelect">
-      <div id="joystickWrapper1"></div>
-      <div id="joystickWrapper2">
-        <button id="jumpButton" on:click={() => {
-          if (!ground || $death || !rigidBody) return;
-          const livVel = rigidBody.linvel();
-          livVel.y = 5;
-          rigidBody.setLinvel(livVel, true);
-        }} />
-      </div>
-    </div>
-  </Root>
+	<Root>
+		<!-- rip firefox users, they will not get vertical input range -->
+		<input type="range" min="0" max="100" bind:value={zooming} class="slider noSelect" />
+		<div id="mobileInterface" class="noSelect">
+			<div id="joystickWrapper1" />
+			<div id="joystickWrapper2">
+				<button
+					id="jumpButton"
+					on:click={() => {
+						if (!ground || $death || !rigidBody) return;
+						const livVel = rigidBody.linvel();
+						livVel.y = 5;
+						rigidBody.setLinvel(livVel, true);
+					}}
+				/>
+			</div>
+		</div>
+	</Root>
 {/if}
 
 <svelte:window on:keydown|preventDefault={onKeyDown} on:keyup={onKeyUp} />
 
-<T.PerspectiveCamera makeDefault fov={120} bind:ref={cam}>
+<T.PerspectiveCamera makeDefault fov={gameConfig.fov} bind:ref={cam}>
 	{#if isPLOCK}
 		<PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} {zooming} />
 	{:else}
@@ -359,7 +372,7 @@
 							// @ts-ignore
 							if (e.targetRigidBody.userData?.name === "player2") {
 								// @ts-ignore
-								$socket?.send(new Uint8Array([2, e.targetRigidBody.userData?.id]));
+								$socket?.send(new Uint8Array([DIED_OF_DEATH, e.targetRigidBody.userData?.id]));
 							}
 							// host cannot die to water
 							return;
@@ -386,10 +399,7 @@
 					<Xbot bind:currentActionKey bind:ref={model} />
 				{/if}
 			{:else}
-				<T.Mesh
-					geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)}
-					material={new MeshBasicMaterial({ transparent: true, opacity: 0 })}
-				/>
+				<T.Mesh geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)} material={new MeshBasicMaterial({ transparent: true, opacity: 0 })} />
 			{/if}
 		</CollisionGroups>
 		<CollisionGroups groups={[15]}>
@@ -401,98 +411,98 @@
 </T.Group>
 
 <style>
-  :global(*) {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
+	:global(*) {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+	}
 
-  .slider {
-    position: fixed;
-    right: 6px;
-    top: 36px;
-    touch-action: manipulation;
-    z-index: 12;
-    height: 25%;
-    width: 5%;
-    -webkit-appearance: slider-vertical;
-    appearance: slider-vertical;
-    writing-mode: bt-lr;
-  }
+	.slider {
+		position: fixed;
+		right: 6px;
+		top: 36px;
+		touch-action: manipulation;
+		z-index: 12;
+		height: 25%;
+		width: 5%;
+		-webkit-appearance: slider-vertical;
+		appearance: slider-vertical;
+		writing-mode: bt-lr;
+	}
 
-  .slider::-webkit-slider-thumb {
-    width: 32px;
-    height: 32px;
-  }
+	.slider::-webkit-slider-thumb {
+		width: 32px;
+		height: 32px;
+	}
 
-  #mobileInterface {
-    position: fixed;
-    width: 100%;
-    height: 120px;
-    /* background-color: #000000; */
-    pointer-events: none;
-    z-index: 11;
-    /* top: auto; */
-    bottom: 60px;
-    left: 60px;
-    touch-action: manipulation;
-  }
+	#mobileInterface {
+		position: fixed;
+		width: 100%;
+		height: 120px;
+		/* background-color: #000000; */
+		pointer-events: none;
+		z-index: 11;
+		/* top: auto; */
+		bottom: 60px;
+		left: 60px;
+		touch-action: manipulation;
+	}
 
-  #joystickWrapper1 {
-    pointer-events: auto;
-    display: block;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background-color: transparent;
-    width: 120px;
-    height: 120px;
-    z-index: 12;
-    touch-action: manipulation;
-    /* background-color: rgba(red, 0.2); */
-  }
+	#joystickWrapper1 {
+		pointer-events: auto;
+		display: block;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		background-color: transparent;
+		width: 120px;
+		height: 120px;
+		z-index: 12;
+		touch-action: manipulation;
+		/* background-color: rgba(red, 0.2); */
+	}
 
-  #joystickWrapper2 {
-    pointer-events: auto;
-    display: block;
-    position: absolute;
-    bottom: 0;
-    right: 120px;
-    /* background-color: #000000; */
-    width: 120px;
-    height: 120px;
-    z-index: 12;
-    touch-action: manipulation;
-    display: block;
-  }
+	#joystickWrapper2 {
+		pointer-events: auto;
+		display: block;
+		position: absolute;
+		bottom: 0;
+		right: 120px;
+		/* background-color: #000000; */
+		width: 120px;
+		height: 120px;
+		z-index: 12;
+		touch-action: manipulation;
+		display: block;
+	}
 
-  #jumpButton {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    background-color: white;
-    opacity: 0.5;
-    touch-action: manipulation;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: auto;
-  }
+	#jumpButton {
+		position: absolute;
+		right: 15px;
+		top: 15px;
+		width: 90px;
+		height: 90px;
+		border-radius: 50%;
+		background-color: white;
+		opacity: 0.5;
+		touch-action: manipulation;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		pointer-events: auto;
+	}
 
-  .noSelect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
+	.noSelect {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+	}
 </style>

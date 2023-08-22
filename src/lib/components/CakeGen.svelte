@@ -3,7 +3,9 @@
 	import type { Euler, Vector3 } from 'three'
 	import Particle from './Particle.svelte'
 	import { freeze, plane, score, socket } from '$lib/store';
-	import { height, width, x_units, y_units } from '$lib/constants';
+	import { CAKE_SPAWN_EVENT, height, width, x_units, y_units } from '$lib/constants';
+	import type { CakeGenItem } from '$lib/types';
+	import { cakeTypeAsInt } from '$lib/utils';
 	// import { HTML } from '@threlte/extras';
 	let counter = 0;
 	const getId = () => {
@@ -50,27 +52,15 @@
 		// console.log(x, z)
     	return [x, 1, z]
 	}
+
 	const getRandomRotation = (): Parameters<Euler['set']> => {
 		return [Math.random() * 10, Math.random() * 10, Math.random() * 10]
 	}
-	type cakeType = 'normal' | 'frozen' | 'gold';
-	type Body = {
-		id: number,
-		position: Parameters<Vector3['set']>
-		rotation: Parameters<Euler['set']>
-    	touch: 0 | 1 | 2,
-		type: cakeType
-	}
-	let bodies: Body[] = []
+
+	export let items: CakeGenItem[] = []
 	let lastBodyMounted: number = 0;
 	let bodyEveryMilliseconds = 10000;
 
-	function cakeTypeAsInt(cake: string): number {
-		if (cake === "normal") return 0;
-		if (cake === "frozen") return 1;
-		if (cake === "gold") return 2;
-		return -1;
-	}
 	// let longevityMilliseconds = 8000
 	useFrame(() => {
 		if (lastBodyMounted + bodyEveryMilliseconds < Date.now()) {
@@ -78,26 +68,26 @@
 			const position = getRandomPosition();
 			const rotation = getRandomRotation();
 			const type = Math.random() > 0.5 ? 'normal' : (Math.random() > 0.3 ? 'frozen' : 'gold');
-			bodies = [{
+			items = [{
 				id,
 				position,
 				rotation,
         		touch: 0,
 				type
-			}, ...bodies]
+			}, ...items]
 			lastBodyMounted = Date.now();
 			if (host) {
 				// console.log("New cake at ", ...position);
 				// Euler's order is default
 				// bytesize = 4 + 3*4 + 3*4 + 4 = 8 * 4
-				const arr = new Float32Array([3, id, ...position, rotation[0], rotation[1], rotation[2], cakeTypeAsInt(type)]);
+				const arr = new Float32Array([CAKE_SPAWN_EVENT, id, ...position, rotation[0], rotation[1], rotation[2], cakeTypeAsInt(type)]);
 				$socket?.send(arr);
 			}
 			// console.log(bodies.length)
 		}
 		// map first to increase performance? I think both will end up with similar performance
 		// if (bodies.length > 2) {
-		bodies = bodies.reduce((prev, curr) => {
+		items = items.reduce((prev, curr) => {
 			if (curr.touch === 1) {
 				if (curr.type === 'frozen') {
 					freeze.update((f) => f + 1);
@@ -119,7 +109,7 @@
 				}];
 			}
 			return [...prev, curr]
-		}, [] as Body[])
+		}, [] as CakeGenItem[])
 		// } else {
 		// 	if (bodies[0].touch === 1) {
 		// 		bodies = [];
@@ -152,8 +142,8 @@
 		// });
 	})
 </script>
-{#each bodies as body (body.id)}
-	<Particle id={body.id} position={body.position} rotation={body.rotation} bind:touch={body.touch} type={body.type} />
+{#each items as item (item.id)}
+	<Particle id={item.id} position={item.position} rotation={item.rotation} bind:touch={item.touch} type={item.type} />
 {/each}
 
 <!-- <style>

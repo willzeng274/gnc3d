@@ -6,6 +6,7 @@
   import type { Euler } from 'three'
   import { derived } from 'svelte/store'
   import { MeshStandardMaterial, Vector3, Mesh, MeshBasicMaterial } from 'three'
+	import { CAKE_COLLIDE_EVENT } from '$lib/constants';
   // import GLTFExporter from 'three-gltf-exporter';
   // import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
   // import type { RigidBody as RapierRigidBody } from '@dimforge/rapier3d-compat'
@@ -65,10 +66,10 @@
     rotation={[rotation[0] * 10, rotation[1] * 10, rotation[2] * 10, rotation[3]]}
     scale={0.1}
   >
-    <RigidBody type={'dynamic'} on:collisionenter={({ targetRigidBody }) => {
+    <RigidBody type="dynamic" on:collisionenter={({ targetRigidBody }) => {
       // host can score cakes so I don't have to care about physics not syncing
       if (targetRigidBody?.userData?.name === "player" && ($socket == null || host)) {
-        $socket?.send(new Float32Array([4, id]));
+        $socket?.send(new Float32Array([CAKE_COLLIDE_EVENT, id]));
         touch = 1;
         score.update((score) => score + 1);
         // TODO: fix this
@@ -78,7 +79,7 @@
       } else if (targetRigidBody?.userData?.name === "player2" && host) {
         // man I wish I can do Uint16
         console.log("player touched cake");
-        $socket?.send(new Float32Array([4, id]));
+        $socket?.send(new Float32Array([CAKE_COLLIDE_EVENT, id]));
         touch = 1;
         score.update((score) => score + 1);
       }

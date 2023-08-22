@@ -1,8 +1,10 @@
 <script lang="ts">
     import { Text } from '@threlte/extras';
-	import { useFrame, useThrelte } from '@threlte/core';
+	import { useThrelte } from '@threlte/core';
     // import type * as THREE from 'three';
 	import type { TextMesh } from '@threlte/extras/dist/components/Text/Text.svelte';
+	import { PUBLIC_CREATOR_HAS_WIFI } from '$env/static/public';
+
     // const direction = new Vector3();
     export let username: string;
     export let ypos: number;
@@ -23,6 +25,7 @@
     // })
 </script>
 
+{#if PUBLIC_CREATOR_HAS_WIFI === "true"}
 <Text
     text={username}
     position.y={1}
@@ -32,3 +35,4 @@
     anchorY="100%"
     bind:ref={textObject}
 />
+{/if}

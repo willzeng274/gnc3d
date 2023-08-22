@@ -1,8 +1,5 @@
 import { writable } from 'svelte/store';
-import type * as THREE from 'three';
-// import type { PlaneGeometry } from 'three';
-
-export type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
+import type { ActionName } from './types';
 
 export const score = writable<number>(0);
 export const plane = writable<ArrayLike<number> | null>(null);

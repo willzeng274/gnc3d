@@ -1,6 +1,5 @@
 <script lang="ts">
-  // import { useTweakpane } from '../utils/useTweakpane'
-  import { T, Canvas } from '@threlte/core';
+  import { Canvas } from '@threlte/core';
   import { World } from '@threlte/rapier';
   // import { Text } from '@threlte/extras';
   import Scene from './Scene.svelte';

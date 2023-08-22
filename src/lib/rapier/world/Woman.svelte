@@ -2,10 +2,11 @@
     import { T } from "@threlte/core";
     import { CollisionGroups, Collider, RigidBody } from "@threlte/rapier";
     import Xbot from '../../components/models/Xbot.svelte';
-    import { MeshBasicMaterial, CapsuleGeometry, Vector3 } from "three";
+    import { Vector3 } from "three";
     import type { Group } from "three";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
-    import { death, freeze, playerPos, type ActionName } from "$lib/store";
+    import { death, freeze, playerPos } from "$lib/store";
+	import type { ActionName } from "$lib/types";
     let inside = false;
     let rigidBody: RapierRigidBody;
     let playerRigid: RapierRigidBody;
@@ -161,52 +162,3 @@
         </CollisionGroups>
     </RigidBody>
 </T.Group>
-
-<!-- <CollisionGroups groups={[15]}>
-    <T.Group position={[selfPos[0], 5, selfPos[1]]} rotation.y={Math.PI}>
-      <Collider
-        shape="ball"
-        args={[2]}
-        sensor
-        on:sensorenter={({ targetRigidBody }) => {
-            // @ts-ignore
-            if (targetRigidBody?.userData?.name === 'player') {
-                // rigidBody = targetRigidBody;
-                playerRigid = targetRigidBody
-                // console.log("Adding force NOW!")
-                console.log("TORQUE")
-                // inside = true;
-                // const v = targetRigidBody.linvel();
-                // const p = targetRigidBody.translation();
-                // // v.x = -v.x;
-                // // v.y = 100;
-                // // v.z = -v.z;
-                // targetRigidBody.setTranslation({
-                //     x: p.x - v.x / 30,
-                //     y: p.y + 0.2,
-                //     z: p.z - v.z / 30
-                // }, false);
-                // targetRigidBody.setLinvel({
-                //     x: -v.x,
-                //     y: v.y,
-                //     z: -v.z
-                // }, true);
-            }
-        }}
-        on:sensorexit={({ targetRigidBody }) => {
-            // @ts-ignore
-            if (targetRigidBody?.userData?.name === 'player') {
-                console.log("NO TORQUE");
-                // inside = false;
-                // targetRigidBody.setLinvel({
-                //     x: 0,
-                //     y: 0,
-                //     z: 0,
-                // }, true)
-                // targetRigidBody.resetTorques(true);
-                // targetRigidBody.resetForces(true);
-            }
-        }}
-      />
-    </T.Group>
-</CollisionGroups> -->
