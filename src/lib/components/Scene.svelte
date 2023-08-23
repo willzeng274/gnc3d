@@ -646,6 +646,9 @@
 						<Woman selfPos={[Math.random() * 200 - 100, 8, Math.random() * 200 - 100]} />
 					{/each}
 				{/if}
+				{#if gameConfig.blackhole}
+					<Blackhole />
+				{/if}
 			{/if}
 			{#each players as p}
 				<Player2
@@ -743,9 +746,6 @@
 				/>
 			</AutoColliders>
 		</CollisionGroups>
-		{#if gameConfig.blackhole}
-			<Blackhole />
-		{/if}
 	</Suspense>
 {/if}
 
