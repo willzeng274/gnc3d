@@ -15,7 +15,7 @@
     let currentActionKey: ActionName = 'running';
     // let selfRotate: [number, number, number] = [0, 0, 0];
     const axisY = new Vector3(0, 1, 0);
-    let selfPos: [number, number, number] = [10, 8, 10];
+    export let selfPos: [number, number, number] = [10, 8, 10];
     freeze.subscribe((fr) => {
         // alert(fr);
         if (fr) {

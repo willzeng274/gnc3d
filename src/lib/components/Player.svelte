@@ -116,6 +116,7 @@
 			playerLinvel.set([0, linv.y, 0]);
 			return;
 		}
+
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		const multi = shift ? 1 : 0.5;
@@ -148,6 +149,10 @@
 		// t.y = 1;
 		// finally set the velocities and wake up the body
 		const pos = rigidBody.translation();
+		if (pos.y < -100) {
+			death.set(true);
+			return;
+		}
 		velY = (pos.y - prevPos) / deltaTime;
 		// console.log((velY - prevVel) / deltaTime);
 		prevPos = pos.y;

@@ -36,4 +36,6 @@ export interface Config {
     fov: number,
     fps: boolean;
     shader: boolean;
+    blackhole: boolean;
+    bachelorMode: boolean;
 }

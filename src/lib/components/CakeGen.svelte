@@ -17,8 +17,8 @@
 		// console.log("Called")
 		// const x = (width / 2) - Math.random() * width;
 		// const z = (height / 2) - Math.random() * height;
-		const x = (Math.min(x_units, y_units) / 2.67) / 2 - Math.random() *  Math.min(x_units, y_units) / 2.67;
-		const z = (Math.min(x_units, y_units) / 2.67) / 2 - Math.random() * Math.min(x_units, y_units) / 2.67;
+		const x = (Math.min(x_units, y_units) / 1) / 2 - Math.random() *  Math.min(x_units, y_units) / 1;
+		const z = (Math.min(x_units, y_units) / 1) / 2 - Math.random() * Math.min(x_units, y_units) / 1;
 		if ($plane) {
 			// -150 to 150 with x
 			// 150 to -150 with y

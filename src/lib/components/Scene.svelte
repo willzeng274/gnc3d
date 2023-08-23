@@ -2,7 +2,7 @@
 	import { T, useFrame } from "@threlte/core";
 	import { Suspense, createTransition, interactivity, transitions, Text, HTML } from "@threlte/extras";
 	import { AutoColliders, CollisionGroups, Debug } from "@threlte/rapier";
-	import { BoxGeometry, MeshStandardMaterial } from "three";
+	import { BoxGeometry, ExtrudeGeometry, MeshStandardMaterial, Path, Shape } from "three";
 	import Door from "../rapier/world/Door.svelte";
 	import Player from "./Player.svelte";
 	import Ground from "../rapier/world/Ground.svelte";
@@ -41,6 +41,8 @@
 		USER_DATA_EVENT,
 		USER_STATE_UPDATE,
 	} from "$lib/constants";
+	import House from "$lib/rapier/world/House.svelte";
+	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
 
 	const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -68,7 +70,9 @@
 	let gameConfig: Config = {
 		fov: 90,
 		fps: false,
-		shader: true
+		shader: true,
+		blackhole: false,
+		bachelorMode: false,
 	};
 	let username: string = getRandomElementFromArray<string>([
 		"Phloyer",
@@ -362,7 +366,7 @@
 
         if ("config" in localStorage) {
 			// there may be compatibility issues
-            gameConfig = JSON.parse(localStorage.getItem("config")!);
+            gameConfig = {...gameConfig, ...JSON.parse(localStorage.getItem("config")!)};
         }
 		// save at the end
 		window.addEventListener("unload", _ => localStorage.setItem("config", JSON.stringify(gameConfig)));
@@ -548,6 +552,14 @@
 						<input type="checkbox" bind:checked={gameConfig.shader} />
 					</div>
 					<div>
+						Enable blackhole mode
+						<input type="checkbox" bind:checked={gameConfig.blackhole} />
+					</div>
+					<div>
+						Enable bachelor mode
+						<input type="checkbox" bind:checked={gameConfig.bachelorMode} />
+					</div>
+					<div>
 						FOV
 						<input type="number" bind:value={gameConfig.fov} />
 					</div>
@@ -613,6 +625,7 @@
 			<Ground seed={realSeed} enableShaders={gameConfig.shader} />
 		</CollisionGroups>
 		<CollisionGroups groups={[0]}>
+			<House />
 			<Player {username} {host} sex={sex === undefined ? true : sex} {gameConfig} bind:isWizardUnlocked />
 			<Door />
 			{#if $socket !== null}
@@ -628,6 +641,11 @@
 			{:else}
 				<CakeGen />
 				<Woman />
+				{#if gameConfig.bachelorMode}
+					{#each {length: 30} as _}
+						<Woman selfPos={[Math.random() * 200 - 100, 8, Math.random() * 200 - 100]} />
+					{/each}
+				{/if}
 			{/if}
 			{#each players as p}
 				<Player2
@@ -643,25 +661,80 @@
 		</CollisionGroups>
 		<CollisionGroups memberships={[5]} filter={[0]}>
 			<AutoColliders shape={"cuboid"} friction={0.15} restitution={0.1}>
-				<!-- used to be 2.55 in height -->
 				<T.Mesh
 					receiveShadow
 					castShadow
-					position.x={30 + 0.7 + 0.15}
-					position.y={1.275}
-					geometry={new BoxGeometry(60, 10, 0.15)}
+					position.x={0}
+					position.y={4.4}
+					geometry={new BoxGeometry(1.75, 3.75, 0.15)}
 					material={new MeshStandardMaterial({
 						transparent: true,
 						opacity: 0.5,
 						color: 0x333333,
 					})}
 				/>
+				<!-- used to be 2.55 in height -->
 				<T.Mesh
 					receiveShadow
 					castShadow
-					position.x={-30 - 0.7 - 0.15}
-					position.y={1.275}
-					geometry={new BoxGeometry(60, 10, 0.15)}
+					position.x={10 + 0.7 + 0.15}
+					position.y={3.125}
+					geometry={new BoxGeometry(20, 6.3, 0.15)}
+					material={new MeshStandardMaterial({
+						transparent: true,
+						opacity: 0.5,
+						color: 0x333333,
+					})}
+				/>
+
+				<T.Mesh
+					receiveShadow
+					castShadow
+					position.x={-10 - 0.7 - 0.15}
+					position.y={3.125}
+					geometry={new BoxGeometry(20, 6.3, 0.15)}
+					material={new MeshStandardMaterial({
+						transparent: true,
+						opacity: 0.5,
+						color: 0x333333,
+					})}
+				/>
+
+				<T.Mesh
+					receiveShadow
+					castShadow
+					position.x={-20 - 0.7 - 0.15}
+					position.y={3.125}
+					position.z={-10}
+					geometry={new BoxGeometry(0.15, 6.3, 20)}
+					material={new MeshStandardMaterial({
+						transparent: true,
+						opacity: 0.5,
+						color: 0x333333,
+					})}
+				/>
+
+				<T.Mesh
+					receiveShadow
+					castShadow
+					position.x={20 + 0.7 + 0.15}
+					position.y={3.125}
+					position.z={-10}
+					geometry={new BoxGeometry(0.15, 6.3, 20)}
+					material={new MeshStandardMaterial({
+						transparent: true,
+						opacity: 0.5,
+						color: 0x333333,
+					})}
+				/>
+
+				<T.Mesh
+					receiveShadow
+					castShadow
+					position.x={0}
+					position.y={3.125}
+					position.z={-20}
+					geometry={new BoxGeometry(40 + 0.7 + 0.15 * 2 + 0.15 * 4, 6.3, 0.15)}
 					material={new MeshStandardMaterial({
 						transparent: true,
 						opacity: 0.5,
@@ -670,6 +743,9 @@
 				/>
 			</AutoColliders>
 		</CollisionGroups>
+		{#if gameConfig.blackhole}
+			<Blackhole />
+		{/if}
 	</Suspense>
 {/if}
 
