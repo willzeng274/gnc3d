@@ -72,7 +72,7 @@
 		fps: false,
 		shader: true,
 		blackhole: false,
-		bachelorMode: false,
+		womenCount: 1
 	};
 	let username: string = getRandomElementFromArray<string>([
 		"Phloyer",
@@ -556,8 +556,8 @@
 						<input type="checkbox" bind:checked={gameConfig.blackhole} />
 					</div>
 					<div>
-						Enable bachelor mode
-						<input type="checkbox" bind:checked={gameConfig.bachelorMode} />
+						# of women in singleplayer
+						<input type="number" bind:value={gameConfig.womenCount} />
 					</div>
 					<div>
 						FOV
@@ -641,11 +641,10 @@
 			{:else}
 				<CakeGen />
 				<Woman />
-				{#if gameConfig.bachelorMode}
-					{#each {length: 30} as _}
-						<Woman selfPos={[Math.random() * 200 - 100, 8, Math.random() * 200 - 100]} />
-					{/each}
-				{/if}
+				<!-- at least 1 woman from above -->
+				{#each {length: gameConfig.womenCount - 1} as _}
+					<Woman selfPos={[Math.random() * 200 - 100, 8, Math.random() * 200 - 100]} />
+				{/each}
 				{#if gameConfig.blackhole}
 					<Blackhole />
 				{/if}

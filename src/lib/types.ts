@@ -37,5 +37,5 @@ export interface Config {
     fps: boolean;
     shader: boolean;
     blackhole: boolean;
-    bachelorMode: boolean;
+    womenCount: number;
 }
