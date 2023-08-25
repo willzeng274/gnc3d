@@ -1,5 +1,5 @@
 
-<script lang="ts" context="module">
+<script lang="ts">
   import { page } from "$app/stores";
   console.log($page.url.hostname);
 </script>
