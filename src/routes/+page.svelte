@@ -1,7 +1,19 @@
 
+<script lang="ts" context="module">
+  import { page } from "$app/stores";
+</script>
+
 <script lang="ts">
   import App from '$lib/components/App.svelte';
 </script>
+
+<svelte:head>
+  {#if $page.url.hostname === "iamdefinitelylearning.vercel.app"}
+    <meta name="description" content="I am definitely learning bro trust me" />
+  {:else}
+    <meta name="description" content="Ghost and Cakes 3D - a game made with $317 billion budget, powering your mom's credit card since 2018 BC" />
+  {/if}
+</svelte:head>
 
 <div id="root">
   <App />
