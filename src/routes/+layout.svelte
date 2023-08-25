@@ -1,6 +1,7 @@
 
 <script lang="ts" context="module">
   import { page } from "$app/stores";
+  console.log($page.url.hostname);
 </script>
 
 <svelte:head>
