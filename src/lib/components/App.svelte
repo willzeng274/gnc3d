@@ -7,6 +7,8 @@
 	// import { GLTF } from '@threlte/extras';
 	// import { DirectionalLight } from 'three';
 	// import Reaper from './models/Reaper.svelte';
+  import { page } from "$app/stores";
+
   let counter = 0;
   let seed: number = 0;
 
@@ -23,6 +25,14 @@
     }, 1000);
   }
 </script>
+
+<svelte:head>
+  {#if $page.url.hostname === "iamdefinitelylearning.vercel.app"}
+    <meta name="description" content="I am definitely learning bro trust me" />
+  {:else}
+    <meta name="description" content="Ghost and Cakes 3D - a game made with $317 billion budget, powering your mom's credit card since 2018 BC" />
+  {/if}
+</svelte:head>
 
 <dialog class:deathMenu={$death}>
   <p>You died!</p>
