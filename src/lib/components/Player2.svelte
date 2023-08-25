@@ -79,9 +79,9 @@
                 </svelte:fragment>
             </Ybot> -->
 			{#if sex}
-				<Ybot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+				<Ybot currentActionKey={animation} />
 			{:else}
-				<Xbot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+				<Xbot currentActionKey={animation} />
 			{/if}
 			<CollisionGroups groups={[15]}>
 				<T.Group position={[0, -height / 2 + radius, 0]}>

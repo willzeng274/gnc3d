@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { RigidBody as RapierRigidBody, Collider as RapierCollider } from "@dimforge/rapier3d-compat";
-	import { T, useFrame } from "@threlte/core";
+	import { T, useFrame, useThrelte } from "@threlte/core";
 	import { RigidBody, CollisionGroups, Collider } from "@threlte/rapier";
 	import { AudioListener, Audio } from "@threlte/extras";
 	import { onDestroy, onMount } from "svelte";
@@ -11,12 +11,13 @@
 	import Ybot from "./models/Ybot.svelte";
 	import Xbot from "./models/Xbot.svelte";
 	import Wizard from "./models/Wizard.svelte";
+	import Jamal from "./models/Jamal.svelte";
 	import Username from "./Username.svelte";
 	import Root from "./Root.svelte";
 	import type { JoystickManagerOptions } from "nipplejs";
 	import type { ActionName, Config } from "$lib/types";
 	import { DIED_OF_DEATH } from "$lib/constants";
-	export let sex: boolean;
+	export let skin: number;
 	export let host: boolean;
 	export let isWizardUnlocked: boolean;
 	export let username: string;
@@ -186,6 +187,7 @@
 	});
 
 	function onKeyDown(e: KeyboardEvent) {
+		e.preventDefault();
 		// console.log("Down", e.key)
 		switch (e.key.toLowerCase()) {
 			case "s":
@@ -396,12 +398,15 @@
 				}}
 			/>
 			{#if !isPLOCK}
+				
 				{#if isWizardUnlocked}
 					<Wizard bind:ref={model} />
-				{:else if sex}
+				{:else if skin === 0}
 					<Ybot bind:currentActionKey bind:ref={model} />
-				{:else}
+				{:else if skin === 1}
 					<Xbot bind:currentActionKey bind:ref={model} />
+				{:else if skin === 2}
+					<Jamal bind:currentActionKey bind:ref={model} />
 				{/if}
 			{:else}
 				<T.Mesh geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)} material={new MeshBasicMaterial({ transparent: true, opacity: 0 })} />

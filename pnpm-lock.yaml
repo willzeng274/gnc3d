@@ -45,13 +45,13 @@ devDependencies:
     version: 6.0.6(svelte@4.2.0)(three@0.153.0)
   '@threlte/extras':
     specifier: latest
-    version: 5.3.0(svelte@4.2.0)(three@0.153.0)
+    version: 5.4.0(svelte@4.2.0)(three@0.153.0)
   '@threlte/rapier':
     specifier: latest
     version: 1.1.0(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0)
   '@threlte/theatre':
     specifier: latest
-    version: 2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.3.0)(svelte@4.2.0)(three@0.153.0)
+    version: 2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.4.0)(svelte@4.2.0)(three@0.153.0)
   '@types/three':
     specifier: ^0.152.1
     version: 0.152.1
@@ -448,8 +448,8 @@ packages:
       three: 0.153.0
     dev: true
 
-  /@threlte/extras@5.3.0(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-wblnA0IFo9bi/oz1Yy+B51zmkO9AkQfiHByRuF1++fQkxBm+Tt0q2olUZE8/H1h+4eQ/mEcV0uqFaMp0+iI2LA==}
+  /@threlte/extras@5.4.0(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-tZi3UKRt3N38U5gdGuiPiIuYmkljsblkcpd9xgQhuEUvF9fQQXPXrgwolOsE8+MeRYFlYtUXfQVoh2tK5plZ1Q==}
     peerDependencies:
       svelte: '>=4'
       three: '>=0.133'
@@ -472,7 +472,7 @@ packages:
       three: 0.153.0
     dev: true
 
-  /@threlte/theatre@2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.3.0)(svelte@4.2.0)(three@0.153.0):
+  /@threlte/theatre@2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.4.0)(svelte@4.2.0)(three@0.153.0):
     resolution: {integrity: sha512-TjWjVgmZSWxLoo/KLC3KHEay4kDdh13yzESJxiu7+z1RT2ODJb4Edhuw7Ntz3fbAk/qRV5OJ79kPaEpOl/ahxQ==}
     peerDependencies:
       '@theatre/core': '>=0.6'
@@ -485,7 +485,7 @@ packages:
       '@theatre/core': 0.6.2
       '@theatre/studio': 0.6.2(@theatre/core@0.6.2)
       '@threlte/core': 6.0.6(svelte@4.2.0)(three@0.153.0)
-      '@threlte/extras': 5.3.0(svelte@4.2.0)(three@0.153.0)
+      '@threlte/extras': 5.4.0(svelte@4.2.0)(three@0.153.0)
       svelte: 4.2.0
       three: 0.153.0
     dev: true
