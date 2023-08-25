@@ -34,12 +34,11 @@
 
 <!-- <Debug /> -->
 
-<T.Group position={[15, 0, 15]} rotation={[0, 0 * 3 * Math.PI / 2, 0]}>
+<T.Group position={[15, 0, 15]}>
     <AutoColliders shape="trimesh">
         <T
             is={CSG.subtract(CSG.subtract(b, a), c)}
         />
     </AutoColliders>
-
     <HouseDoor />
 </T.Group>

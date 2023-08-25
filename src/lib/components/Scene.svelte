@@ -20,6 +20,7 @@
 	import { scale as SvelteScale } from "svelte/transition";
 	import Particle from "./Particle.svelte";
 	import Wizard from "./models/Wizard.svelte";
+	import Jamal from "./models/Jamal.svelte";
 	import { PUBLIC_PROD, PUBLIC_CREATOR_HAS_WIFI } from "$env/static/public";
 	import {
 		cakeTypeAsInt,
@@ -61,7 +62,7 @@
 	let realSeed: number | undefined;
 	let isSuspend = true;
 	let menu = true;
-	let sex: boolean | undefined;
+	let skin: number = -1;
 	let frozen: number = 0;
 	let room: string = "";
 	let host: boolean = false;
@@ -145,7 +146,7 @@
 			const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://localhost:8080";
 			// const url = "192.168.0.84";
 			const ws = new WebSocket(
-				`${url}?username=${username}&room=${room}&sex=${sex === undefined ? "true" : sex ? "true" : "false"}&seed=${
+				`${url}?username=${username}&room=${room}&sex=${skin === -1 ? "true" : skin === 0 ? "true" : "false"}&seed=${
 					seed === 0 ? 1 : seed
 				}`
 			);
@@ -418,17 +419,17 @@
 					rotation.y={rotation}
 					position.y={$scale}
 					scale={$scale}
-					on:pointerenter={() => $scale !== 2.5 && scale.set(sex === false ? 2 : 1.5)}
-					on:pointerleave={() => $scale !== 2.5 && scale.set(sex === false ? 2 : 1)}
+					on:pointerenter={() => $scale !== 2.5 && scale.set(skin === 1 ? 2 : 1.5)}
+					on:pointerleave={() => $scale !== 2.5 && scale.set(skin === 1 ? 2 : 1)}
 					on:click={() => {
-						if (sex === false) {
+						if (skin === 1) {
 							scale.set(2.5);
 							setTimeout(() => scale.set(1), 700);
-							sex = undefined;
+							skin = -1;
 						} else {
 							scale.set(2);
 							scale2.set(1);
-							sex = false;
+							skin = 1;
 						}
 					}}
 				>
@@ -455,17 +456,17 @@
 					rotation.y={rotation}
 					position.y={$scale2}
 					scale={$scale2}
-					on:pointerenter={() => $scale2 !== 2.5 && scale2.set(sex === true ? 2 : 1.5)}
-					on:pointerleave={() => $scale2 !== 2.5 && scale2.set(sex === true ? 2 : 1)}
+					on:pointerenter={() => $scale2 !== 2.5 && scale2.set(skin === 0 ? 2 : 1.5)}
+					on:pointerleave={() => $scale2 !== 2.5 && scale2.set(skin === 0 ? 2 : 1)}
 					on:click={() => {
-						if (sex) {
+						if (skin === 0) {
 							scale2.set(2.5);
 							setTimeout(() => scale2.set(1), 700);
-							sex = undefined;
+							skin = -1;
 						} else {
 							scale2.set(2);
 							scale.set(1);
-							sex = true;
+							skin = 0;
 						}
 					}}
 				>
@@ -495,28 +496,28 @@
 			</Root>
 		{:else if currentCtx.name === "Shop"}
 			<T.PerspectiveCamera makeDefault position={[0, 1, 3]} fov={120} />
-			<T.DirectionalLight position={[0, 10, 10]} castShadow intensity={isWizardUnlocked ? 1 : 0.1} />
+			<T.DirectionalLight position={[0, 10, 10]} castShadow intensity={1} />
 			<T.Group position.x={0} position.z={0} in={zoomIn} out={zoomOut}>
-				<T.Group position.y={0.8}>
+				<T.Group position.y={0.5} position.z={0} on:click={_ => skin === 2 ? (skin = -1) : (skin = 2)}>
 					<T.Mesh
 						material={new MeshStandardMaterial({
 							transparent: true,
-							opacity: isWizardUnlocked ? 0 : 0.5,
+							opacity: 1,
 							color: "red",
 						})}
 					>
-						<T.BoxGeometry args={[1, 2, 1]} />
+						<T.BoxGeometry args={[1, 3.5, 1]} />
 					</T.Mesh>
 				</T.Group>
-				<T.Group rotation.y={rotation} position.y={0.8} castShadow>
-					<Wizard />
+				<T.Group rotation.y={rotation} position.y={1} position.z={1} castShadow>
+					<Jamal currentActionKey={skin === 2 ? "tpose" : "idle"} />
 				</T.Group>
 				<T.Mesh rotation.x={-Math.PI / 2} receiveShadow>
 					<T.CircleGeometry args={[2, 40]} />
 					<T.MeshStandardMaterial color="white" />
 				</T.Mesh>
-				{#if !isWizardUnlocked && PUBLIC_CREATOR_HAS_WIFI === "true"}
-					<Text position.z={1} color="white" text="???" fontSize={0.5} anchorX="50%" anchorY="100%" />
+				{#if PUBLIC_CREATOR_HAS_WIFI === "true"}
+					<Text position.z={1.5} color="black" text="Jamal skin" fontSize={0.5} anchorX="50%" anchorY="100%" />
 				{/if}
 			</T.Group>
 		{:else if currentCtx.name === "Play"}
@@ -626,7 +627,7 @@
 		</CollisionGroups>
 		<CollisionGroups groups={[0]}>
 			<House />
-			<Player {username} {host} sex={sex === undefined ? true : sex} {gameConfig} bind:isWizardUnlocked />
+			<Player {username} {host} skin={skin === -1 ? 0 : skin} {gameConfig} bind:isWizardUnlocked />
 			<Door />
 			{#if $socket !== null}
 				{#if host}

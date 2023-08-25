@@ -44,45 +44,49 @@
 
 	$: if (group && doorRigidBody) applyDoorRotation($doorRotation);
 
-    // $: if (doorRigidBody) {
-    //     const tl = doorRigidBody.translation();
-    //     doorRigidBody.setNextKinematicTranslation(new Vector3(tl.x, tl.y, tl.z));
-    // }
-	// $: console.log(objectsInSensor)
+    const rotation = [0, Math.PI / 2, 0];
+
+	const [xDis, zDis] = rotation[1] === Math.PI / 2 ? [0, 0.5] : (
+		rotation[1] === 3 * Math.PI / 2 ? [0, -0.5] : 
+		rotation[1] === Math.PI ? [0.5, 0] :
+		rotation[1] === 0 ? [-0.5, 0] : [0, 0]
+	);
 </script>
 
 <T.Group bind:ref={group}>
 	<!-- FRAME -->
 	<AutoColliders shape={"cuboid"} friction={0.15} restitution={0.1}>
-		<!-- SIDE FRAME A -->
-		<T.Mesh
-			receiveShadow
-			castShadow
-			position={[position[0] + 0.7, position[1] + 1.125, position[2] + 4]}
-			geometry={new BoxGeometry(0.3, 2.25, 0.3)}
-			material={new MeshStandardMaterial()}
-		/>
+		<T.Group>
+			<!-- SIDE FRAME A -->
+			<T.Mesh
+				receiveShadow
+				castShadow
+				position={[0.7, 1.125, 4]}
+				geometry={new BoxGeometry(0.3, 2.25, 0.3)}
+				material={new MeshStandardMaterial()}
+			/>
 
-		<!-- SIDE FRAME B -->
-		<T.Mesh
-			receiveShadow
-			castShadow
-			position={[position[0] - 0.7, position[1] + 1.125, position[2] + 4]}
-			geometry={new BoxGeometry(0.3, 2.25, 0.3)}
-			material={new MeshStandardMaterial()}
-		/>
+			<!-- SIDE FRAME B -->
+			<T.Mesh
+				receiveShadow
+				castShadow
+				position={[-0.7, 1.125, 4]}
+				geometry={new BoxGeometry(0.3, 2.25, 0.3)}
+				material={new MeshStandardMaterial()}
+			/>
+		</T.Group>
 
 		<!-- TOP FRAME -->
 		<T.Mesh
 			receiveShadow
 			castShadow
-			position={[position[0], position[1] + 2.4, position[2] + 4]}
+			position={[0, 2.4, 4]}
 			geometry={new BoxGeometry(1.4 + 0.3, 0.3, 0.3)}
 			material={new MeshStandardMaterial()}
 		/>
 	</AutoColliders>
 
-	<HTML transform position={[position[0], position[1] + 3, position[2] + 4]} pointerEvents="none">
+	<HTML transform position={[0, 3, 4]} pointerEvents="none">
 		{#key open}
 			<small
 				in:blur={{
@@ -103,7 +107,7 @@
 	</HTML>
 
 	<!-- DOOR -->
-	<T.Group position={[position[0] - 0.5, position[1] + 1.125, position[2] + 4]}>
+	<T.Group position={[-0.5, 1.125, 4]}>
 		<RigidBody bind:rigidBody={doorRigidBody} type={"kinematicPosition"}>
 			<AutoColliders shape={"cuboid"} friction={0.15} restitution={0.1}>
                 <!-- TODO: fix rotation issue -->
@@ -119,7 +123,7 @@
 	</T.Group>
 
 	<CollisionGroups groups={[15]}>
-		<T.Group position={[position[0], position[1] + 1.5, position[2] + 4]}>
+		<T.Group position={[0, 1.5, 4]}>
 			<!-- args={[1, 1.35, 1.5]} -->
 			<Collider
 				shape={"cuboid"}

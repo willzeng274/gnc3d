@@ -64,6 +64,7 @@
 		domElement.removeEventListener("pointermove", onPointerMove);
 		domElement.removeEventListener("pointerleave", onPointerLeave);
 		domElement.removeEventListener("pointerup", onPointerUp);
+		domElement.removeEventListener("wheel", onWheel);
 	});
 	// This is basically update function
 	useFrame(() => {
@@ -91,6 +92,10 @@
 
 	function onPointerMove(event: PointerEvent) {
 		const { x, y } = event;
+		rotatePointer(x, y);
+	}
+
+	function rotatePointer(x: number, y: number) {
 		if (pointerDown && !isOrbiting) {
 			// calculate distance from init down
 			const distCheck = Math.sqrt(Math.pow(x - rotateStart.x, 2) + Math.pow(y - rotateStart.y, 2)) > 10;
@@ -111,6 +116,18 @@
 		dispatch("change");
 	}
 
+	function onKeyDown(event: KeyboardEvent) {
+		if (event.key === "ArrowLeft") {
+			cameraControls.theta += rotateSpeed * 0.1;
+		} else if (event.key === "ArrowRight") {
+			cameraControls.theta -= rotateSpeed * 0.1;
+		} else if (event.key === "ArrowUp") {
+			cameraControls.phi -= rotateSpeed * 0.1;
+		} else if (event.key === "ArrowDown") {
+			cameraControls.phi += rotateSpeed * 0.1;
+		}
+	}
+
 	function onPointerDown(event: PointerEvent) {
 		const { x, y } = event;
 		rotateStart.set(x, y);
@@ -129,3 +146,5 @@
 		isOrbiting = false;
 	}
 </script>
+
+<svelte:window on:keydown={onKeyDown} />
