@@ -3,6 +3,7 @@
 	import { Camera, Vector2, Vector3 } from "three";
 	import type { Group } from "three";
 	import { useThrelte, useParent, useFrame } from "@threlte/core";
+	import { score } from "$lib/store";
 	export let object: Group;
 	export let rotateSpeed = 1.0;
 	export let plock: boolean;
@@ -126,6 +127,9 @@
 		} else if (event.key === "ArrowDown") {
 			cameraControls.phi += rotateSpeed * 0.1;
 		}
+		// } else if (event.key === "m") {
+		//     score.update((sc) => sc + 5);
+		// }
 	}
 
 	function onPointerDown(event: PointerEvent) {

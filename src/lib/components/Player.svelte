@@ -42,6 +42,8 @@
 	let capRef: THREE.Group;
 	let collider: RapierCollider;
 	let currentActionKey: ActionName = "idle";
+	let dash = false;
+	let lastDash = Date.now();
 
 	$: if (capsule) {
 		capRef = capsule;
@@ -120,7 +122,7 @@
 
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
-		const multi = shift ? 1 : 0.5;
+		const multi = shift ? (skin === 2 ? 1.20 : 1) : (skin === 2 ? 0.6 : 0.5);
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();
@@ -133,8 +135,13 @@
 
 		// console.log(forward-backward, right-left);
 		// Normalize
-		cameraForward.normalize().multiplyScalar(-(backward - forward) * multi * speed);
-		cameraRight.normalize().multiplyScalar((right - left) * multi * speed);
+		if (dash) {
+			cameraForward.normalize().multiplyScalar(500 * multi * speed);
+			cameraRight.normalize().multiplyScalar(0);
+		} else {
+			cameraForward.normalize().multiplyScalar((forward - backward) * multi * speed);
+			cameraRight.normalize().multiplyScalar((right - left) * multi * speed);
+		}
 		if (backward - forward && right - left) {
 			t.x = (cameraForward.x + cameraRight.x) * 0.7;
 			t.z = (cameraForward.z + cameraRight.z) * 0.7;
@@ -145,7 +152,8 @@
 		// velVec.applyEuler(new Euler().copy(capsule.rotation)).multiplyScalar(speed);
 		// don't override falling velocity
 		const linVel = rigidBody.linvel();
-		t.y = linVel.y;
+		t.y = linVel.y + (dash ? 5 : 0);
+		dash = false;
 		// t.y = 0;
 		// t.y = 1;
 		// finally set the velocities and wake up the body
@@ -226,6 +234,12 @@
 				break;
 			case "d":
 				right = 0;
+				break;
+			case "f":
+				if (Date.now() - lastDash > 5000) {
+					lastDash = Date.now();
+					dash = true;
+				}
 				break;
 			case "shift":
 				shift = 0;

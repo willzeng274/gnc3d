@@ -5,7 +5,7 @@
     import { Vector3 } from "three";
     import type { Group } from "three";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
-    import { death, freeze, playerPos } from "$lib/store";
+    import { death, freeze, playerPos, score } from "$lib/store";
 	import type { ActionName } from "$lib/types";
     let inside = false;
     let rigidBody: RapierRigidBody;
@@ -28,7 +28,8 @@
         if ($playerPos && xbotRef && rigidBody && !$death) {
             // a - 2.5 and b + 3.5 if refreshed?? Idk
             const a: number = $playerPos[0] - selfPos[0], b: number = $playerPos[2] - selfPos[2], c: number = Math.sqrt(a**2 + b**2);
-            const speed = $freeze ? 0 : 0.1 / c;
+            console.log($score / 100);
+            const speed = $freeze ? 0 : ($score / 1000 + 0.1) / c;
             // const speed = $freeze ? 0 : 0.2 / c;
             // console.log(position);
             // console.log(selfPos, "distance: ", c);
