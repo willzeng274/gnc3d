@@ -1,7 +1,7 @@
 
 <script lang="ts">
   import { page } from "$app/stores";
-  console.log($page.url.hostname);
+  console.log($page.url.hostname === "iamdefinitelylearning.vercel.app");
 </script>
 
 <svelte:head>
