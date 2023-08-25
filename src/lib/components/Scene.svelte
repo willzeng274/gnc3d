@@ -518,6 +518,7 @@
 				</T.Mesh>
 				{#if PUBLIC_CREATOR_HAS_WIFI === "true"}
 					<Text position.z={1.5} color="black" text="Jamal skin" fontSize={0.5} anchorX="50%" anchorY="100%" />
+					<Text position.z={1.6} color="#9b870c" text="Perks: 10% speed buff" fontSize={0.1} anchorX="50%" anchorY="100%" />
 				{/if}
 			</T.Group>
 		{:else if currentCtx.name === "Play"}
