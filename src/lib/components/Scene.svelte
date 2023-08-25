@@ -9,7 +9,7 @@
 	import CakeGen from "./CakeGen.svelte";
 	import Ybot from "./models/Ybot.svelte";
 	import Woman from "$lib/rapier/world/Woman.svelte";
-	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket } from "$lib/store";
+	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig } from "$lib/store";
 	import Player2 from "./Player2.svelte";
 	import Fps from "./Fps.svelte";
 	import { spring } from "svelte/motion";
@@ -68,13 +68,6 @@
 	let host: boolean = false;
 	let isWizardUnlocked: boolean = false;
 	let hostCakes: CakeGenItem[] = [];
-	let gameConfig: Config = {
-		fov: 90,
-		fps: false,
-		shader: true,
-		blackhole: false,
-		womenCount: 1
-	};
 	let username: string = getRandomElementFromArray<string>([
 		"Phloyer",
 		"Ghoyer",
@@ -367,10 +360,10 @@
 
         if ("config" in localStorage) {
 			// there may be compatibility issues
-            gameConfig = {...gameConfig, ...JSON.parse(localStorage.getItem("config")!)};
+            gameConfig.update((gc) => ({...gc, ...JSON.parse(localStorage.getItem("config")!)}));
         }
 		// save at the end
-		window.addEventListener("unload", _ => localStorage.setItem("config", JSON.stringify(gameConfig)));
+		window.addEventListener("unload", _ => localStorage.setItem("config", JSON.stringify($gameConfig)));
 	});
 
 	onDestroy(() => {
@@ -496,9 +489,9 @@
 			</Root>
 		{:else if currentCtx.name === "Shop"}
 			<T.PerspectiveCamera makeDefault position={[0, 1, 3]} fov={120} />
-			<T.DirectionalLight position={[0, 10, 10]} castShadow intensity={1} />
+			<T.DirectionalLight position={[0, 10, 10]} castShadow intensity={$gameConfig.jamalUnlocked ? 1 : 0.2} />
 			<T.Group position.x={0} position.z={0} in={zoomIn} out={zoomOut}>
-				<T.Group position.y={0.5} position.z={0} on:click={_ => skin === 2 ? (skin = -1) : (skin = 2)}>
+				<T.Group position.y={0.5} position.z={0} on:click={_ => $gameConfig.jamalUnlocked && (skin === 2 ? (skin = -1) : (skin = 2))}>
 					<T.Mesh
 						material={new MeshStandardMaterial({
 							transparent: true,
@@ -518,7 +511,10 @@
 				</T.Mesh>
 				{#if PUBLIC_CREATOR_HAS_WIFI === "true"}
 					<Text position.z={1.5} color="black" text="Jamal skin" fontSize={0.5} anchorX="50%" anchorY="100%" />
-					<Text position.z={1.6} color="#9b870c" text="Perks: 10% speed buff" fontSize={0.1} anchorX="50%" anchorY="100%" />
+					<Text position.z={1.6} color="#9b870c" text="Perks: 20% speed buff" fontSize={0.1} anchorX="50%" anchorY="100%" />
+					{#if !$gameConfig.jamalUnlocked}
+					<Text position.z={1.7} color="#ff8000" text={`Unlock by collecting the orange "Chicken" cake type`} fontSize={0.2} anchorX="50%" anchorY="100%" />
+					{/if}
 				{/if}
 			</T.Group>
 		{:else if currentCtx.name === "Play"}
@@ -547,23 +543,23 @@
 				<dialog class="settingsMenu" in:scaleIn out:scaleOut>
 					<div>
 						Enable first person on start
-						<input type="checkbox" bind:checked={gameConfig.fps} />
+						<input type="checkbox" bind:checked={$gameConfig.fps} />
 					</div>
 					<div>
 						Enable shaders
-						<input type="checkbox" bind:checked={gameConfig.shader} />
+						<input type="checkbox" bind:checked={$gameConfig.shader} />
 					</div>
 					<div>
 						Enable blackhole mode
-						<input type="checkbox" bind:checked={gameConfig.blackhole} />
+						<input type="checkbox" bind:checked={$gameConfig.blackhole} />
 					</div>
 					<div>
 						# of women in singleplayer
-						<input type="number" bind:value={gameConfig.womenCount} />
+						<input type="number" bind:value={$gameConfig.womenCount} />
 					</div>
 					<div>
 						FOV
-						<input type="number" bind:value={gameConfig.fov} />
+						<input type="number" bind:value={$gameConfig.fov} />
 					</div>
 				</dialog>
 			</Root>
@@ -624,11 +620,11 @@
 		<T.GridHelper args={[50]} position.y={0.01} />
 
 		<CollisionGroups groups={[0, 15]}>
-			<Ground seed={realSeed} enableShaders={gameConfig.shader} />
+			<Ground seed={realSeed} enableShaders={$gameConfig.shader} />
 		</CollisionGroups>
 		<CollisionGroups groups={[0]}>
 			<House />
-			<Player {username} {host} skin={skin === -1 ? 0 : skin} {gameConfig} bind:isWizardUnlocked />
+			<Player {username} {host} skin={skin === -1 ? 0 : skin} bind:isWizardUnlocked />
 			<Door />
 			{#if $socket !== null}
 				{#if host}
@@ -644,10 +640,10 @@
 				<CakeGen />
 				<Woman />
 				<!-- at least 1 woman from above -->
-				{#each {length: gameConfig.womenCount - 1} as _}
+				{#each {length: $gameConfig.womenCount - 1} as _}
 					<Woman selfPos={[Math.random() * 200 - 100, 8, Math.random() * 200 - 100]} />
 				{/each}
-				{#if gameConfig.blackhole}
+				{#if $gameConfig.blackhole}
 					<Blackhole />
 				{/if}
 			{/if}

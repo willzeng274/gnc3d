@@ -7,7 +7,7 @@
 	import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
-	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze } from "$lib/store";
+	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig } from "$lib/store";
 	import Ybot from "./models/Ybot.svelte";
 	import Xbot from "./models/Xbot.svelte";
 	import Wizard from "./models/Wizard.svelte";
@@ -21,10 +21,9 @@
 	export let host: boolean;
 	export let isWizardUnlocked: boolean;
 	export let username: string;
-	export let gameConfig: Config;
 	let zooming: number = -1;
 	let mobile: boolean = false;
-	let isPLOCK = gameConfig.fps;
+	let isPLOCK = $gameConfig.fps;
 	let radius = 0.45; // used to be 0.3
 	let height = 2; // used to be 1.7
 	const speed = 6;
@@ -346,7 +345,7 @@
 
 <svelte:window on:keydown|preventDefault={onKeyDown} on:keyup={onKeyUp} />
 
-<T.PerspectiveCamera makeDefault fov={gameConfig.fov} bind:ref={cam}>
+<T.PerspectiveCamera makeDefault fov={$gameConfig.fov} bind:ref={cam}>
 	{#if isPLOCK}
 		<PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} {zooming} />
 	{:else}
