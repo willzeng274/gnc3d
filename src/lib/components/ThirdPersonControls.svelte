@@ -128,7 +128,7 @@
 			cameraControls.phi += rotateSpeed * 0.1;
 		}
 		// } else if (event.key === "m") {
-		//     score.update((sc) => sc + 5);
+		//     score.update((sc) => (sc+1) * 2);
 		// }
 	}
 

@@ -106,6 +106,11 @@
                         // targetRigidBody.addForce({ x: -Math.sign(v.x) * 2000, y: 2000, z: -Math.sign(v.z)  * 2000}, true);
                         // targetRigidBody.addForce({ x: 0, y: 2000, z: 0}, true);
                         // targetRigidBody.applyImpulse({ x: 0, y: 2000, z: 0 }, true);
+                    // @ts-ignore
+                    } else if (targetRigidBody?.userData?.name === 'water') {
+                        const tl = rigidBody.translation();
+                        tl.y = 1;
+                        rigidBody.setTranslation(tl);
                     }
                 }}
                 on:collisionexit={({ targetRigidBody }) => {

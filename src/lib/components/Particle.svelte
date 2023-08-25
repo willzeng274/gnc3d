@@ -49,7 +49,22 @@
     //   },
     // )
     return gltf.nodes['spider_cookie']
-  })
+  });
+
+  function getColorFromType(type: string): number {
+    if (type === "frozen") {
+      return 0x00f2ff;
+    }
+    if (type === "gold") {
+      return 0xffd500;
+    }
+    if (type === "normal") {
+      return 0x00000;
+    }
+    if (type === "chicken") {
+      return 0xff8000;
+    }
+  }
 </script>
 
 {#if $cake}
@@ -89,7 +104,7 @@
         <T.Mesh
           castShadow
           geometry={$cake.geometry}
-          material={type === 'frozen' ? new MeshBasicMaterial({ color: 0x00f2ff }) : type === 'gold' ? new MeshBasicMaterial({ color: 0xffd500 }) : new MeshBasicMaterial({ color: 0x00000 })}
+          material={new MeshBasicMaterial({ color: getColorFromType(type) })}
         />
       </AutoColliders>
     </RigidBody>

@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { ActionName } from './types';
+import type { Config, ActionName } from './types';
 
 export const score = writable<number>(0);
 export const plane = writable<ArrayLike<number> | null>(null);
@@ -10,3 +10,11 @@ export const playerRotation =writable<[number, number, number]>([0, 0, 0]);
 export const death = writable<boolean>(false);
 export const freeze = writable<number>(0);
 export const socket = writable<WebSocket | null>(null);
+export const gameConfig = writable<Config>({
+    fov: 90,
+    fps: false,
+    shader: true,
+    blackhole: false,
+    womenCount: 1,
+    jamalUnlocked: false,
+});

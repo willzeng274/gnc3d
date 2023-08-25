@@ -38,4 +38,5 @@ export interface Config {
     shader: boolean;
     blackhole: boolean;
     womenCount: number;
+    jamalUnlocked: boolean;
 }
