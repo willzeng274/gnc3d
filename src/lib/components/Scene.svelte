@@ -42,6 +42,8 @@
 		USER_DATA_EVENT,
 		USER_STATE_UPDATE,
 		START_LOBBY_EVENT,
+		USER_NAME_EVENT,
+		TXT_MESSAGE_CREATE
 	} from "$lib/constants";
 	import House from "$lib/rapier/world/House.svelte";
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
@@ -69,6 +71,8 @@
 	let room: string = "";
 	let host: boolean = false;
 	let isWizardUnlocked: boolean = false;
+	let message: string = "";
+	let logs: string[] = [];
 	let hostCakes: CakeGenItem[] = [];
 	let username: string = getRandomElementFromArray<string>([
 		"Phloyer",
@@ -149,11 +153,22 @@
 			ws.binaryType = "arraybuffer";
 			ws.onmessage = (m) => {
 				if (typeof m.data === "string") {
-					// the only string event is username
+					// sob... now we have to parse string events
 					// because we are using byteLength for floats, sending a custom sized string is dangerous
-					const id = +m.data[0];
-					const ind = players.findIndex((p) => p.id === id);
-					players[ind].name = m.data.substring(1);
+					// all dynamic length strings must be sent at the end
+					const dataBlocks = m.data.split(",");
+					const eventId = +dataBlocks.shift();
+					if (eventId === USER_NAME_EVENT) {
+						const id = +dataBlocks.shift();
+						const ind = players.findIndex((p) => p.id === id);
+						// add the comma back in the player names lol
+						players[ind].name = dataBlocks.join(",");
+					} else if (eventId === TXT_MESSAGE_CREATE) {
+						const id = +dataBlocks.shift();
+						const ind = players.findIndex((p) => p.id === id);
+						console.log("PLAYER SENT A MESSAGE", players[ind], dataBlocks.join(","));
+						logs = [players[ind].name + ": " + dataBlocks.join(","), ...logs];
+					}
 					return;
 				}
 				// const arr = new Uint8Array(m.data);
@@ -600,6 +615,18 @@
 			{/if}
 			<button on:click={_ => $socket?.close()}>{host ? "Disband" : "Leave"} lobby</button>
 		</dialog>
+		<dialog class="chat">
+			<div class="logs">
+				{#each logs as msg}
+					<p>{msg}</p>
+				{/each}
+			</div>
+			<input type="text" bind:value={message} /><button on:click={_ => {
+				logs = ["YOU: " + message, ...logs];
+				$socket?.send(TXT_MESSAGE_CREATE + message);
+				message = "";
+			}}>Send message</button>
+		</dialog>
 	</Root>
 {:else}
 	<Suspense final>
@@ -859,6 +886,21 @@
 
 	.settingsMenu div {
 		margin-top: .5em;
+	}
+
+	.chat {
+		display: flex;
+		flex-direction: column;
+		z-index: 2;
+		transition: 5s;
+		animation: ease-in-out 5s;
+		bottom: 0;
+		max-height: 20%;
+	}
+
+	.chat .logs {
+		width: 100%;
+		overflow-y: scroll;
 	}
 
 	.lobby {
