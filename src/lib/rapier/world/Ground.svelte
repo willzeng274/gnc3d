@@ -239,8 +239,8 @@
 		skyUniforms["mieCoefficient"].value = 0.005;
 		skyUniforms["mieDirectionalG"].value = 0.8;
 		
-		useFrame(() => {
-			water.material.uniforms["time"].value += 1.0 / 60.0;
+		useFrame((_, dt) => {
+			water.material.uniforms["time"].value += dt;
 		});
 	}
 </script>
