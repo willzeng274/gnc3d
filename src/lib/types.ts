@@ -1,6 +1,6 @@
 import type { Vector3, Euler } from "three";
 
-export type cakeType = "normal" | "frozen" | "gold";
+export type cakeType = "normal" | "frozen" | "gold" | "chicken";
 export interface Cake {
     id: number;
     position: [number, number, number];
