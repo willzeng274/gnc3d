@@ -26,3 +26,4 @@ export const PLAYER_LEAVE_EVENT = 5;
 export const CAKES_UPDATE_EVENT = 6;
 export const GERMINATION_EVENT = 42;
 export const IS_HOST_EVENT = 69;
+export const START_LOBBY_EVENT = 7;

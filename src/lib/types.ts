@@ -21,7 +21,7 @@ export type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall"
 export interface ConnectedPlayer {
     id: number;
     name: string;
-    sex: boolean;
+    skin: number;
     x: number;
     y: number;
     z: number;
