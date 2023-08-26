@@ -411,7 +411,6 @@
 				}}
 			/>
 			{#if !isPLOCK}
-				
 				{#if isWizardUnlocked}
 					<Wizard bind:ref={model} />
 				{:else if skin === 0}

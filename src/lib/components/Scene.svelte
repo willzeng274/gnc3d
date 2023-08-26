@@ -41,6 +41,7 @@
 		PLAYER_LEAVE_EVENT,
 		USER_DATA_EVENT,
 		USER_STATE_UPDATE,
+		START_LOBBY_EVENT,
 	} from "$lib/constants";
 	import House from "$lib/rapier/world/House.svelte";
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
@@ -62,6 +63,7 @@
 	let realSeed: number | undefined;
 	let isSuspend = true;
 	let menu = true;
+	let lobby = false;
 	let skin: number = -1;
 	let frozen: number = 0;
 	let room: string = "";
@@ -116,8 +118,9 @@
 	function startGame(connectWs: boolean = false) {
 		console.log("Starting game... Connect:", connectWs);
 		if (connectWs) {
+			lobby = true;
 			const intv = setInterval(() => {
-				if (!$socket) return;
+				if (!$socket || lobby) return;
 				// probably better if these are separate events...
 				$socket.send(
 					new Float32Array([
@@ -139,7 +142,7 @@
 			const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://localhost:8080";
 			// const url = "192.168.0.84";
 			const ws = new WebSocket(
-				`${url}?username=${username}&room=${room}&sex=${skin === -1 ? "true" : skin === 0 ? "true" : "false"}&seed=${
+				`${url}?username=${username}&room=${room}&skin=${skin === -1 ? 0 : skin}&seed=${
 					seed === 0 ? 1 : seed
 				}`
 			);
@@ -236,7 +239,7 @@
 								{
 									id: arr[1],
 									name: "Loading...",
-									sex: Boolean(arr[2]),
+									skin: arr[2],
 									x: Math.floor(Math.random() * 10),
 									y: 1.5,
 									z: Math.floor(Math.random() * 10),
@@ -261,6 +264,8 @@
 						} else if (arr[0] === PLAYER_LEAVE_EVENT) {
 							console.log("Player left", arr[1]);
 							players = players.filter((p) => p.id !== arr[1]);
+						} else if (arr[0] === START_LOBBY_EVENT) {
+							lobby = false;
 						} else {
 							console.log("Unknown event", arr[0]);
 						}
@@ -282,6 +287,7 @@
 				players = [];
 				menu = true;
 				cakes = [];
+				hostCakes = [];
 				// Room now closes when host leaves
 			};
 		}
@@ -385,7 +391,6 @@
 				Loading game assets...
 			</p>
 		</Root>
-		<!-- {console.log("CURR", currentCtx)} -->
 		<Root>
 			<section class="contextmenu" class:hide={isSuspend}>
 				<ul>
@@ -569,7 +574,33 @@
 	<Root>
 		<dialog class="germination">Waiting for germination...</dialog>
 	</Root>
-	<!-- {console.log("Waiting for germination")} -->
+{:else if lobby}
+	<Root>
+		<dialog class="lobby">
+			<h2>LOBBY MENU</h2>
+			<h3>You are {host ? "host" : "guest"}</h3>
+			<h4>Players:</h4>
+			<div class="player">
+				<p>YOU</p>
+				<div>SKIN {skin}</div>
+			</div>
+			{#each players as p (p.id)}
+				<div class="player">
+					<p style={p.id === 0 && "color: red"}>ID {p.id} NAME {p.name}</p>
+					<div>
+						SKIN {p.skin}
+					</div>
+				</div>
+			{/each}
+			<h6>Player count: {players.length + 1}</h6>
+			{#if host}
+				<button on:click={_ => {
+					$socket?.send(new Uint8Array([START_LOBBY_EVENT]));
+				}}>Start game as (g)host</button>
+			{/if}
+			<button on:click={_ => $socket?.close()}>{host ? "Disband" : "Leave"} lobby</button>
+		</dialog>
+	</Root>
 {:else}
 	<Suspense final>
 		<T.Group slot="fallback">
@@ -647,11 +678,11 @@
 					<Blackhole />
 				{/if}
 			{/if}
-			{#each players as p}
+			{#each players as p (p.id)}
 				<Player2
 					id={p.id}
 					username={p.name}
-					sex={p.sex}
+					skin={p.skin}
 					position={[p.x, p.y, p.z]}
 					linvel={[p.linx, p.liny, p.linz]}
 					animation={p.animation}
@@ -828,6 +859,43 @@
 
 	.settingsMenu div {
 		margin-top: .5em;
+	}
+
+	.lobby {
+		display: flex;
+		flex-direction: column;
+		z-index: 2;
+		transition: 5s;
+		animation: ease-in-out 5s;
+	}
+
+	.lobby h2 {
+		font-family: 'Comic Sans MS';
+		margin: 0;
+		margin-bottom: 15%;
+		text-align: center;
+	}
+	
+	.lobby h3, .lobby h4 {
+		font-family: 'Comic Sans MS';
+		margin: 0;
+		margin-bottom: 10%;
+	}
+
+	.lobby p {
+		margin: 0;
+	}
+
+	.lobby h6 {
+		font-family: 'Comic Sans MS';
+		margin: 0;
+		margin-top: 20%;
+	}
+
+	.lobby .player {
+		font-family: 'Comic Sans MS';
+		border: .125em solid black;
+		padding: .125em;
 	}
 
 	.counters {

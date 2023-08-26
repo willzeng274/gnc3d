@@ -61,7 +61,7 @@
 			is={SkeletonUtils.clone(gltf.scene)}
 			name="Scene"
 			on:create={({ ref }) => {
-				console.log(ref);
+				// console.log(ref);
 				ref.updateMatrixWorld(true);
 				let completeBoundingBox = new Box3().setFromObject(ref);
 				let v3 = new Vector3();

@@ -57,7 +57,7 @@
 		return [Math.random() * 10, Math.random() * 10, Math.random() * 10]
 	}
 
-	export let items: CakeGenItem[] = []
+	export let items: CakeGenItem[] = [];
 	let lastBodyMounted: number = 0;
 	let bodyEveryMilliseconds = 10000;
 
