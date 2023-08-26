@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { T } from "@threlte/core";
+	import { T, useFrame } from "@threlte/core";
 	import { MeshStandardMaterial, PlaneGeometry, CanvasTexture, RepeatWrapping, TextureLoader, Vector3, BoxGeometry, MathUtils } from "three";
 	import { DEG2RAD } from "three/src/math/MathUtils";
 	import { createNoise2D } from "simplex-noise";
@@ -238,6 +238,10 @@
 		skyUniforms["rayleigh"].value = 2;
 		skyUniforms["mieCoefficient"].value = 0.005;
 		skyUniforms["mieDirectionalG"].value = 0.8;
+		
+		useFrame(() => {
+			water.material.uniforms["time"].value += 1.0 / 60.0;
+		});
 	}
 </script>
 
