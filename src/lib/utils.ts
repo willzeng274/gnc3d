@@ -5,6 +5,7 @@ export function cakeTypeAsInt(cake: string): number {
     if (cake === "normal") return 0;
     if (cake === "frozen") return 1;
     if (cake === "gold") return 2;
+    if (cake === "chicken") return 3;
     return -1;
 }
 
@@ -28,6 +29,7 @@ export function intToCakeType(n: number): cakeType {
     if (n === 0) return "normal";
     if (n === 1) return "frozen";
     if (n === 2) return "gold";
+    if (n === 3) return "chicken";
     // this should not be reachable
     return "gold";
 }
