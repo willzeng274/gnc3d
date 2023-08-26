@@ -291,7 +291,7 @@
 				console.log("WS opened.");
 				socket.set(ws);
 			};
-			ws.onclose = (_) => {
+			ws.onclose = (m) => {
 				console.log("WS closed.");
 				clearInterval(intv);
 				socket.set(null);
@@ -303,6 +303,12 @@
 				menu = true;
 				cakes = [];
 				hostCakes = [];
+				if (m.code === 4001) {
+					alert("Room already started!");
+				}
+				if (m.code === 1007) {
+					alert("Your query string was unexpected edited");
+				}
 				// Room now closes when host leaves
 			};
 		}
