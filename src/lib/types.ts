@@ -34,7 +34,8 @@ export interface ConnectedPlayer {
 }
 
 export interface Config {
-    fov: number,
+    fov: number;
+    volume: number;
     fps: boolean;
     shader: boolean;
     blackhole: boolean;

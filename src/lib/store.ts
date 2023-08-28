@@ -18,5 +18,6 @@ export const gameConfig = writable<Config>({
     womenCount: 1,
     jamalUnlocked: false,
     vegasUnlocked: false,
-    debugMode: false
+    debugMode: false,
+    volume: 20
 });

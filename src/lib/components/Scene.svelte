@@ -725,6 +725,11 @@
 						FOV
 						<input type="number" bind:value={$gameConfig.fov} />
 					</div>
+					<div>
+						Soundeffect volume
+						<input type="range" min={0} max={1000} step={1} bind:value={$gameConfig.volume} />
+						{$gameConfig.volume}%
+					</div>
 				</dialog>
 			</Root>
 		{/if}
