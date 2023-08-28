@@ -43,7 +43,7 @@
 	let currentActionKey: ActionName = "idle";
 	// dash momentum
 	let dash: number = 0;
-	let lastDash = Date.now();
+	let lastDash = Date.now() - 5001;
 
 	$: if (capsule) {
 		capRef = capsule;
@@ -360,6 +360,21 @@
 					}}
 				/>
 			</div>
+			<div id="joystickWrapper3">
+				<button
+					id="dashButton"
+					style={Date.now() - lastDash < 5000 ? `background-color: black` : undefined}
+					on:click={() => {
+						if (Date.now() - lastDash > 5000) {
+							lastDash = Date.now();
+							dash = 1;
+							setTimeout(() => {
+								lastDash = Date.now() - 5001;
+							}, 5000)
+						}
+					}}
+				/>
+			</div>
 		</div>
 	</Root>
 {/if}
@@ -518,7 +533,20 @@
 		height: 120px;
 		z-index: 12;
 		touch-action: manipulation;
-		display: block;
+	}
+
+	#joystickWrapper3 {
+		pointer-events: auto;
+		display: flex;
+		align-items: center;
+		position: absolute;
+		bottom: 0;
+		right: 60px;
+		/* background-color: #000000; */
+		width: 60px;
+		height: 120px;
+		z-index: 12;
+		touch-action: manipulation;
 	}
 
 	#jumpButton {
@@ -527,6 +555,20 @@
 		top: 15px;
 		width: 90px;
 		height: 90px;
+		border-radius: 50%;
+		background-color: white;
+		opacity: 0.5;
+		touch-action: manipulation;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		pointer-events: auto;
+	}
+
+	#dashButton {
+		position: absolute;
+		width: 45px;
+		height: 45px;
 		border-radius: 50%;
 		background-color: white;
 		opacity: 0.5;

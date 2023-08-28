@@ -17,6 +17,7 @@
     const axisY = new Vector3(0, 1, 0);
     export let selfPos: [number, number, number] = [10, 8, 10];
     export let skin: number;
+    export let initialSpeed: number = 0.1;
     freeze.subscribe((fr) => {
         // alert(fr);
         if (fr) {
@@ -30,7 +31,7 @@
             // a - 2.5 and b + 3.5 if refreshed?? Idk
             const a: number = $playerPos[0] - selfPos[0], b: number = $playerPos[2] - selfPos[2], c: number = Math.sqrt(a**2 + b**2);
             // console.log($score / 100);
-            const speed = $freeze ? 0 : ($score / (skin === 3 ? 2000 : 1000) + 0.1) / c;
+            const speed = $freeze ? 0 : ($score / (skin === 3 ? 2000 : 1000) + initialSpeed) / c;
             // const speed = $freeze ? 0 : 0.2 / c;
             // console.log(position);
             // console.log(selfPos, "distance: ", c);
