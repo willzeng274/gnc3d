@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { T } from "@threlte/core";
-	import type * as THREE from "three";
+	// import type * as THREE from "three";
 	import { CollisionGroups, Collider, RigidBody } from "@threlte/rapier";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 	import Ybot from "./models/Ybot.svelte";
 	import Xbot from "./models/Xbot.svelte";
-	import Jamal from "./models/Jamal.svelte";
+	import James from "./models/James.svelte";
 	import Username from "./Username.svelte";
 
 	type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
@@ -77,7 +77,7 @@
 			{:else if skin === 1}
 				<Xbot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
 			{:else if skin === 2}
-				<Jamal currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+				<James currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
 			{/if}
 			<CollisionGroups groups={[15]}>
 				<T.Group position={[0, -height / 2 + radius, 0]}>

@@ -6,9 +6,9 @@
 	import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 	import type { Props, Events, Slots } from "@threlte/core";
 
-	type $$Props = Props<THREE.Group> & { currentActionKey: ActionName };
-	type $$Events = Events<THREE.Group>;
-	type $$Slots = Slots<THREE.Group> & { fallback: {}; error: { error: any } };
+	type $$Props = Props<Group> & { currentActionKey: ActionName; rotation?: [number, number, number], visible?: boolean };
+	type $$Events = Events<Group>;
+	type $$Slots = Slots<Group> & { fallback: {}; error: { error: any } };
 
 	export let ref = new Group();
 	export let currentActionKey: ActionName = "idle";
@@ -30,8 +30,7 @@
 		};
 	};
 
-	const gltf = suspend(useGltf<GLTFResult>("/models/jamal-transformed.glb", { useDraco: "/" }));
-	// const gltf = suspend(useGltf<GLTFResult>('/models/Xbot.glb'));
+	const gltf = suspend(useGltf<GLTFResult>("/models/james-transformed.glb", { useDraco: "/" }));
 	export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref);
 	const component = forwardEventHandlers();
 	$: $actions[action]?.play();

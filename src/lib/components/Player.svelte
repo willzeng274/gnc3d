@@ -10,22 +10,22 @@
 	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig } from "$lib/store";
 	import Ybot from "./models/Ybot.svelte";
 	import Xbot from "./models/Xbot.svelte";
-	import Wizard from "./models/Wizard.svelte";
-	import Jamal from "./models/Jamal.svelte";
+	import James from "./models/James.svelte";
 	import Username from "./Username.svelte";
 	import Root from "./Root.svelte";
 	import type { JoystickManagerOptions } from "nipplejs";
-	import type { ActionName, Config } from "$lib/types";
+	import type { ActionName } from "$lib/types";
+	import { arraysSize3AreEqual } from "$lib/utils";
 	import { DIED_OF_DEATH } from "$lib/constants";
+	import Bigvegas from "./models/Bigvegas.svelte";
 	export let skin: number;
 	export let host: boolean;
-	export let isWizardUnlocked: boolean;
 	export let username: string;
 	let zooming: number = -1;
 	let mobile: boolean = false;
 	let isPLOCK = $gameConfig.fps;
-	let radius = 0.45; // used to be 0.3
-	let height = 2; // used to be 1.7
+	let radius = skin === 3 ? 0.6 : 0.45; // used to be 0.3
+	let height = skin === 3 ? 2.1 : 2; // used to be 1.7
 	const speed = 6;
 	let rigidBody: RapierRigidBody | undefined;
 	let lock: undefined | (() => void);
@@ -41,7 +41,8 @@
 	let capRef: THREE.Group;
 	let collider: RapierCollider;
 	let currentActionKey: ActionName = "idle";
-	let dash = false;
+	// dash momentum
+	let dash: number = 0;
 	let lastDash = Date.now();
 
 	$: if (capsule) {
@@ -115,13 +116,15 @@
 			linv.x = 0;
 			linv.z = 0;
 			rigidBody.setLinvel(linv, true);
-			playerLinvel.set([0, linv.y, 0]);
+			if (!arraysSize3AreEqual([0, Math.fround(linv.y), 0], $playerLinvel) || $socket === null)
+				playerLinvel.set([0, Math.fround(linv.y), 0]);
 			return;
 		}
 
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
-		const multi = shift ? (skin === 2 ? 1.20 : 1) : (skin === 2 ? 0.6 : 0.5);
+		// Big vegas can walk normal but 15% sprint reductin
+		const multi = shift ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : 1) : skin === 2 ? 0.6 : 0.5;
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();
@@ -134,9 +137,10 @@
 
 		// console.log(forward-backward, right-left);
 		// Normalize
-		if (dash) {
-			cameraForward.normalize().multiplyScalar(500 * multi * speed);
+		if (dash > 0) {
+			cameraForward.normalize().multiplyScalar(dash * (skin === 3 ? 10 : 20) * multi * speed);
 			cameraRight.normalize().multiplyScalar(0);
+			dash = Math.max(dash - deltaTime, 0);
 		} else {
 			cameraForward.normalize().multiplyScalar((forward - backward) * multi * speed);
 			cameraRight.normalize().multiplyScalar((right - left) * multi * speed);
@@ -151,8 +155,7 @@
 		// velVec.applyEuler(new Euler().copy(capsule.rotation)).multiplyScalar(speed);
 		// don't override falling velocity
 		const linVel = rigidBody.linvel();
-		t.y = linVel.y + (dash ? 5 : 0);
-		dash = false;
+		t.y = linVel.y + dash / 2;
 		// t.y = 0;
 		// t.y = 1;
 		// finally set the velocities and wake up the body
@@ -167,14 +170,16 @@
 
 		// funny wizard man
 		if (prevPos < -23 && ground) {
-			isWizardUnlocked = true;
+			// wizard was removed
 		}
 
 		rigidBody.setLinvel(t, true);
 
 		// update linvel and pos
-		playerLinvel.set([t.x, t.y, t.z]);
-		playerPos.set([pos.x, pos.y, pos.z]);
+		const lvArr: [number, number, number] = [Math.fround(t.x), Math.fround(t.y), Math.fround(t.z)];
+		const posArr: [number, number, number] = [Math.fround(pos.x), Math.fround(pos.y), Math.fround(pos.z)];
+		if (!arraysSize3AreEqual(lvArr, $playerLinvel) || $socket === null) playerLinvel.set(lvArr);
+		if (!arraysSize3AreEqual(posArr, $playerPos) || $socket === null) playerPos.set(posArr);
 
 		// add isPLOCK condition here if necessary
 		if (right || left || forward || backward) {
@@ -189,7 +194,12 @@
 			// Interpolate between current rotation and target rotation (slerp)
 			const maxRotationSpeed = 0.1; // Adjust the speed of rotation
 			model.quaternion.slerp(targetRotation, maxRotationSpeed);
-			playerRotation.set([model.rotation.x, model.rotation.y, model.rotation.z]);
+			const rotArr: [number, number, number] = [
+				Math.fround(model.rotation.x),
+				Math.fround(model.rotation.y),
+				Math.fround(model.rotation.z),
+			];
+			if (!arraysSize3AreEqual(rotArr, $playerRotation, false) || $socket === null) playerRotation.set(rotArr);
 		}
 	});
 
@@ -237,7 +247,7 @@
 			case "f":
 				if (Date.now() - lastDash > 5000) {
 					lastDash = Date.now();
-					dash = true;
+					dash = 1;
 				}
 				break;
 			case "shift":
@@ -262,7 +272,18 @@
 		// right click messes up everything
 		document.addEventListener("contextmenu", (e) => e.preventDefault());
 		// @ts-ignore
-		(function (a) {if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4)))mobile = true;})(navigator.userAgent || navigator.vendor || window["opera"]);
+		(function (a) {
+			if (
+				/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(
+					a
+				) ||
+				/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(
+					a.substr(0, 4)
+				)
+			)
+				mobile = true;
+		// @ts-ignore
+		})(navigator.userAgent || navigator.vendor || window["opera"]);
 		if (!mobile) return;
 		const nipplejs = (await import("nipplejs")).default;
 		const options: JoystickManagerOptions = {
@@ -411,17 +432,20 @@
 				}}
 			/>
 			{#if !isPLOCK}
-				{#if isWizardUnlocked}
-					<Wizard bind:ref={model} />
-				{:else if skin === 0}
+				{#if skin === 0}
 					<Ybot bind:currentActionKey bind:ref={model} />
 				{:else if skin === 1}
 					<Xbot bind:currentActionKey bind:ref={model} />
 				{:else if skin === 2}
-					<Jamal bind:currentActionKey bind:ref={model} />
+					<James bind:currentActionKey bind:ref={model} />
+				{:else if skin === 3}
+					<Bigvegas bind:currentActionKey bind:ref={model} />
 				{/if}
 			{:else}
-				<T.Mesh geometry={new CapsuleGeometry(0.3, 1.8 - 0.3 * 2)} material={new MeshBasicMaterial({ transparent: true, opacity: 0 })} />
+				<T.Mesh
+					geometry={new CapsuleGeometry(radius, height - radius * 2)}
+					material={new MeshBasicMaterial({ transparent: true, opacity: 0 })}
+				/>
 			{/if}
 		</CollisionGroups>
 		<CollisionGroups groups={[15]}>

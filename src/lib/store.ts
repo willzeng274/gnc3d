@@ -17,4 +17,5 @@ export const gameConfig = writable<Config>({
     blackhole: false,
     womenCount: 1,
     jamalUnlocked: false,
+    vegasUnlocked: false,
 });

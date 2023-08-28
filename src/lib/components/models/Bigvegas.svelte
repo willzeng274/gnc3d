@@ -5,6 +5,7 @@
 	import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
 	import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 	import type { Props, Events, Slots } from "@threlte/core";
+	import Attractor from "$lib/rapier/world/Attractor.svelte";
 
 	type $$Props = Props<Group> & { currentActionKey: ActionName; rotation?: [number, number, number], visible?: boolean };
 	type $$Events = Events<Group>;
@@ -18,18 +19,19 @@
 	type ActionName = "fall" | "idle" | "jump" | "running" | "tpose" | "walk";
 	type GLTFResult = {
 		nodes: {
-			Beta_Joints: THREE.SkinnedMesh;
-			Beta_Surface: THREE.SkinnedMesh;
+			Elvis_BodyGeo001: THREE.SkinnedMesh;
+			Elvis_BrowsAnimGeo001: THREE.SkinnedMesh;
+			Elvis_EyesAnimGeo001: THREE.SkinnedMesh;
+			Elvis_MouthAnimGeo001: THREE.SkinnedMesh;
 			mixamorigHips: THREE.Bone;
 		};
 		materials: {
-			Beta_Joints_MAT1: THREE.MeshStandardMaterial;
-			Beta_HighLimbsGeoSG3: THREE.MeshStandardMaterial;
+			["Character_Fat_Elvis_body_color1.001"]: THREE.MeshStandardMaterial;
+			["Elvis_Eyes_MAT1.001"]: THREE.MeshStandardMaterial;
 		};
 	};
-	// let curr: ThrelteGltf<GLTFResult>;
-	const gltf = suspend(useGltf<GLTFResult>("/models/Xbot-transformed.glb", { useDraco: "/" }));
-	// const gltf = suspend(useGltf<GLTFResult>('/models/Xbot.glb'));
+
+	const gltf = suspend(useGltf<GLTFResult>("/models/bigvegas-transformed.glb", { useDraco: "/" }));
 	export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref);
 	const component = forwardEventHandlers();
 	$: $actions[action]?.play();
@@ -50,6 +52,13 @@
 		action = nextActionKey;
 	}
 </script>
+
+<Attractor
+    range={16}
+    strength={10}
+    gravityType="reverseQuadratic"
+    rigidBodyName="cake"
+/>
 
 <T is={ref} dispose={false} {...$$restProps} bind:this={$component}>
 	{#await gltf}

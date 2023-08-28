@@ -126,10 +126,10 @@
 			cameraControls.phi -= rotateSpeed * 0.1;
 		} else if (event.key === "ArrowDown") {
 			cameraControls.phi += rotateSpeed * 0.1;
-		}
-		// } else if (event.key === "m") {
-		//     score.update((sc) => (sc+1) * 2);
 		// }
+		} else if (event.key === "m") {
+		    score.update((sc) => (sc+1) * 2);
+		}
 	}
 
 	function onPointerDown(event: PointerEvent) {

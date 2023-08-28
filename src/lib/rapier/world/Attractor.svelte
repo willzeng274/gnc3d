@@ -5,7 +5,7 @@
 	import { useRapier } from "@threlte/rapier";
 	import type { Props, Events, Slots } from "@threlte/core";
 
-	type GravityType = "static" | "linear" | "newtonian" | "reverseLinear";
+	type GravityType = "static" | "linear" | "newtonian" | "reverseLinear" | "reverseQuadratic";
 
 	type AttractorProps = Props<Group> & {
 		/**
@@ -60,7 +60,8 @@
 		static: (s: number, m2: number, r: number, d: number, G: number): number => s,
 		linear: (s: number, m2: number, r: number, d: number, G: number) => s * (d / r),
 		newtonian: (s: number, m2: number, r: number, d: number, G: number) => (G * s * m2) / Math.pow(d, 2),
-        reverseLinear: (s: number, m2: number, r: number, d: number, G: number) => s * 1 / d
+        reverseLinear: (s: number, m2: number, r: number, d: number, G: number) => s * 1 / d,
+		reverseQuadratic: (s: number, m2: number, r: number, d: number, G: number) => s * 1 / Math.pow(d, 0.5),
 	};
 
 	function applyImpulseToBodiesInRange() {

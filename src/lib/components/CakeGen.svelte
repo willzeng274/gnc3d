@@ -67,7 +67,7 @@
 			const id = getId();
 			const position = getRandomPosition();
 			const rotation = getRandomRotation();
-			const type = Math.random() > 0.5 ? 'normal' : (Math.random() > 0.3 ? (Math.random() > 0.1 ? 'frozen' : 'chicken' ) : 'gold');
+			const type = Math.random() > 0.5 ? 'normal' : (Math.random() > 0.3 ? (Math.random() > 0.1 ? 'frozen' : 'azure' ) : 'gold');
 			items = [{
 				id,
 				position,
@@ -93,7 +93,7 @@
 					freeze.update((f) => f + 1);
 				} else if (curr.type === 'gold') {
 					score.update((s) => s*2);
-				} else if (curr.type === 'chicken') {
+				} else if (curr.type === 'azure') {
 					gameConfig.update((gc) => ({...gc, jamalUnlocked: true}));
 				}
 				return prev;

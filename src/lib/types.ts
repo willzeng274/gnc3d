@@ -1,11 +1,12 @@
 import type { Vector3, Euler } from "three";
 
-export type cakeType = "normal" | "frozen" | "gold" | "chicken";
+export type cakeType = "normal" | "frozen" | "gold" | "azure";
 export interface Cake {
     id: number;
     position: [number, number, number];
     rotation: [number, number, number];
     type: cakeType;
+    dynamic: boolean;
 }
 
 export interface CakeGenItem {
@@ -39,4 +40,5 @@ export interface Config {
     blackhole: boolean;
     womenCount: number;
     jamalUnlocked: boolean;
+    vegasUnlocked: boolean;
 }
