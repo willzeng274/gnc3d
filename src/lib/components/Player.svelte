@@ -390,7 +390,7 @@
 	<AudioListener />
 </T.PerspectiveCamera>
 
-<Audio src={"/audio/ocean.mp3"} autoplay loop volume={0.2} />
+<Audio src="/audio/ocean.mp3" autoplay loop volume={$gameConfig.volume / 100} />
 
 <T.Group bind:ref={capsule} position={$playerPos} rotation.y={Math.PI}>
 	<Username {username} ypos={$playerPos[1]} />
