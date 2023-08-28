@@ -1,11 +1,11 @@
 import { animations } from "./constants";
 import type { cakeType, ActionName } from "./types";
 
-export function cakeTypeAsInt(cake: string): number {
+export function cakeTypeAsInt(cake: cakeType): number {
     if (cake === "normal") return 0;
     if (cake === "frozen") return 1;
     if (cake === "gold") return 2;
-    if (cake === "chicken") return 3;
+    if (cake === "azure") return 3;
     return -1;
 }
 
@@ -29,7 +29,7 @@ export function intToCakeType(n: number): cakeType {
     if (n === 0) return "normal";
     if (n === 1) return "frozen";
     if (n === 2) return "gold";
-    if (n === 3) return "chicken";
+    if (n === 3) return "azure";
     // this should not be reachable
     return "gold";
 }
@@ -37,4 +37,11 @@ export function intToCakeType(n: number): cakeType {
 export function getRandomElementFromArray<G>(array: Array<G>) {
     const randomIndex = Math.floor(Math.random() * array.length);
     return array[randomIndex];
+}
+
+export function arraysSize3AreEqual(arr1: [number, number, number], arr2: [number, number, number], roundY: boolean = true): boolean {
+    // only 4 digit representation is enough but for some reason Y is weird so we only keep 2 decimal places
+    return Math.round(arr1[0] * 1e4) / 1e4 === Math.round(arr2[0] * 1e4) / 1e4 &&
+        Math.round(arr1[1] * (roundY ? 1e2 : 1e4)) / (roundY ? 1e2 : 1e4) === Math.round(arr2[1] * (roundY ? 1e2 : 1e4)) / (roundY ? 1e2 : 1e4) &&
+        Math.round(arr1[2] * 1e4) / 1e4 === Math.round(arr2[2] * 1e4) / 1e4;
 }

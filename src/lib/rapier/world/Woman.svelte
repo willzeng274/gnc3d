@@ -28,7 +28,7 @@
         if ($playerPos && xbotRef && rigidBody && !$death) {
             // a - 2.5 and b + 3.5 if refreshed?? Idk
             const a: number = $playerPos[0] - selfPos[0], b: number = $playerPos[2] - selfPos[2], c: number = Math.sqrt(a**2 + b**2);
-            console.log($score / 100);
+            // console.log($score / 100);
             const speed = $freeze ? 0 : ($score / 1000 + 0.1) / c;
             // const speed = $freeze ? 0 : 0.2 / c;
             // console.log(position);
@@ -110,7 +110,7 @@
                     } else if (targetRigidBody?.userData?.name === 'water') {
                         const tl = rigidBody.translation();
                         tl.y = 1;
-                        rigidBody.setTranslation(tl);
+                        rigidBody.setTranslation(tl, true);
                     }
                 }}
                 on:collisionexit={({ targetRigidBody }) => {

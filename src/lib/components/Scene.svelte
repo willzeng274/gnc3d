@@ -2,7 +2,7 @@
 	import { T, useFrame } from "@threlte/core";
 	import { Suspense, createTransition, interactivity, transitions, Text, HTML } from "@threlte/extras";
 	import { AutoColliders, CollisionGroups, Debug } from "@threlte/rapier";
-	import { BoxGeometry, ExtrudeGeometry, MeshStandardMaterial, Path, Shape } from "three";
+	import { BoxGeometry, MeshStandardMaterial } from "three";
 	import Door from "../rapier/world/Door.svelte";
 	import Player from "./Player.svelte";
 	import Ground from "../rapier/world/Ground.svelte";
@@ -19,8 +19,7 @@
 	import { cubicOut } from "svelte/easing";
 	import { scale as SvelteScale } from "svelte/transition";
 	import Particle from "./Particle.svelte";
-	import Wizard from "./models/Wizard.svelte";
-	import Jamal from "./models/Jamal.svelte";
+	import James from "./models/James.svelte";
 	import { PUBLIC_PROD, PUBLIC_CREATOR_HAS_WIFI } from "$env/static/public";
 	import {
 		cakeTypeAsInt,
@@ -30,7 +29,7 @@
 		getRandomElementFromArray,
 		intToCakeType,
 	} from "$lib/utils";
-	import type { Cake, CakeGenItem, Config, ConnectedPlayer } from "$lib/types";
+	import type { Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
 	import {
 		CAKES_UPDATE_EVENT,
 		CAKE_COLLIDE_EVENT,
@@ -43,10 +42,14 @@
 		USER_STATE_UPDATE,
 		START_LOBBY_EVENT,
 		USER_NAME_EVENT,
-		TXT_MESSAGE_CREATE
+		TXT_MESSAGE_CREATE,
+		CAKE_FINAL_EVENT,
+		contextMenuItems,
+		shopItems,
 	} from "$lib/constants";
 	import House from "$lib/rapier/world/House.svelte";
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
+	import Bigvegas from "./models/Bigvegas.svelte";
 
 	const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -66,11 +69,11 @@
 	let isSuspend = true;
 	let menu = true;
 	let lobby = false;
-	let skin: number = -1;
+	// let skin: number = -1;
+	let skin: number = 3;
 	let frozen: number = 0;
 	let room: string = "";
 	let host: boolean = false;
-	let isWizardUnlocked: boolean = false;
 	let message: string = "";
 	let logs: string[] = [];
 	let hostCakes: CakeGenItem[] = [];
@@ -96,59 +99,90 @@
 	// TODO: use an object instead for fast access
 	let players: ConnectedPlayer[] = [];
 
-	let contextMenuItems = [
-		{
-			name: "Skins",
-		},
-		{
-			name: "Seed",
-		},
-		{
-			name: "Shop",
-		},
-		{
-			name: "Play",
-		},
-		{
-			name: "Settings"
-		},
-	];
 	let currentCtx = contextMenuItems[0];
+
+	let currentShopSkin = shopItems[0];
 
 	let cakes: Cake[] = [];
 
+	let lastUpdated = Date.now();
+
 	// TODO: websocket frame rate, if frame rate drops below 3 then the host automatically disconnects
+	// we'll limit to 30 fps for now
+	// small issue: may not update latest frame
+	let latest_frame: number[] | null = null;
+	$: {
+		if ($socket && Date.now() - lastUpdated >= 1000 / 30 && !lobby && !menu) {
+			$socket.send(
+				new Float32Array([
+					USER_STATE_UPDATE,
+					$playerPos[0],
+					$playerPos[1],
+					$playerPos[2],
+					$playerLinvel[0],
+					$playerLinvel[1],
+					$playerLinvel[2],
+					$playerRotation[0],
+					$playerRotation[1],
+					$playerRotation[2],
+					convertAnimationToInt($playerAnimation),
+				])
+			);
+			lastUpdated = Date.now();
+			latest_frame = null;
+		} else if (Date.now() - lastUpdated < 1000 / 30) {
+			latest_frame = [
+				USER_STATE_UPDATE,
+				$playerPos[0],
+				$playerPos[1],
+				$playerPos[2],
+				$playerLinvel[0],
+				$playerLinvel[1],
+				$playerLinvel[2],
+				$playerRotation[0],
+				$playerRotation[1],
+				$playerRotation[2],
+				convertAnimationToInt($playerAnimation),
+			];
+		}
+	}
+
+	// 20 frames to update latest
+	setInterval(() => {
+		if ($socket && Date.now() - lastUpdated >= 1000 / 20 && !lobby && !menu && latest_frame) {
+			$socket.send(new Float32Array(latest_frame));
+			latest_frame = null;
+		}
+	}, 50);
 
 	function startGame(connectWs: boolean = false) {
 		console.log("Starting game... Connect:", connectWs);
 		if (connectWs) {
 			lobby = true;
-			const intv = setInterval(() => {
-				if (!$socket || lobby) return;
-				// probably better if these are separate events...
-				$socket.send(
-					new Float32Array([
-						USER_STATE_UPDATE,
-						$playerPos[0],
-						$playerPos[1],
-						$playerPos[2],
-						$playerLinvel[0],
-						$playerLinvel[1],
-						$playerLinvel[2],
-						$playerRotation[0],
-						$playerRotation[1],
-						$playerRotation[2],
-						convertAnimationToInt($playerAnimation),
-					])
-				);
-			}, 100);
+			// const intv = setInterval(() => {
+			// 	if (!$socket || lobby) return;
+			// 	// probably better if these are separate events...
+			// 	$socket.send(
+			// 		new Float32Array([
+			// 			USER_STATE_UPDATE,
+			// 			$playerPos[0],
+			// 			$playerPos[1],
+			// 			$playerPos[2],
+			// 			$playerLinvel[0],
+			// 			$playerLinvel[1],
+			// 			$playerLinvel[2],
+			// 			$playerRotation[0],
+			// 			$playerRotation[1],
+			// 			$playerRotation[2],
+			// 			convertAnimationToInt($playerAnimation),
+			// 		])
+			// 	);
+			// }, 100);
 			console.log("WS seed:", seed);
 			const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://localhost:8080";
 			// const url = "192.168.0.84";
 			const ws = new WebSocket(
-				`${url}?username=${username}&room=${room}&skin=${skin === -1 ? 0 : skin}&seed=${
-					seed === 0 ? 1 : seed
-				}`
+				`${url}?username=${username}&room=${room}&skin=${skin === -1 ? 0 : skin}&seed=${seed === 0 ? 1 : seed}`
 			);
 			ws.binaryType = "arraybuffer";
 			ws.onmessage = (m) => {
@@ -157,14 +191,14 @@
 					// because we are using byteLength for floats, sending a custom sized string is dangerous
 					// all dynamic length strings must be sent at the end
 					const dataBlocks = m.data.split(",");
-					const eventId = +dataBlocks.shift();
+					const eventId = +dataBlocks.shift()!;
 					if (eventId === USER_NAME_EVENT) {
-						const id = +dataBlocks.shift();
+						const id = +dataBlocks.shift()!;
 						const ind = players.findIndex((p) => p.id === id);
 						// add the comma back in the player names lol
 						players[ind].name = dataBlocks.join(",");
 					} else if (eventId === TXT_MESSAGE_CREATE) {
-						const id = +dataBlocks.shift();
+						const id = +dataBlocks.shift()!;
 						const ind = players.findIndex((p) => p.id === id);
 						console.log("PLAYER SENT A MESSAGE", players[ind], dataBlocks.join(","));
 						logs = [players[ind].name + ": " + dataBlocks.join(","), ...logs];
@@ -176,7 +210,12 @@
 					// console.log(m.data.byteLength);
 					// console.log(m.data);
 					// Rust is so cracked that it can send a dynamic array
-					if (m.data.byteLength === 4 * 11 + 4 || m.data.byteLength === 4 * 9 + 4 || m.data.byteLength === 4 * 2 + 4) {
+					if (
+						m.data.byteLength === 4 * 11 + 4 ||
+						m.data.byteLength === 4 * 9 + 4 ||
+						m.data.byteLength === 4 * 2 + 4 ||
+						m.data.byteLength === 4 * 8 + 4
+					) {
 						// It's numeric data, for some reason JavaScript cannot modify ArrayBuffer
 						// or decode a Uint8Array into Float32Array
 
@@ -194,8 +233,10 @@
 							players[ind].liny = arr[6];
 							players[ind].linz = arr[7];
 							players[ind].rotation = [arr[8], arr[9], arr[10]];
+							console.log("Received animation, ", convertIntToAnimation(arr[11]));
 							players[ind].animation = convertIntToAnimation(arr[11]);
 						} else if (arr[0] === CAKE_SPAWN_EVENT) {
+							console.log("cake spawn id", arr[2]);
 							// a WILD CAKE has spawned!
 							if (arr[1] === 0) {
 								// console.log("CAKE", arr.subarray(2));
@@ -206,6 +247,7 @@
 										position: [arr[3], arr[4], arr[5]],
 										rotation: [arr[6], arr[7], arr[8]],
 										type: intToCakeType(arr[9]),
+										dynamic: true,
 									},
 								];
 							}
@@ -218,6 +260,24 @@
 									} else {
 										score.update((sc) => getNewScoreByCakeType(sc, c.type));
 										return false;
+									}
+								});
+							}
+						} else if (arr[0] === CAKE_FINAL_EVENT) {
+							if (arr[1] === 0) {
+								// this event is triggered when a cake collides with a player
+								cakes = cakes.map((c) => {
+									if (c.id !== arr[2]) {
+										return c;
+									} else {
+										console.log("OLD C", c);
+										console.log("NEW POS", arr.subarray(3));
+										return {
+											...c,
+											position: [arr[3], arr[4], arr[5]],
+											rotation: [arr[6], arr[7], arr[8]],
+											dynamic: false,
+										};
 									}
 								});
 							}
@@ -293,7 +353,7 @@
 			};
 			ws.onclose = (m) => {
 				console.log("WS closed.");
-				clearInterval(intv);
+				// clearInterval(intv);
 				socket.set(null);
 				score.set(0);
 				freeze.set(0);
@@ -301,6 +361,7 @@
 				realSeed = undefined;
 				players = [];
 				menu = true;
+				// lobby = false;
 				cakes = [];
 				hostCakes = [];
 				if (m.code === 4001) {
@@ -382,15 +443,15 @@
 				)
 			)
 				mobile = true;
-		// @ts-ignore
+			// @ts-ignore
 		})(navigator.userAgent || navigator.vendor || window["opera"]);
 
-        if ("config" in localStorage) {
+		if ("config" in localStorage) {
 			// there may be compatibility issues
-            gameConfig.update((gc) => ({...gc, ...JSON.parse(localStorage.getItem("config")!)}));
-        }
+			gameConfig.update((gc) => ({ ...gc, ...JSON.parse(localStorage.getItem("config")!) }));
+		}
 		// save at the end
-		window.addEventListener("unload", _ => localStorage.setItem("config", JSON.stringify($gameConfig)));
+		window.addEventListener("unload", (_) => localStorage.setItem("config", JSON.stringify($gameConfig)));
 	});
 
 	onDestroy(() => {
@@ -399,6 +460,29 @@
 	});
 
 	transitions();
+
+	let cam: THREE.PerspectiveCamera | undefined;
+
+	$: {
+		if (!cam) break $;
+		if (currentCtx.name === "Skins") {
+			console.log("Looking");
+			cam.position.set(10, 10, 10);
+			cam.fov = 90;
+			cam.lookAt(0, 1, 0);
+		} else if (currentCtx.name === "Shop") {
+			cam.position.set(0, 2, 6);
+			cam.fov = 120;
+			cam.lookAt(0, 1, 0);
+			// cam.lookAt(5, 5, 0);
+		}
+	}
+
+	$: {
+		if ($score > 500) {
+			$gameConfig.vegasUnlocked = true;
+		}
+	}
 </script>
 
 <Fps />
@@ -424,14 +508,12 @@
 			</section>
 		</Root>
 
-		{#if currentCtx.name === "Skins"}
-			<T.PerspectiveCamera
-				makeDefault
-				position={[10, 10, 10]}
-				on:create={({ ref }) => {
-					ref.lookAt(0, 1, 0);
-				}}
-			/>
+		<!-- {#if currentCtx.name === "Skins"} -->
+		<T.PerspectiveCamera
+			makeDefault
+			bind:ref={cam}
+		/>
+		<T.Group visible={currentCtx.name === "Skins"}>
 			<T.DirectionalLight position={[0, 10, 10]} castShadow />
 			<T.Group position.x={mobile ? -1.5 : -3} position.z={mobile ? 1.5 : 3} in={zoomIn} out={zoomOut}>
 				<T.Group
@@ -506,44 +588,89 @@
 					<T.MeshStandardMaterial color="white" />
 				</T.Mesh>
 			</T.Group>
-		{:else if currentCtx.name === "Seed"}
+		</T.Group>
+		<!-- {:else if currentCtx.name === "Seed"} -->
+		{#if currentCtx.name === "Seed"}
 			<Root>
 				<dialog class="seedMenu" in:scaleIn out:scaleOut>
 					Enter a map seed: (0 means random)
 					<input type="number" bind:value={seed} />
 				</dialog>
 			</Root>
-		{:else if currentCtx.name === "Shop"}
-			<T.PerspectiveCamera makeDefault position={[0, 1, 3]} fov={120} />
-			<T.DirectionalLight position={[0, 10, 10]} castShadow intensity={$gameConfig.jamalUnlocked ? 1 : 0.2} />
+		{/if}
+		<!-- {:else if currentCtx.name === "Shop"} -->
+		<T.Group visible={currentCtx.name === "Shop"}>
+			<T.DirectionalLight position={[0, 10, 10]} castShadow intensity={currentShopSkin.isUnlocked($gameConfig) ? 1 : 0.2} />
 			<T.Group position.x={0} position.z={0} in={zoomIn} out={zoomOut}>
-				<T.Group position.y={0.5} position.z={0} on:click={_ => $gameConfig.jamalUnlocked && (skin === 2 ? (skin = -1) : (skin = 2))}>
+				<T.Group
+					position.y={1}
+					position.z={0}
+					on:click={(_) => currentShopSkin.isUnlocked($gameConfig) && (skin === currentShopSkin.skin ? (skin = -1) : (skin = currentShopSkin.skin))}
+				>
 					<T.Mesh
 						material={new MeshStandardMaterial({
-							transparent: true,
-							opacity: 1,
 							color: "red",
 						})}
 					>
-						<T.BoxGeometry args={[1, 3.5, 1]} />
+						<T.BoxGeometry args={[1, 2, 1]} />
+					</T.Mesh>
+				</T.Group>
+				<T.Group
+					position.y={1}
+					position.x={-2}
+					on:click={(_) => currentShopSkin = shopItems[0]}
+				>
+					<T.Mesh
+						material={new MeshStandardMaterial({
+							color: "yellow",
+						})}
+					>
+						<T.BoxGeometry args={[0.1, 2, 1]} />
+					</T.Mesh>
+				</T.Group>
+				<T.Group
+					position.y={1}
+					position.x={2}
+					on:click={(_) => currentShopSkin = shopItems[1]}
+				>
+					<T.Mesh
+						material={new MeshStandardMaterial({
+							color: "lightgreen",
+						})}
+					>
+						<T.BoxGeometry args={[0.1, 2, 1]} />
 					</T.Mesh>
 				</T.Group>
 				<T.Group rotation.y={rotation} position.y={1} position.z={1} castShadow>
-					<Jamal currentActionKey={skin === 2 ? "tpose" : "idle"} />
+					<James currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 2} />
+					<Bigvegas currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 3} />
 				</T.Group>
+				<!-- <T.Group rotation.y={rotation} position.x={4} position.y={1} position.z={0} castShadow>
+					<Bigvegas currentActionKey={skin === 3 ? "tpose" : "idle"} />
+				</T.Group> -->
 				<T.Mesh rotation.x={-Math.PI / 2} receiveShadow>
 					<T.CircleGeometry args={[2, 40]} />
 					<T.MeshStandardMaterial color="white" />
 				</T.Mesh>
 				{#if PUBLIC_CREATOR_HAS_WIFI === "true"}
-					<Text position.z={1.5} color="black" text="Jamal skin" fontSize={0.5} anchorX="50%" anchorY="100%" />
-					<Text position.z={1.6} color="#9b870c" text="Perks: 20% speed buff" fontSize={0.1} anchorX="50%" anchorY="100%" />
-					{#if !$gameConfig.jamalUnlocked}
-					<Text position.z={1.7} color="#ff8000" text={`Unlock by collecting the orange "Chicken" cake type`} fontSize={0.2} anchorX="50%" anchorY="100%" />
+					<Text position.z={1.5} color={currentShopSkin.isUnlocked($gameConfig) ? 0x355E3B : "white"} text={currentShopSkin.skinText} fontSize={0.5} anchorX="50%" anchorY="100%" />
+					<Text position.z={1.7} color="#9b870c" text={currentShopSkin.perk} fontSize={0.1} anchorX="50%" anchorY="100%" />
+					{#if !currentShopSkin.isUnlocked($gameConfig)}
+						<Text
+							position.y={-0.5}
+							position.z={1.7}
+							color="#ff8000"
+							text={currentShopSkin.unlock}
+							fontSize={0.2}
+							anchorX="50%"
+							anchorY="100%"
+						/>
 					{/if}
 				{/if}
 			</T.Group>
-		{:else if currentCtx.name === "Play"}
+		</T.Group>
+		<!-- {:else if currentCtx.name === "Play"} -->
+		{#if currentCtx.name === "Play"}
 			<Root>
 				<dialog class="playMenu" in:scaleIn out:scaleOut>
 					<button
@@ -607,7 +734,7 @@
 			</div>
 			{#each players as p (p.id)}
 				<div class="player">
-					<p style={p.id === 0 && "color: red"}>ID {p.id} NAME {p.name}</p>
+					<p style={p.id === 0 ? "color: red" : undefined}>ID {p.id} NAME {p.name}</p>
 					<div>
 						SKIN {p.skin}
 					</div>
@@ -615,11 +742,13 @@
 			{/each}
 			<h6>Player count: {players.length + 1}</h6>
 			{#if host}
-				<button on:click={_ => {
-					$socket?.send(new Uint8Array([START_LOBBY_EVENT]));
-				}}>Start game as (g)host</button>
+				<button
+					on:click={(_) => {
+						$socket?.send(new Uint8Array([START_LOBBY_EVENT]));
+					}}>Start game as (g)host</button
+				>
 			{/if}
-			<button on:click={_ => $socket?.close()}>{host ? "Disband" : "Leave"} lobby</button>
+			<button on:click={(_) => $socket?.close()}>{host ? "Disband" : "Leave"} lobby</button>
 		</dialog>
 		<dialog class="chat">
 			<div class="logs">
@@ -627,11 +756,13 @@
 					<p>{msg}</p>
 				{/each}
 			</div>
-			<input type="text" bind:value={message} /><button on:click={_ => {
-				logs = ["YOU: " + message, ...logs];
-				$socket?.send(TXT_MESSAGE_CREATE + message);
-				message = "";
-			}}>Send message</button>
+			<input type="text" bind:value={message} /><button
+				on:click={(_) => {
+					logs = ["YOU: " + message, ...logs];
+					$socket?.send(TXT_MESSAGE_CREATE + message);
+					message = "";
+				}}>Send message</button
+			>
 		</dialog>
 	</Root>
 {:else}
@@ -688,23 +819,30 @@
 		</CollisionGroups>
 		<CollisionGroups groups={[0]}>
 			<House />
-			<Player {username} {host} skin={skin === -1 ? 0 : skin} bind:isWizardUnlocked />
+			<Player {username} {host} skin={skin === -1 ? 0 : skin} />
 			<Door />
 			{#if $socket !== null}
 				{#if host}
 					<CakeGen host bind:items={hostCakes} />
 				{:else}
 					{#each cakes as cake (cake.id)}
-						<!-- {console.log(cake.position)} -->
 						<!-- the touch param is completely useless for a non-host -->
-						<Particle id={cake.id} position={cake.position} rotation={cake.rotation} type={cake.type} touch={0} {host} />
+						<Particle
+							id={cake.id}
+							position={cake.position}
+							rotation={cake.rotation}
+							type={cake.type}
+							touch={0}
+							{host}
+							dynamic={cake.dynamic}
+						/>
 					{/each}
 				{/if}
 			{:else}
 				<CakeGen />
 				<Woman />
 				<!-- at least 1 woman from above -->
-				{#each {length: $gameConfig.womenCount - 1} as _}
+				{#each { length: $gameConfig.womenCount - 1 } as _}
 					<Woman selfPos={[Math.random() * 200 - 100, 8, Math.random() * 200 - 100]} />
 				{/each}
 				{#if $gameConfig.blackhole}
@@ -883,7 +1021,7 @@
 		flex-direction: column;
 		z-index: 2;
 	}
-	
+
 	.settingsMenu {
 		display: flex;
 		flex-direction: column;
@@ -891,7 +1029,7 @@
 	}
 
 	.settingsMenu div {
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 
 	.chat {
@@ -918,14 +1056,15 @@
 	}
 
 	.lobby h2 {
-		font-family: 'Comic Sans MS';
+		font-family: "Comic Sans MS";
 		margin: 0;
 		margin-bottom: 15%;
 		text-align: center;
 	}
-	
-	.lobby h3, .lobby h4 {
-		font-family: 'Comic Sans MS';
+
+	.lobby h3,
+	.lobby h4 {
+		font-family: "Comic Sans MS";
 		margin: 0;
 		margin-bottom: 10%;
 	}
@@ -935,15 +1074,15 @@
 	}
 
 	.lobby h6 {
-		font-family: 'Comic Sans MS';
+		font-family: "Comic Sans MS";
 		margin: 0;
 		margin-top: 20%;
 	}
 
 	.lobby .player {
-		font-family: 'Comic Sans MS';
-		border: .125em solid black;
-		padding: .125em;
+		font-family: "Comic Sans MS";
+		border: 0.125em solid black;
+		padding: 0.125em;
 	}
 
 	.counters {
