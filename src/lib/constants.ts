@@ -45,7 +45,7 @@ export const shopItems = [
     },
     {
         skinText: "Big Vegas Skin",
-        perk: "Perks: Attracts cakes within 10 block radius, 15% sprint speed nerf",
+        perk: "Perks: Attracts cakes within 20 block radius, 15% sprint speed nerf",
         unlock: `Unlock by getting a score of 500 in one run`,
         skin: 3,
         index: 1,

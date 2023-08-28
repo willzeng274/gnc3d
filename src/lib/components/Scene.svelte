@@ -272,8 +272,8 @@
 									if (c.id !== arr[2]) {
 										return c;
 									} else {
-										console.log("OLD C", c);
-										console.log("NEW POS", arr.subarray(3));
+										// console.log("OLD C", c);
+										// console.log("NEW POS", arr.subarray(3));
 										return {
 											...c,
 											position: [arr[3], arr[4], arr[5]],
@@ -468,7 +468,6 @@
 	$: {
 		if (!cam) break $;
 		if (currentCtx.name === "Skins") {
-			console.log("Looking");
 			cam.position.set(10, 10, 10);
 			cam.fov = 90;
 			cam.lookAt(0, 1, 0);

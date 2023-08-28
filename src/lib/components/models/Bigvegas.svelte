@@ -54,9 +54,9 @@
 </script>
 
 <Attractor
-    range={16}
+    range={20}
     strength={10}
-    gravityType="reverseQuadratic"
+    gravityType="reverseCubic"
     rigidBodyName="cake"
 />
 
