@@ -19,6 +19,7 @@
 	import { cubicOut } from "svelte/easing";
 	import { scale as SvelteScale } from "svelte/transition";
 	import Particle from "./Particle.svelte";
+	import Tutorial from "./Tutorial.svelte";
 	import James from "./models/James.svelte";
 	import { PUBLIC_PROD, PUBLIC_CREATOR_HAS_WIFI } from "$env/static/public";
 	import {
@@ -69,6 +70,7 @@
 	let isSuspend = true;
 	let menu = true;
 	let lobby = false;
+	let tutorial = false;
 	let skin: number = -1;
 	// let skin: number = 3;
 	let frozen: number = 0;
@@ -678,8 +680,14 @@
 							realSeed = seed;
 							playerPos.set([0, 10, 3]);
 							startGame(false);
-						}}>Singleplayer</button
-					>
+						}}>Singleplayer</button>
+					<button
+						on:click={() => {
+							menu = false;
+							tutorial = true;
+						}}
+					>Play tutorial</button>
+					<p>Multiplayer rooms</p>
 					<div>
 						<input type="text" bind:value={room} /><button
 							on:click={() => {
@@ -687,7 +695,7 @@
 							}}>Join room</button
 						>
 					</div>
-					Username:
+					<p>Username:</p>
 					<input type="text" bind:value={username} placeholder="Enter a username here:" />
 				</dialog>
 			</Root>
@@ -701,6 +709,10 @@
 					<div>
 						Enable shaders
 						<input type="checkbox" bind:checked={$gameConfig.shader} />
+					</div>
+					<div>
+						Enable debug mode (LAG WARNING)
+						<input type="checkbox" bind:checked={$gameConfig.debugMode} />
 					</div>
 					<div>
 						Enable blackhole mode
@@ -718,6 +730,11 @@
 			</Root>
 		{/if}
 	</Suspense>
+{:else if tutorial}
+	<Tutorial on:end={() => {
+		tutorial = false;
+		menu = true;
+	}} />
 {:else if realSeed === undefined}
 	<Root>
 		<dialog class="germination">Waiting for germination...</dialog>
@@ -800,6 +817,8 @@
 						menu = true;
 						death.set(false);
 						realSeed = undefined;
+						tutorial = false;
+						lobby = false;
 					}}
 					class="quitbtn">Exit game</button
 				>
@@ -810,9 +829,11 @@
 
 		<T.DirectionalLight castShadow position={[8, 20, -3]} />
 
-		<!-- <Debug /> -->
+		{#if $gameConfig.debugMode}
+			<Debug />
+		{/if}
 
-		<T.GridHelper args={[50]} position.y={0.01} />
+		<!-- <T.GridHelper args={[50]} position.y={0.01} /> -->
 
 		<CollisionGroups groups={[0, 15]}>
 			<Ground seed={realSeed} enableShaders={$gameConfig.shader} />
