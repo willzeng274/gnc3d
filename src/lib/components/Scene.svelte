@@ -69,8 +69,8 @@
 	let isSuspend = true;
 	let menu = true;
 	let lobby = false;
-	// let skin: number = -1;
-	let skin: number = 3;
+	let skin: number = -1;
+	// let skin: number = 3;
 	let frozen: number = 0;
 	let room: string = "";
 	let host: boolean = false;
