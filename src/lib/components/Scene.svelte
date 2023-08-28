@@ -633,7 +633,7 @@
 				<T.Group
 					position.y={1}
 					position.x={2}
-					on:click={(_) => currentShopSkin = shopItems[Math.min(currentShopSkin.index + 1, shopItems.length)]}
+					on:click={(_) => currentShopSkin = shopItems[Math.min(currentShopSkin.index + 1, shopItems.length - 1)]}
 				>
 					<T.Mesh
 						material={new MeshStandardMaterial({
