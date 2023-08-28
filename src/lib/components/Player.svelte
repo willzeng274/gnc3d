@@ -138,7 +138,7 @@
 		// console.log(forward-backward, right-left);
 		// Normalize
 		if (dash > 0) {
-			cameraForward.normalize().multiplyScalar(dash * (skin === 3 ? 10 : 20) * multi * speed);
+			cameraForward.normalize().multiplyScalar(dash * (skin === 3 ? 10 : 16) * multi * speed);
 			cameraRight.normalize().multiplyScalar(0);
 			dash = Math.max(dash - deltaTime, 0);
 		} else {
@@ -431,7 +431,7 @@
 					// (e.targetRigidBody || e.targetCollider.handle !== 0) || [(ground = false), rigidBody.resetForces(true)/* console.log */]
 				}}
 			/>
-			{#if !isPLOCK}
+			<T.Group visible={!isPLOCK}>
 				{#if skin === 0}
 					<Ybot bind:currentActionKey bind:ref={model} />
 				{:else if skin === 1}
@@ -441,12 +441,7 @@
 				{:else if skin === 3}
 					<Bigvegas bind:currentActionKey bind:ref={model} />
 				{/if}
-			{:else}
-				<T.Mesh
-					geometry={new CapsuleGeometry(radius, height - radius * 2)}
-					material={new MeshBasicMaterial({ transparent: true, opacity: 0 })}
-				/>
-			{/if}
+			</T.Group>
 		</CollisionGroups>
 		<CollisionGroups groups={[15]}>
 			<T.Group position={[0, -height / 2 + radius, 0]}>

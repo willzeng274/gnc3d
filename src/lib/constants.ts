@@ -40,6 +40,7 @@ export const shopItems = [
         perk: "Perks: 20% speed buff",
         unlock: `Unlock by collecting the azure cake type`,
         skin: 2,
+        index: 0,
         isUnlocked: (cfg: Config) => cfg.jamalUnlocked,
     },
     {
@@ -47,6 +48,7 @@ export const shopItems = [
         perk: "Perks: Attracts cakes within 10 block radius, 15% sprint speed nerf",
         unlock: `Unlock by getting a score of 500 in one run`,
         skin: 3,
+        index: 1,
         isUnlocked: (cfg: Config) => cfg.vegasUnlocked,
     }
 ];

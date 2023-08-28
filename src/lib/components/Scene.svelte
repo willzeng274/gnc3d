@@ -618,7 +618,7 @@
 				<T.Group
 					position.y={1}
 					position.x={-2}
-					on:click={(_) => currentShopSkin = shopItems[0]}
+					on:click={(_) => currentShopSkin = shopItems[Math.max(0, currentShopSkin.index - 1)]}
 				>
 					<T.Mesh
 						material={new MeshStandardMaterial({
@@ -631,7 +631,7 @@
 				<T.Group
 					position.y={1}
 					position.x={2}
-					on:click={(_) => currentShopSkin = shopItems[1]}
+					on:click={(_) => currentShopSkin = shopItems[Math.min(currentShopSkin.index + 1, shopItems.length)]}
 				>
 					<T.Mesh
 						material={new MeshStandardMaterial({
@@ -840,10 +840,10 @@
 				{/if}
 			{:else}
 				<CakeGen />
-				<Woman />
+				<Woman {skin} />
 				<!-- at least 1 woman from above -->
 				{#each { length: $gameConfig.womenCount - 1 } as _}
-					<Woman selfPos={[Math.random() * 200 - 100, 8, Math.random() * 200 - 100]} />
+					<Woman selfPos={[Math.random() * 200 - 100, 8, Math.random() * 200 - 100]} {skin} />
 				{/each}
 				{#if $gameConfig.blackhole}
 					<Blackhole />
