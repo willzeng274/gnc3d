@@ -700,6 +700,7 @@
 							fontSize={0.2}
 							anchorX="50%"
 							anchorY="100%"
+							on:click={currentShopSkin.handleClick()}
 						/>
 					{/if}
 				{/if}
