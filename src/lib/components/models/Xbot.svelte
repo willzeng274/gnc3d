@@ -15,6 +15,7 @@
 
 	const suspend = useSuspense();
 	let action: ActionName = "idle";
+	// dance is not available
 	type ActionName = "fall" | "idle" | "jump" | "running" | "tpose" | "walk" | "dance";
 	type GLTFResult = {
 		nodes: {
