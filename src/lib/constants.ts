@@ -45,11 +45,7 @@ export const shopItems = [
         skin: 2,
         index: 0,
         isUnlocked: (cfg: Config) => cfg.jamalUnlocked,
-        handleClick: () => {
-            return () => {
-
-            }
-        }
+        handleClick: () => () => {}
     },
     {
         skinText: "Big Vegas Skin",
@@ -58,11 +54,7 @@ export const shopItems = [
         skin: 3,
         index: 1,
         isUnlocked: (cfg: Config) => cfg.vegasUnlocked,
-        handleClick: () => {
-            return () => {
-                
-            }
-        }
+        handleClick: () => () => {}
     },
     {
         skinText: "Boss skin",
@@ -71,15 +63,13 @@ export const shopItems = [
         skin: 4,
         index: 2,
         isUnlocked: (cfg: Config) => cfg.bossUnlocked,
-        handleClick: () => {
-            return () => {
-                if (get(azure) >= 200) {
-                    azure.update((az) => az - 200);
-                    gameConfig.update((cfg) => ({
-                        ...cfg,
-                        bossUnlocked: true
-                    }))
-                }
+        handleClick: () => () => {
+            if (get(azure) >= 200) {
+                azure.update((az) => az - 200);
+                gameConfig.update((cfg) => ({
+                    ...cfg,
+                    bossUnlocked: true
+                }))
             }
         }
     }

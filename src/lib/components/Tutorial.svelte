@@ -27,6 +27,8 @@
 
     let touch: number = 0;
 
+    let username: string = "Unintelligent";
+
     let speed = 0;
 
     let controls = pcControls;
@@ -77,8 +79,13 @@
             currentStage = 8;
             speed = 0.1;
         }
+
         if (currentStage === 15) {
             dispatch("end");
+        }
+
+        if (currentStage === 13) {
+            username = "Intelligent";
         }
     }
 </script>
@@ -100,7 +107,7 @@
     <Ground seed={1} enableShaders={true} />
 </CollisionGroups>
 <CollisionGroups groups={[0]}>
-    <Player skin={0} host={true} username="Player" />
+    <Player skin={0} host={false} {username} />
     {#if currentStage >= 8}
         <Woman selfPos={[5, 5, 5]} skin={0} initialSpeed={speed} />
     {/if}
