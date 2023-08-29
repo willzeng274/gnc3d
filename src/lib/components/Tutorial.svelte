@@ -78,7 +78,7 @@
     $: {
         if (touch && currentStage < 8) {
             currentStage = 8;
-            speed = 0.5;
+            speed = 0.2;
         }
 
         if (currentStage === 8 && !touch) {
