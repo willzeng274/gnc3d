@@ -114,7 +114,7 @@
                             tl.y = 1;
                             const linvel = rigidBody.linvel();
                             linvel.y = 1;
-                            rigidBody.setLinvel(linvel);
+                            rigidBody.setLinvel(linvel, false);
                             rigidBody.setTranslation(tl, true);
                         }
                         // tl.y = 1;
