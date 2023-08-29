@@ -822,13 +822,13 @@
 					<br />
 					ghost model, therefore the main threat of the game -- the ghost was replaced by the true threat of
 					<br />
-					all of the humanity -- the woman. Now in singleplayer, there is now a woman chasing after you
+					all of the humanity -- the woman. Now in singleplayer, there is a woman chasing after you
 					<br />
-					for your money! If you are broke, then you can picture her as an extreme feminist. However,
+					for your money! If you are broke, then you can picture her as an extreme feminist. If you are
 					<br />
-					if you are a woman, please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and
+					a woman (somehow), please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and then
 					<br />
-					picture the woman as an insane individual within your species.
+					picture the woman as an insane individual belonging to your (different) species.
 				</dialog>
 			</Root>
 		{/if}
