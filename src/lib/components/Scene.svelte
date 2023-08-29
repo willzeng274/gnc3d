@@ -365,6 +365,7 @@
 				socket.set(null);
 				score.set(0);
 				freeze.set(0);
+				death.set(false);
 				host = false;
 				realSeed = undefined;
 				players = [];
@@ -772,6 +773,9 @@
 	</Suspense>
 {:else if tutorial}
 	<Tutorial on:end={() => {
+		death.set(false);
+		host = false;
+		realSeed = undefined;
 		tutorial = false;
 		menu = true;
 	}} />
