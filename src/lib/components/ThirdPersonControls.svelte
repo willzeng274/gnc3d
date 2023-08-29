@@ -131,6 +131,8 @@
 		    score.update((sc) => (sc+1) * 2);
 			gameConfig.update((cfg) => ({
 				...cfg,
+				jamalUnlocked: true,
+				vegasUnlocked: true,
 				bossUnlocked: true
 			}));
 		}
