@@ -7,6 +7,8 @@
 	import Xbot from "./models/Xbot.svelte";
 	import James from "./models/James.svelte";
 	import Username from "./Username.svelte";
+	import Bigvegas from "./models/Bigvegas.svelte";
+	import Boss from "./models/Boss.svelte";
 
 	type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
 	let radius = 0.45; // used to be 0.3
@@ -78,6 +80,10 @@
 				<Xbot currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
 			{:else if skin === 2}
 				<James currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+			{:else if skin === 3}
+				<Bigvegas currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+			{:else if skin === 4}
+				<Boss currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
 			{/if}
 			<CollisionGroups groups={[15]}>
 				<T.Group position={[0, -height / 2 + radius, 0]}>
