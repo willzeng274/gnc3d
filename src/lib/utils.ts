@@ -45,3 +45,40 @@ export function arraysSize3AreEqual(arr1: [number, number, number], arr2: [numbe
         Math.round(arr1[1] * (roundY ? 1e2 : 1e4)) / (roundY ? 1e2 : 1e4) === Math.round(arr2[1] * (roundY ? 1e2 : 1e4)) / (roundY ? 1e2 : 1e4) &&
         Math.round(arr1[2] * 1e4) / 1e4 === Math.round(arr2[2] * 1e4) / 1e4;
 }
+
+export async function encrypt(message: string, key: CryptoKey): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+
+    const encryptedData = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: new Uint8Array(12) }, key, data);
+    return arrayBufferToBase64(encryptedData);
+}
+  
+
+export async function decrypt(encrypted: string, key: CryptoKey): Promise<string> {
+    const encryptedData = base64ToArrayBuffer(encrypted);
+    const decryptedData = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(12) }, key, encryptedData);
+    const decoder = new TextDecoder();
+    const decryptedMessage = decoder.decode(decryptedData);
+    return decryptedMessage;
+}
+
+export function arrayBufferToBase64(buffer: ArrayBuffer) {
+    const binary = new Uint8Array(buffer);
+    const base64 = btoa(String.fromCharCode(...binary));
+    return base64;
+}
+
+export function base64ToArrayBuffer(base64: string) {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+export async function importEncryptionKey(exportedKey: JsonWebKey): Promise<CryptoKey> {
+    const importedKey = await crypto.subtle.importKey("jwk", exportedKey, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+    return importedKey;
+}

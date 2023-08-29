@@ -18,10 +18,12 @@
 	import { arraysSize3AreEqual } from "$lib/utils";
 	import { DIED_OF_DEATH } from "$lib/constants";
 	import Bigvegas from "./models/Bigvegas.svelte";
+	import Boss from "./models/Boss.svelte";
 	export let skin: number;
 	export let host: boolean;
 	export let username: string;
 	let zooming: number = -1;
+	let dance: boolean = false;
 	let mobile: boolean = false;
 	let isPLOCK = $gameConfig.fps;
 	let radius = skin === 3 ? 0.6 : 0.45; // used to be 0.3
@@ -92,14 +94,23 @@
 	$: {
 		if ($death) {
 			currentActionKey = "tpose";
+			dance = false;
+		} else if ((right || left || forward || backward) && shift) {
+			currentActionKey = "running";
+			dance = false;
+		} else if (right || left || forward || backward) {
+			currentActionKey = "walk";
+			dance = false;
 		} else if (!ground) {
 			currentActionKey = "fall";
-		} else if (!(right || left || forward || backward)) {
-			currentActionKey = "idle";
-		} else if (shift) {
-			currentActionKey = "running";
+			dance = false;
+		} else if (dance) {
+			// @ts-ignore
+			currentActionKey = "dance";
+		// } else if (!(right || left || forward || backward)) {
 		} else {
-			currentActionKey = "walk";
+			currentActionKey = "idle";
+			dance = false;
 		}
 		playerAnimation.set(currentActionKey);
 		// console.log(currentActionKey)
@@ -243,6 +254,11 @@
 				break;
 			case "d":
 				right = 0;
+				break;
+			case "e":
+				if (skin === 4) {
+					dance = true;
+				}
 				break;
 			case "f":
 				if (Date.now() - lastDash > 5000) {
@@ -455,6 +471,8 @@
 					<James bind:currentActionKey bind:ref={model} />
 				{:else if skin === 3}
 					<Bigvegas bind:currentActionKey bind:ref={model} />
+				{:else if skin === 4}
+					<Boss bind:currentActionKey bind:ref={model} />
 				{/if}
 			</T.Group>
 		</CollisionGroups>

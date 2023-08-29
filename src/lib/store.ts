@@ -9,6 +9,7 @@ export const playerAnimation = writable<ActionName>("tpose");
 export const playerRotation =writable<[number, number, number]>([0, 0, 0]);
 export const death = writable<boolean>(false);
 export const freeze = writable<number>(0);
+export const azure = writable<number>(0);
 export const socket = writable<WebSocket | null>(null);
 export const gameConfig = writable<Config>({
     fov: 90,
@@ -18,6 +19,7 @@ export const gameConfig = writable<Config>({
     womenCount: 1,
     jamalUnlocked: false,
     vegasUnlocked: false,
+    bossUnlocked: false,
     debugMode: false,
     volume: 20
 });
