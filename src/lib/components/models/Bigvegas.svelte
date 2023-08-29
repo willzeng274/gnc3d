@@ -16,7 +16,8 @@
 
 	const suspend = useSuspense();
 	let action: ActionName = "idle";
-	type ActionName = "fall" | "idle" | "jump" | "running" | "tpose" | "walk";
+	// dance is although not available
+	type ActionName = "fall" | "idle" | "jump" | "running" | "tpose" | "walk" | "dance";
 	type GLTFResult = {
 		nodes: {
 			Elvis_BodyGeo001: THREE.SkinnedMesh;
