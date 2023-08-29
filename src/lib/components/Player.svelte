@@ -92,17 +92,18 @@
 	}
 
 	$: {
+		// it goes death > fall > run > walk > dance > idle
 		if ($death) {
 			currentActionKey = "tpose";
+			dance = false;
+		} else if (!ground) {
+			currentActionKey = "fall";
 			dance = false;
 		} else if ((right || left || forward || backward) && shift) {
 			currentActionKey = "running";
 			dance = false;
 		} else if (right || left || forward || backward) {
 			currentActionKey = "walk";
-			dance = false;
-		} else if (!ground) {
-			currentActionKey = "fall";
 			dance = false;
 		} else if (dance) {
 			currentActionKey = "dance";
@@ -133,8 +134,8 @@
 
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
-		// Big vegas can walk normal but 15% sprint reductin
-		const multi = shift ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : 1) : skin === 2 ? 0.6 : 0.5;
+		// Big vegas can walk normal but 15% sprint reduction
+		const multi = shift ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : skin === 4 ? 1.1 : 1) : skin === 2 ? 0.6 : 0.5;
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();
