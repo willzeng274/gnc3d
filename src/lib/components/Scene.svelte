@@ -79,6 +79,7 @@
 	let message: string = "";
 	let logs: string[] = [];
 	let hostCakes: CakeGenItem[] = [];
+	let highScore: number = 0;
 	let username: string = getRandomElementFromArray<string>([
 		"Phloyer",
 		"Ghoyer",
@@ -452,8 +453,15 @@
 			// there may be compatibility issues
 			gameConfig.update((gc) => ({ ...gc, ...JSON.parse(localStorage.getItem("config")!) }));
 		}
+
+		if ("highScore" in localStorage) {
+			highScore = +localStorage.getItem("highScore")!;
+		}
 		// save at the end
-		window.addEventListener("unload", (_) => localStorage.setItem("config", JSON.stringify($gameConfig)));
+		window.addEventListener("unload", (_) => {
+			localStorage.setItem("config", JSON.stringify($gameConfig));
+			localStorage.setItem("highScore", ""+highScore);
+		});
 	});
 
 	onDestroy(() => {
@@ -482,6 +490,15 @@
 	$: {
 		if ($score > 500) {
 			$gameConfig.vegasUnlocked = true;
+		}
+		if ($score > highScore) {
+			highScore = $score;
+		}
+		// why would u have a high score of above a million
+		if ($score > 1e6 || highScore > 1e6) {
+			highScore = 0;
+			score.set(0);
+			alert("Bro is exploiting! Your scores are reset");
 		}
 	}
 </script>
@@ -809,7 +826,7 @@
 
 		<Root>
 			<div class="counters">
-				<div class="score"><p>Score: {$score}</p></div>
+				<div class="score"><p>Score: {$score} | Best: {highScore}</p></div>
 				<!-- Small inconvenience but it's fine! -->
 				{#if ($socket !== null && host) || $socket === null}
 					<div class="freeze"><p>Frozen for: {frozen}</p></div>
