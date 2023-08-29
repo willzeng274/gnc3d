@@ -9,8 +9,8 @@
 	import Username from "./Username.svelte";
 	import Bigvegas from "./models/Bigvegas.svelte";
 	import Boss from "./models/Boss.svelte";
-
-	type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
+	import type { ActionName } from "$lib/types";
+	
 	let radius = 0.45; // used to be 0.3
 	let height = 2; // used to be 1.7
 	export let position: [number, number, number];
