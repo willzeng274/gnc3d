@@ -42,5 +42,6 @@ export interface Config {
     womenCount: number;
     jamalUnlocked: boolean;
     vegasUnlocked: boolean;
+    bossUnlocked: boolean;
     debugMode: boolean;
 }

@@ -2,7 +2,7 @@
 	import { useFrame } from '@threlte/core'
 	import type { Euler, Vector3 } from 'three'
 	import Particle from './Particle.svelte'
-	import { freeze, plane, score, socket, gameConfig } from '$lib/store';
+	import { freeze, plane, score, socket, gameConfig, azure } from '$lib/store';
 	import { CAKE_SPAWN_EVENT, height, width, x_units, y_units } from '$lib/constants';
 	import type { CakeGenItem } from '$lib/types';
 	import { cakeTypeAsInt } from '$lib/utils';
@@ -68,6 +68,7 @@
 			const position = getRandomPosition();
 			const rotation = getRandomRotation();
 			const type = Math.random() > 0.5 ? 'normal' : (Math.random() > 0.3 ? (Math.random() > 0.1 ? 'frozen' : 'azure' ) : 'gold');
+			// const type = 'azure';
 			items = [{
 				id,
 				position,
@@ -95,6 +96,7 @@
 					score.update((s) => s*2);
 				} else if (curr.type === 'azure') {
 					gameConfig.update((gc) => ({...gc, jamalUnlocked: true}));
+					azure.update((az) => az+1);
 				}
 				return prev;
 			}

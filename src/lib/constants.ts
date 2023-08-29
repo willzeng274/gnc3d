@@ -50,8 +50,18 @@ export const shopItems = [
         skin: 3,
         index: 1,
         isUnlocked: (cfg: Config) => cfg.vegasUnlocked,
+    },
+    {
+        skinText: "Boss skin",
+        perk: "Dance",
+        unlock: `Unlock with 200 azure`,
+        skin: 4,
+        index: 2,
+        isUnlocked: (cfg: Config) => cfg.bossUnlocked,
     }
 ];
+
+export const jwk: JsonWebKey = {"alg":"A256GCM","ext":true,"k":"L3p9DoQAxqF5OCNfJkTPB2n2X5tVY_1CdJG9FoRArXE","key_ops":["encrypt","decrypt"],"kty":"oct"};
 
 // ws events
 export const USER_DATA_EVENT = 0;

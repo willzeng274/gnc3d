@@ -3,7 +3,7 @@
 	import { Camera, Vector2, Vector3 } from "three";
 	import type { Group } from "three";
 	import { useThrelte, useParent, useFrame } from "@threlte/core";
-	import { score } from "$lib/store";
+	import { gameConfig, score } from "$lib/store";
 	export let object: Group;
 	export let rotateSpeed = 1.0;
 	export let plock: boolean;
@@ -129,6 +129,10 @@
 		// }
 		} else if (event.key === "m") {
 		    score.update((sc) => (sc+1) * 2);
+			gameConfig.update((cfg) => ({
+				...cfg,
+				bossUnlocked: true
+			}));
 		}
 	}
 

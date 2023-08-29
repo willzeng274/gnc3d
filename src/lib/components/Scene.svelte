@@ -9,7 +9,7 @@
 	import CakeGen from "./CakeGen.svelte";
 	import Ybot from "./models/Ybot.svelte";
 	import Woman from "$lib/rapier/world/Woman.svelte";
-	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig } from "$lib/store";
+	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig, azure } from "$lib/store";
 	import Player2 from "./Player2.svelte";
 	import Fps from "./Fps.svelte";
 	import { spring } from "svelte/motion";
@@ -26,9 +26,12 @@
 		cakeTypeAsInt,
 		convertAnimationToInt,
 		convertIntToAnimation,
+		decrypt,
+		encrypt,
 		getNewScoreByCakeType,
 		getRandomElementFromArray,
 		intToCakeType,
+		importEncryptionKey
 	} from "$lib/utils";
 	import type { Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
 	import {
@@ -47,10 +50,12 @@
 		CAKE_FINAL_EVENT,
 		contextMenuItems,
 		shopItems,
+		jwk,
 	} from "$lib/constants";
 	import House from "$lib/rapier/world/House.svelte";
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
 	import Bigvegas from "./models/Bigvegas.svelte";
+	import Boss from "./models/Boss.svelte";
 
 	const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -72,7 +77,7 @@
 	let lobby = false;
 	let tutorial = false;
 	let skin: number = -1;
-	// let skin: number = 3;
+	// let skin: number = 4;
 	let frozen: number = 0;
 	let room: string = "";
 	let host: boolean = false;
@@ -433,9 +438,14 @@
 		};
 	});
 
+	$: (async _ => {
+		const key = await importEncryptionKey(jwk);
+		localStorage.setItem("zed-bra", await encrypt($azure+"", key));
+	})()
+
 	// You can no longer unlock wizard via k3
 
-	onMount(() => {
+	onMount(async () => {
 		(function (a) {
 			if (
 				/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(
@@ -457,8 +467,15 @@
 		if ("highScore" in localStorage) {
 			highScore = +localStorage.getItem("highScore")!;
 		}
+
+		const key = await importEncryptionKey(jwk);
+
+		if ("zed-bra" in localStorage) {
+			azure.set(+await decrypt(localStorage.getItem("zed-bra")!, key));
+			console.log("AZURE", $azure);
+		}
 		// save at the end
-		window.addEventListener("unload", (_) => {
+		window.addEventListener("unload", async (_) => {
 			localStorage.setItem("config", JSON.stringify($gameConfig));
 			localStorage.setItem("highScore", ""+highScore);
 		});
@@ -662,6 +679,7 @@
 				<T.Group rotation.y={rotation} position.y={1} position.z={1} castShadow>
 					<James currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 2} />
 					<Bigvegas currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 3} />
+					<Boss currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 4} />
 				</T.Group>
 				<!-- <T.Group rotation.y={rotation} position.x={4} position.y={1} position.z={0} castShadow>
 					<Bigvegas currentActionKey={skin === 3 ? "tpose" : "idle"} />
@@ -826,7 +844,7 @@
 
 		<Root>
 			<div class="counters">
-				<div class="score"><p>Score: {$score} | Best: {highScore}</p></div>
+				<div class="score"><p>Score: {$score} | Best: {highScore} | Azure crystals owned: {$azure}</p></div>
 				<!-- Small inconvenience but it's fine! -->
 				{#if ($socket !== null && host) || $socket === null}
 					<div class="freeze"><p>Frozen for: {frozen}</p></div>
