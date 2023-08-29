@@ -105,31 +105,46 @@
 	//     });
 	//   }
 	// }
-
+	$: {
+		if (!dynamic) {
+			updateLast(position, rotation);
+		}
+	}
+	export function updateLast(position: [number, number, number], rotation: [x: number, y: number, z: number, order?: THREE.EulerOrder | undefined]) {
+		rigidBody?.setTranslation(new Vector3(position[0], position[1], position[2]), false);
+		const eu = new Euler(rotation[0], rotation[1], rotation[2], rotation[3]);
+		const qt = new Quaternion().setFromEuler(eu);
+		rigidBody?.setRotation(qt, true);
+		rigidBody?.setEnabledRotations(false, false, false, false);
+		rigidBody?.setEnabledTranslations(false, false, false, true);
+		rigidBody?.enableCcd(false);
+	}
 	// $: !host && rigidBody?.setTranslation(new Vector3(position[0], position[1], position[2]), true);
 </script>
 
 {#if $cake}
 	<!-- This is for debugging during multiplayer -->
 	<!-- <T.Group
-    position={position}
-  >
-    <HTML>
-      <h1 style="color: red;">{id}</h1>
-    </HTML>
-  </T.Group> -->
+		position={position}
+	>
+		<HTML>
+		<h1 style="color: red;">{id}</h1>
+		</HTML>
+	</T.Group> -->
 	<T.Group
 		position={[position[0] * 10, position[1] * 10, position[2] * 10]}
 		rotation={[rotation[0] * 10, rotation[1] * 10, rotation[2] * 10, rotation[3]]}
 		scale={0.1}
 		bind:ref={g}
 	>
-		<RigidBody
-			type="dynamic"
+		<!-- 
 			enabledRotations={dynamic ? undefined : [false, false, false]}
 			enabledTranslations={dynamic ? undefined : [false, false, false]}
-      userData={{ name: "cake" }}
-      bind:rigidBody
+		 -->
+		<RigidBody
+			type="dynamic"
+			userData={{ name: "cake" }}
+			bind:rigidBody
 			on:collisionenter={({ targetRigidBody }) => {
 				// host can score cakes so I don't have to care about physics not syncing
 				if (targetRigidBody?.userData?.name === "player" && ($socket == null || host)) {
@@ -149,7 +164,7 @@
 				}
 			}}
 			on:sleep={() => {
-				if (!rigidBody) return;
+				if (!rigidBody || !host) return;
 				const tl = rigidBody.translation();
 				const rt = rigidBody.rotation();
 				const qt = new Quaternion(rt.x, rt.y, rt.z, rt.w);

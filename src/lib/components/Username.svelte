@@ -8,6 +8,7 @@
     // const direction = new Vector3();
     export let username: string;
     export let ypos: number;
+    export let color: string = "white";
     let textObject: TextMesh;
 
     const { camera } = useThrelte();
@@ -29,7 +30,7 @@
 <Text
     text={username}
     position.y={1}
-    color="white"
+    {color}
     fontSize={.5}
     anchorX="50%"
     anchorY="100%"

@@ -51,6 +51,7 @@
 		contextMenuItems,
 		shopItems,
 		jwk,
+		CAKE_GONE_EVENT,
 	} from "$lib/constants";
 	import House from "$lib/rapier/world/House.svelte";
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
@@ -76,6 +77,7 @@
 	let menu = true;
 	let lobby = false;
 	let tutorial = false;
+	let chatActive = false;
 	let skin: number = -1;
 	// let skin: number = 4;
 	let frozen: number = 0;
@@ -241,7 +243,7 @@
 							players[ind].liny = arr[6];
 							players[ind].linz = arr[7];
 							players[ind].rotation = [arr[8], arr[9], arr[10]];
-							console.log("Received animation, ", convertIntToAnimation(arr[11]));
+							// console.log("Received animation, ", convertIntToAnimation(arr[11]));
 							players[ind].animation = convertIntToAnimation(arr[11]);
 						} else if (arr[0] === CAKE_SPAWN_EVENT) {
 							console.log("cake spawn id", arr[2]);
@@ -270,6 +272,11 @@
 										return false;
 									}
 								});
+							}
+						} else if (arr[0] === CAKE_GONE_EVENT) {
+							if (arr[1] === 0) {
+								// this event is triggered when a cake touches water or something
+								cakes = cakes.filter((c) => c.id !== arr[2]);
 							}
 						} else if (arr[0] === CAKE_FINAL_EVENT) {
 							if (arr[1] === 0) {
@@ -769,6 +776,60 @@
 					</div>
 				</dialog>
 			</Root>
+		{:else if currentCtx.name === "Manual"}
+			<Root>
+				<dialog class="playMenu" in:scaleIn out:scaleOut>
+					WASD or Joystick for movement
+					<br />
+					Pointer drag for camera rotation in Third Person (and both POVs on mobile)
+					<br />
+					Pointer lock for camera rotation in First Person
+					<br />
+					Mouse wheel or Slider for zooming in/out
+					<br />
+					Adjust FOV in settings
+					<br />
+					Press "e" to emote with applicable skins
+					<br />
+					Press "f" to dash
+					<br />
+					Press "t" to open chat in multiplayer
+					<br />
+					Press "esc" to exit chat in multiplayer
+					<br />
+					Mobile players cannot chat
+					<br />
+					Press green panel in skin shop to go to next skin, yellow panel to go to previous
+					<br />
+					Enter a seed in the seed panel for persistent seeded terrain generation, leave at 0 for random
+					<br /><br />
+					Game history and lore: Ghost and cakes is a game originally created by Jerrdeh (2018) with block coding.
+					<br />
+					The point of the game was to click on cakes that randomly spawn while a ghost chases after your cursor.
+					<br />
+					Sir NastyPigz enhanced the block coding version in the 2019-2020 era, allowing more cake types
+					<br />
+					and a partially working multiplayer version. A JavaScript version was also transpiled during this time.
+					<br />
+					However, it wasn't until early 2022 that the game was completely rewritten in JavaScript and React 17,
+					<br />
+					bootstrapped with Next.js. Although, the game was stuck in 2D and had no sign of graphical improvements.
+					<br />
+					Now, time lapse to 2023, Sir NastyPigz have successfully studied enough Physics, Math, and Computer Science
+					<br />
+					to bring you a 3D experience of the game! However, there were some technical difficulties with creating a
+					<br />
+					ghost model, therefore the main threat of the game -- the ghost was replaced by the true threat of
+					<br />
+					all of the humanity -- the woman. Now in singleplayer, there is now a woman chasing after you
+					<br />
+					for your money! If you are broke, then you can picture her as an extreme feminist. However,
+					<br />
+					if you are a woman, please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and
+					<br />
+					picture the woman as an insane individual within your species.
+				</dialog>
+			</Root>
 		{/if}
 	</Suspense>
 {:else if tutorial}
@@ -817,7 +878,13 @@
 					<p>{msg}</p>
 				{/each}
 			</div>
-			<input type="text" bind:value={message} /><button
+			<input type="text" bind:value={message} on:keypress={(e) => {
+				if (e.key === "Enter") {
+					logs = ["YOU: " + message, ...logs];
+					$socket?.send(TXT_MESSAGE_CREATE + message);
+					message = "";
+				}
+			}}/><button
 				on:click={(_) => {
 					logs = ["YOU: " + message, ...logs];
 					$socket?.send(TXT_MESSAGE_CREATE + message);
@@ -869,6 +936,26 @@
 			{:else}
 				<button on:click={() => $socket?.close()} class="quitbtn">Exit Game </button>
 			{/if}
+			<dialog class="chat" class:hidden={!chatActive}>
+				<div class="logs">
+					{#each logs as msg}
+						<p>{msg}</p>
+					{/each}
+				</div>
+				<input type="text" bind:value={message} on:keypress={(e) => {
+					if (e.key === "Enter") {
+						logs = ["YOU: " + message, ...logs];
+						$socket?.send(TXT_MESSAGE_CREATE + message);
+						message = "";
+					}
+				}} /><button
+					on:click={(_) => {
+						logs = ["YOU: " + message, ...logs];
+						$socket?.send(TXT_MESSAGE_CREATE + message);
+						message = "";
+					}}>Send message</button
+				>
+			</dialog>
 		</Root>
 
 		<T.DirectionalLight castShadow position={[8, 20, -3]} />
@@ -884,7 +971,7 @@
 		</CollisionGroups>
 		<CollisionGroups groups={[0]}>
 			<House />
-			<Player {username} {host} skin={skin === -1 ? 0 : skin} />
+			<Player {username} {host} skin={skin === -1 ? 0 : skin} on:tpress={_ => chatActive = !chatActive} />
 			<Door />
 			{#if $socket !== null}
 				{#if host}
@@ -1193,5 +1280,9 @@
 		z-index: 1;
 		width: 25%;
 		height: 5%;
+	}
+
+	.hidden {
+		display: none;
 	}
 </style>

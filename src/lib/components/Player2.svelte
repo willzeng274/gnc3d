@@ -45,7 +45,7 @@
 </script>
 
 <T.Group {position}>
-	<Username ypos={position[1]} {username} />
+	<Username ypos={position[1]} {username} color={id === 0 ? "red" : undefined} />
 	<!-- enable rotations for funny ragdoll -->
 	<RigidBody bind:rigidBody enabledRotations={[false, false, false]} userData={{ id, name: "player2" }}>
 		<!-- <CollisionGroups memberships={[15]} filter={[0, 7]}> -->

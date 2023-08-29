@@ -3,7 +3,7 @@
 	import type { Euler, Vector3 } from 'three'
 	import Particle from './Particle.svelte'
 	import { freeze, plane, score, socket, gameConfig, azure } from '$lib/store';
-	import { CAKE_SPAWN_EVENT, height, width, x_units, y_units } from '$lib/constants';
+	import { CAKE_GONE_EVENT, CAKE_SPAWN_EVENT, height, width, x_units, y_units } from '$lib/constants';
 	import type { CakeGenItem } from '$lib/types';
 	import { cakeTypeAsInt } from '$lib/utils';
 	// import { HTML } from '@threlte/extras';
@@ -101,12 +101,17 @@
 				return prev;
 			}
 			if (curr.touch === 2) {
-				// console.log("Me when water")
+				// console.log("Me when water");
+				const id = getId();
+				const pos = getRandomPosition();
+				const arr = new Float32Array([CAKE_SPAWN_EVENT, id, ...pos, curr.rotation[0], curr.rotation[1], curr.rotation[2], cakeTypeAsInt(curr.type)]);
+				$socket?.send(arr);
+				$socket?.send(new Float32Array([CAKE_GONE_EVENT, curr.id]));
 				// since svelte uses id as key we must generate a new one in order for the old one to update
-				// some computation costs can be saved by not generation a new rotation
+				// some computation costs can be saved by not generating a new rotation
 				return [...prev, {
-					id: getId(),
-					position: getRandomPosition(),
+					id,
+					position: pos,
 					rotation: curr.rotation,
 					touch: 0,
 					type: curr.type
