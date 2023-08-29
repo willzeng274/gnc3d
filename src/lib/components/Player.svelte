@@ -105,7 +105,6 @@
 			currentActionKey = "fall";
 			dance = false;
 		} else if (dance) {
-			// @ts-ignore
 			currentActionKey = "dance";
 		// } else if (!(right || left || forward || backward)) {
 		} else {

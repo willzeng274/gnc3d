@@ -17,7 +17,7 @@ export interface CakeGenItem {
     type: cakeType,
 }
 
-export type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
+export type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall" | "dance";
 
 export interface ConnectedPlayer {
     id: number;

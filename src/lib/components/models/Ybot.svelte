@@ -15,8 +15,8 @@
 
 	const suspend = useSuspense();
 	let action: ActionName = "idle";
-
-	type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall";
+	// dance is not available
+	type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall" | "dance";
 	type GLTFResult = {
 		nodes: {
 			Alpha_Joints: THREE.SkinnedMesh;

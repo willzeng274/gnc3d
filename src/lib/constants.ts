@@ -14,6 +14,7 @@ export const animations: ActionName[] = [
     "fall",
     "walk",
     "jump",
+    "dance"
 ];
 
 export const contextMenuItems = [
