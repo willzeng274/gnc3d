@@ -345,6 +345,7 @@
 							playerPos.set([0, 10, 3]);
 							host = true;
 						} else if (arr[0] === DIED_OF_DEATH) {
+							console.log("DIED");
 							if (!host) death.set(true);
 						} else if (arr[0] === GERMINATION_EVENT) {
 							console.log("Received seed", arr[1]);
