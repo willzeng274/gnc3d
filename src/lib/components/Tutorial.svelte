@@ -6,6 +6,7 @@
 	import Door from "$lib/rapier/world/Door.svelte";
 	import { CollisionGroups } from "@threlte/rapier";
 	import Ground from "$lib/rapier/world/Ground.svelte";
+    import { playerPos } from "$lib/store";
 	import Root from "./Root.svelte";
 	import Particle from "./Particle.svelte";
 
@@ -77,10 +78,15 @@
     $: {
         if (touch && currentStage < 8) {
             currentStage = 8;
-            speed = 0.1;
+            speed = 0.5;
+        }
+
+        if (currentStage === 8 && !touch) {
+            currentStage = 7;
         }
 
         if (currentStage === 15) {
+            playerPos.set([0, 10, 3]);
             dispatch("end");
         }
 

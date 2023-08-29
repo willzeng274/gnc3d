@@ -42,9 +42,6 @@
             selfPos[0] = translation.x;
             selfPos[1] = translation.y;
             selfPos[2] = translation.z;
-            if (translation.y < -10) {
-                lv.y += 15;
-            }
             rigidBody.setLinvel({
                 x: a*speed * 30,
                 y: lv.y,
@@ -112,8 +109,16 @@
                     // @ts-ignore
                     } else if (targetRigidBody?.userData?.name === 'water') {
                         const tl = rigidBody.translation();
-                        tl.y = 1;
-                        rigidBody.setTranslation(tl, true);
+                        // women only teleports upwards when she fell through the ground
+                        if (tl.x < 150 && tl.x > -150 && tl.z < 150 && tl.z > -150) {
+                            tl.y = 1;
+                            const linvel = rigidBody.linvel();
+                            linvel.y = 1;
+                            rigidBody.setLinvel(linvel);
+                            rigidBody.setTranslation(tl, true);
+                        }
+                        // tl.y = 1;
+                        // rigidBody.setTranslation(tl, true);
                     }
                 }}
                 on:collisionexit={({ targetRigidBody }) => {

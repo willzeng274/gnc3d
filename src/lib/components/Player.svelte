@@ -3,7 +3,7 @@
 	import { T, useFrame, useThrelte } from "@threlte/core";
 	import { RigidBody, CollisionGroups, Collider } from "@threlte/rapier";
 	import { AudioListener, Audio } from "@threlte/extras";
-	import { onDestroy, onMount } from "svelte";
+	import { createEventDispatcher, onDestroy, onMount } from "svelte";
 	import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
@@ -214,7 +214,30 @@
 		}
 	});
 
+	const dispatch = createEventDispatcher();
+
+	let chatActive = false;
+
 	function onKeyDown(e: KeyboardEvent) {
+		if (e.key.toLowerCase() === "escape" && chatActive) {
+			dispatch("tpress");
+			chatActive = false;
+			backward = 0;
+			forward = 0;
+			left = 0;
+			right = 0;
+			shift = 0;
+		}
+		if (chatActive) return;
+		if (e.key.toLowerCase() === "t") {
+			dispatch("tpress");
+			chatActive = true;
+			backward = 0;
+			forward = 0;
+			left = 0;
+			right = 0;
+			shift = 0;
+		}
 		e.preventDefault();
 		// console.log("Down", e.key)
 		switch (e.key.toLowerCase()) {
@@ -240,6 +263,7 @@
 	}
 
 	function onKeyUp(e: KeyboardEvent) {
+		if (chatActive) return;
 		// console.log("Up", e.key)
 		switch (e.key.toLowerCase()) {
 			case "s":
@@ -385,8 +409,8 @@
 							lastDash = Date.now();
 							dash = 1;
 							setTimeout(() => {
-								lastDash = Date.now() - 5001;
-							}, 5000)
+								lastDash = Date.now() - 6000;
+							}, 5000);
 						}
 					}}
 				/>
@@ -395,7 +419,7 @@
 	</Root>
 {/if}
 
-<svelte:window on:keydown|preventDefault={onKeyDown} on:keyup={onKeyUp} />
+<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <T.PerspectiveCamera makeDefault fov={$gameConfig.fov} bind:ref={cam}>
 	{#if isPLOCK}
@@ -442,9 +466,16 @@
 						}
 						if (host) {
 							// @ts-ignore
-							if (e.targetRigidBody.userData?.name === "player2") {
+							if (e.targetRigidBody.userData?.name === "player2" && !e.targetRigidBody.userData?.death) {
+								// @ts-ignore
+								e.targetRigidBody.userData.death = true;
 								// @ts-ignore
 								$socket?.send(new Uint8Array([DIED_OF_DEATH, e.targetRigidBody.userData?.id]));
+								setTimeout(() => {
+									// @ts-ignore
+									e.targetRigidBody.userData.death = false;
+								// 1000ms ping margin of error
+								}, 6000);
 							}
 							// host cannot die to water
 							return;

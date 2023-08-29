@@ -30,6 +30,9 @@ export const contextMenuItems = [
         name: "Shop",
     },
     {
+        name: "Manual",
+    },
+    {
         name: "Play",
     },
     {
@@ -89,5 +92,6 @@ export const START_LOBBY_EVENT = 7;
 export const TXT_MESSAGE_CREATE = 8;
 export const USER_NAME_EVENT = 9;
 export const CAKE_FINAL_EVENT = 10;
+export const CAKE_GONE_EVENT = 11;
 export const GERMINATION_EVENT = 42;
 export const IS_HOST_EVENT = 69;
