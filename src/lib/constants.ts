@@ -53,7 +53,7 @@ export const shopItems = [
     },
     {
         skinText: "Big Vegas Skin",
-        perk: "Perks: Attracts cakes within 20 block radius, 15% sprint speed nerf",
+        perk: "Perks: Attracts cakes <20 blocks, 15% sprint nerf, 37.5% dash nerf",
         unlock: `Unlock by getting a score of 500 in one run`,
         skin: 3,
         index: 1,
@@ -66,7 +66,7 @@ export const shopItems = [
     },
     {
         skinText: "Boss skin",
-        perk: "Dance",
+        perk: "Perks: Can dance after pressing \"e\", 10% sprint buff",
         unlock: `Unlock with 200 azure`,
         skin: 4,
         index: 2,
