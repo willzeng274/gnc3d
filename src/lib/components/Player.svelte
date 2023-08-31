@@ -466,6 +466,18 @@
 					}}
 				/>
 			</div>
+			<div id="joystickWrapper4">
+				<!-- no indicator for barricades -->
+				<button
+					id="barricadeButton"
+					on:click={() => {
+						if (Date.now() - barricadeCd >= (skin === 5 ? 500 : 4000)) {
+							spawnBarricade();
+							barricadeCd = Date.now();
+						}
+					}}
+				/>
+			</div>
 		</div>
 	</Root>
 {/if}
@@ -651,6 +663,20 @@
 		touch-action: manipulation;
 	}
 
+	#joystickWrapper4 {
+		pointer-events: auto;
+		display: flex;
+		align-items: center;
+		position: absolute;
+		bottom: -80px;
+		right: 142px;
+		/* background-color: #000000; */
+		width: 60px;
+		height: 120px;
+		z-index: 12;
+		touch-action: manipulation;
+	}
+
 	#jumpButton {
 		position: absolute;
 		right: 15px;
@@ -668,6 +694,20 @@
 	}
 
 	#dashButton {
+		position: absolute;
+		width: 45px;
+		height: 45px;
+		border-radius: 50%;
+		background-color: white;
+		opacity: 0.5;
+		touch-action: manipulation;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		pointer-events: auto;
+	}
+
+	#barricadeButton {
 		position: absolute;
 		width: 45px;
 		height: 45px;

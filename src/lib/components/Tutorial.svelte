@@ -15,15 +15,17 @@
         jump: "space",
         dash: "f",
         zoom: "your scroll wheel",
-        rotate: "Drag and rotate with your mouse in third person and use your pointer to rotate in first person!"
+        rotate: "Drag and rotate with your mouse in third person and use your pointer to rotate in first person!",
+        barricade: "press \"p\"",
     };
 
     let mobileControls = {
         movement: "the joystick",
         jump: "the larger jump button",
-        dash: "the smaller dash button",
+        dash: "the smaller dash button on the right",
         zoom: "the slider on the right",
-        rotate: "Drag along the screen to rotate in third person and do the same for first person!"
+        rotate: "Drag along the screen to rotate in third person and do the same for first person!",
+        barricade: "click the smaller dash button at the bottom"
     };
 
     let touch: number = 0;
@@ -61,7 +63,7 @@
             `Use ${controls.zoom} to zoom in and out of view!`,
             `You can also use ${controls.dash} to dash!`,
             "Dashing has a cooldown of 5 seconds",
-            "You can press \"p\" to place barricades! They have a cooldown of 5 seconds, and expires after 3 seconds. Placing them on mobile is currently unsupported",
+            `You can ${controls.barricade} to place barricades! They have a cooldown of 4 seconds, and expires after 3 seconds.`,
             "You can unlock doors by simply walking to the front of it",
             "Collect the normal cake that has just spawned!",
             "Nice! Now that you have collected the cake, we are going to unleash the woman. You must run away from the woman, and when you touch her, you die.",

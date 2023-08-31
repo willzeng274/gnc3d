@@ -59,8 +59,8 @@
 
 	export let items: CakeGenItem[] = [];
 	let lastBodyMounted: number = 0;
-	// let bodyEveryMilliseconds = 10000;
-	let bodyEveryMilliseconds = 200;
+	let bodyEveryMilliseconds = 10000;
+	// let bodyEveryMilliseconds = 200;
 
 	// let longevityMilliseconds = 8000
 	useFrame(() => {
