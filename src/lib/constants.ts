@@ -75,6 +75,23 @@ export const shopItems = [
                 }))
             }
         }
+    },
+    {
+        skinText: "Timmy skin",
+        perk: "Perks: Can place x8 more barricades, 10% sprint buff",
+        unlock: `Unlock with 200 azure`,
+        skin: 5,
+        index: 3,
+        isUnlocked: (cfg: Config) => cfg.timmyUnlocked,
+        handleClick: () => () => {
+            if (get(azure) >= 200) {
+                azure.update((az) => az - 200);
+                gameConfig.update((cfg) => ({
+                    ...cfg,
+                    timmyUnlocked: true
+                }))
+            }
+        }
     }
 ];
 

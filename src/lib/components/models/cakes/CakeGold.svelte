@@ -3,26 +3,26 @@
 	import { Group, Box3, Vector3 } from "three";
 	import { T, forwardEventHandlers } from "@threlte/core";
 	import { useGltf, useSuspense } from "@threlte/extras";
-	import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 	import type { Props, Events, Slots } from "@threlte/core";
 
 	type $$Props = Props<Group> & { rotation?: [number, number, number]; visible?: boolean };
 	type $$Events = Events<Group>;
 	type $$Slots = Slots<Group> & { fallback: {}; error: { error: any } };
 
-	export let ref = new Group();
+	export const ref = new Group();
 
-	const suspend = useSuspense();
 	type GLTFResult = {
 		nodes: {
-			barricade: THREE.Mesh;
+			Whole_Fruit_Cake_0: THREE.Mesh;
 		};
 		materials: {
-			MetalStruss: THREE.MeshStandardMaterial;
+			Fruit_Cake: THREE.MeshBasicMaterial;
 		};
 	};
 
-	const gltf = suspend(useGltf<GLTFResult>("/models/Barricade-transformed.glb", { useDraco: "/" }));
+  const suspend = useSuspense();
+
+	const gltf = suspend(useGltf<GLTFResult>("/models/cake_gold-transformed.glb", { useDraco: "/" }));
 
 	const component = forwardEventHandlers();
 </script>
@@ -31,9 +31,8 @@
 	{#await gltf}
 		<slot name="fallback" />
 	{:then gltf}
-		<T
-			is={SkeletonUtils.clone(gltf.scene)}
-			name="Scene"
+		<T.Group
+			scale={0.4}
 			on:create={({ ref }) => {
 				// console.log(ref)
 				ref.updateMatrixWorld(true);
@@ -42,9 +41,12 @@
 				completeBoundingBox.getSize(v3);
 				ref.position.set(0, -v3.y / 2, 0);
 			}}
-		/>
+		>
+			<T.Mesh geometry={gltf.nodes.Whole_Fruit_Cake_0.geometry} material={gltf.materials.Fruit_Cake} position={[43, 0, 0]} />
+		</T.Group>
 	{:catch error}
 		<slot name="error" {error} />
 	{/await}
+
 	<slot {ref} />
 </T>

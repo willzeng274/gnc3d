@@ -20,6 +20,7 @@
 	import Bigvegas from "./models/Bigvegas.svelte";
 	import Boss from "./models/Boss.svelte";
 	import Barricade from "./models/Barricade.svelte";
+	import Timmy from "./models/Timmy.svelte";
 	export let skin: number;
 	export let host: boolean;
 	export let username: string;
@@ -137,7 +138,7 @@
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		// Big vegas can walk normal but 15% sprint reduction
-		const multi = shift ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : skin === 4 ? 1.1 : 1) : skin === 2 ? 0.6 : 0.5;
+		const multi = shift ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : skin === 2 ? 0.6 : 0.5;
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();
@@ -259,7 +260,7 @@
 				shift = 1;
 				break;
 			case "p":
-				if (Date.now() - barricadeCd >= 4000) {
+				if (Date.now() - barricadeCd >= (skin === 5 ? 500 : 4000)) {
 					spawnBarricade();
 					barricadeCd = Date.now();
 				}
@@ -554,6 +555,8 @@
 					<Bigvegas bind:currentActionKey bind:ref={model} />
 				{:else if skin === 4}
 					<Boss bind:currentActionKey bind:ref={model} />
+				{:else if skin === 5}
+					<Timmy bind:currentActionKey bind:ref={model} />
 				{/if}
 			</T.Group>
 		</CollisionGroups>

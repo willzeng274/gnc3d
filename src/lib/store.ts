@@ -20,6 +20,7 @@ export const gameConfig = writable<Config>({
     jamalUnlocked: false,
     vegasUnlocked: false,
     bossUnlocked: false,
+    timmyUnlocked: false,
     debugMode: false,
     volume: 20
 });
