@@ -660,8 +660,8 @@
 					</T.Mesh>
 				</T.Group>
 				<T.Group
-					position.y={1}
-					position.x={-2}
+					position.y={!mobile ? 1 : 2.2}
+					position.x={!mobile ? -2 : 0}
 					on:click={(_) => currentShopSkin = shopItems[Math.max(0, currentShopSkin.index - 1)]}
 				>
 					<T.Mesh
@@ -669,12 +669,13 @@
 							color: "yellow",
 						})}
 					>
-						<T.BoxGeometry args={[0.1, 2, 1]} />
+						<T.BoxGeometry args={mobile ? [2, 0.3, 1] : [0.1, 2, 1]} />
 					</T.Mesh>
 				</T.Group>
 				<T.Group
-					position.y={1}
-					position.x={2}
+					position.y={!mobile ? 1 : -0.5}
+					position.x={!mobile ? 2 : 0}
+					position.z={!mobile ? 0 : 1}
 					on:click={(_) => currentShopSkin = shopItems[Math.min(currentShopSkin.index + 1, shopItems.length - 1)]}
 				>
 					<T.Mesh
@@ -682,7 +683,7 @@
 							color: "lightgreen",
 						})}
 					>
-						<T.BoxGeometry args={[0.1, 2, 1]} />
+						<T.BoxGeometry args={mobile ? [2, 0.3, 1] : [0.1, 2, 1]} />
 					</T.Mesh>
 				</T.Group>
 				<T.Group rotation.y={rotation} position.y={1} position.z={1} castShadow>
@@ -779,7 +780,7 @@
 			</Root>
 		{:else if currentCtx.name === "Manual"}
 			<Root>
-				<dialog class="playMenu" in:scaleIn out:scaleOut>
+				<dialog class="manual" in:scaleIn out:scaleOut>
 					WASD or Joystick for movement
 					<br />
 					Pointer drag for camera rotation in Third Person (and both POVs on mobile)
@@ -1172,6 +1173,15 @@
 	.playMenu {
 		display: flex;
 		flex-direction: column;
+		z-index: 2;
+	}
+
+	.manual {
+		display: flex;
+		flex-direction: column;
+		max-height: 90%;
+		max-width: 70%;
+		overflow: scroll;
 		z-index: 2;
 	}
 
