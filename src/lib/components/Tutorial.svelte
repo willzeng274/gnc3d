@@ -11,7 +11,7 @@
 	import Particle from "./Particle.svelte";
 
     let pcControls = {
-        movement: "WASD",
+        movement: "WASD (hold shift to sprint)",
         jump: "space",
         dash: "f",
         zoom: "your scroll wheel",
@@ -61,6 +61,7 @@
             `Use ${controls.zoom} to zoom in and out of view!`,
             `You can also use ${controls.dash} to dash!`,
             "Dashing has a cooldown of 5 seconds",
+            "You can press \"p\" to place barricades! They have a cooldown of 5 seconds, and expires after 3 seconds. Placing them on mobile is currently unsupported",
             "You can unlock doors by simply walking to the front of it",
             "Collect the normal cake that has just spawned!",
             "Nice! Now that you have collected the cake, we are going to unleash the woman. You must run away from the woman, and when you touch her, you die.",
@@ -76,21 +77,21 @@
     const dispatch = createEventDispatcher();
 
     $: {
-        if (touch && currentStage < 8) {
-            currentStage = 8;
+        if (touch && currentStage < 9) {
+            currentStage = 9;
             speed = 0.2;
         }
 
-        if (currentStage === 8 && !touch) {
-            currentStage = 7;
+        if (currentStage === 9 && !touch) {
+            currentStage = 8;
         }
 
-        if (currentStage === 15) {
+        if (currentStage === 16) {
             playerPos.set([0, 10, 3]);
             dispatch("end");
         }
 
-        if (currentStage === 13) {
+        if (currentStage === 14) {
             username = "Intelligent";
         }
     }
@@ -114,11 +115,11 @@
 </CollisionGroups>
 <CollisionGroups groups={[0]}>
     <Player skin={0} host={false} {username} />
-    {#if currentStage >= 8}
+    {#if currentStage >= 9}
         <Woman selfPos={[5, 5, 5]} skin={0} initialSpeed={speed} />
     {/if}
     <Door />
-    {#if currentStage >= 7 && touch === 0}
+    {#if currentStage >= 8 && touch === 0}
         <Particle id={0} position={[0, 10, 50]} rotation={[0, 0, 0]} bind:touch type="normal" />
     {/if}
 </CollisionGroups>

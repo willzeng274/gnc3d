@@ -57,6 +57,8 @@
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
 	import Bigvegas from "./models/Bigvegas.svelte";
 	import Boss from "./models/Boss.svelte";
+	import Assets from "./models/Assets.svelte";
+	import Timmy from "./models/Timmy.svelte";
 
 	const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -190,6 +192,7 @@
 			// }, 100);
 			console.log("WS seed:", seed);
 			const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://localhost:8080";
+			// const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://192.168.100.235:8080";
 			// const url = "192.168.0.84";
 			const ws = new WebSocket(
 				`${url}?username=${username}&room=${room}&skin=${skin === -1 ? 0 : skin}&seed=${seed === 0 ? 1 : seed}`
@@ -540,6 +543,7 @@
 				Loading game assets...
 			</p>
 		</Root>
+		<Assets />
 		<Root>
 			<section class="contextmenu" class:hide={isSuspend}>
 				<ul>
@@ -690,6 +694,7 @@
 					<James currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 2} />
 					<Bigvegas currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 3} />
 					<Boss currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 4} />
+					<Timmy currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 5} />
 				</T.Group>
 				<!-- <T.Group rotation.y={rotation} position.x={4} position.y={1} position.z={0} castShadow>
 					<Bigvegas currentActionKey={skin === 3 ? "tpose" : "idle"} />
@@ -781,7 +786,7 @@
 		{:else if currentCtx.name === "Manual"}
 			<Root>
 				<dialog class="manual" in:scaleIn out:scaleOut>
-					WASD or Joystick for movement
+					WASD or Joystick for movement (Hold shift to sprint, on mobile the sprint detection is automatic)
 					<br />
 					Pointer drag for camera rotation in Third Person (and both POVs on mobile)
 					<br />
