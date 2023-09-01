@@ -22,7 +22,7 @@
 	export let skin: number;
 	export let host: boolean;
 	export let username: string;
-	let zooming: number = -1;
+	let zooming: number;
 	let dance: boolean = false;
 	let mobile: boolean = false;
 	let isPLOCK = $gameConfig.fps;
@@ -237,6 +237,12 @@
 			left = 0;
 			right = 0;
 			shift = 0;
+		}
+		else if (e.key == 'j') {
+			// cameraControls.theta -= rotateSpeed * 0.1;
+
+			isPLOCK = isPLOCK ? false : true;
+			// zooming = zooming;
 		}
 		e.preventDefault();
 		// console.log("Down", e.key)

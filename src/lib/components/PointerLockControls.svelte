@@ -9,12 +9,18 @@
 	export let pointerSpeed = 1.0;
 	export let object: Group;
 	export let plock: boolean;
-	export let zooming: number;
-	$: {
-		if (zooming !== -1) {
-			zooming > 1 && (plock = false);
-		}
-	}
+	// export let zooming: number;
+	// $: {
+	// 	if (zooming !== -1) {
+	// 		zooming > 1 && (plock = false);
+	// 		console.log('lol insidw plctrl')
+	// 		lock();
+	// 	}
+	// 	else{
+	// 		plock=true
+	// 	}
+	// }
+	console.log('lol outside plctrl')
 	let isLocked = false;
 	const { renderer, invalidate } = useThrelte();
 	const domElement = renderer.domElement;
@@ -32,6 +38,7 @@
 		throw new Error("Parent missing: <PointerLockControls> need to be a child of a <Camera>");
 	}
 	const onChange = () => {
+		console.log('onChange')
 		invalidate("PointerLockControls: change event");
 		dispatch("change");
 	};
@@ -72,6 +79,7 @@
 		_euler.x -= movementY * 0.002 * pointerSpeed;
 		_euler.x = Math.max(_PI_2 - maxPolarAngle, Math.min(_PI_2 - minPolarAngle, _euler.x));
 		$camera.quaternion.setFromEuler(_euler);
+		console.log('onMouseMove')
 		onChange();
 	}
 	function onTouchEnd(event: TouchEvent) {

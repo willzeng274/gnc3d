@@ -28,10 +28,9 @@
 	$: {
 		if (zooming !== -1) {
 			if (zooming < 1) {
-				zooming = 0;
-				plock = true;
-			} else {
-				idealOffset.z = -zooming;
+				// zooming = 0;
+				plock = true
+				// idealOffset.z = -zooming;
 			}
 		}
 	}
@@ -137,6 +136,11 @@
 			// 	bossUnlocked: true
 			// }));
 		}
+		// else if (event.ctrlKey) {
+		// 	// cameraControls.theta -= rotateSpeed * 0.1;
+
+		// 	plock = plock ? false : true;
+		// }
 	}
 
 	function onPointerDown(event: PointerEvent) {
