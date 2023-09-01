@@ -69,11 +69,13 @@
 	}
 	export function updateLast(position: [number, number, number], rotation: [x: number, y: number, z: number, order?: THREE.EulerOrder | undefined]) {
 		rigidBody?.setTranslation(new Vector3(position[0], position[1], position[2]), false);
+		rigidBody?.setLinvel(new Vector3(0, 0, 0), false);
 		const eu = new Euler(rotation[0], rotation[1], rotation[2], rotation[3]);
 		const qt = new Quaternion().setFromEuler(eu);
 		rigidBody?.setRotation(qt, true);
-		rigidBody?.setEnabledRotations(false, false, false, false);
-		rigidBody?.setEnabledTranslations(false, false, false, true);
+		rigidBody?.setEnabledRotations(false, false, false, true);
+		// because of big vegas
+		// rigidBody?.setEnabledTranslations(false, false, false, true);
 		rigidBody?.enableCcd(false);
 	}
 	// $: !host && rigidBody?.setTranslation(new Vector3(position[0], position[1], position[2]), true);
