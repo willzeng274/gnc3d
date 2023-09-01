@@ -15,8 +15,8 @@
         jump: "space",
         dash: "f",
         zoom: "your scroll wheel",
-        rotate: "Drag and rotate with your mouse in third person and use your pointer to rotate in first person!",
-        barricade: "press \"p\"",
+        rotate: "Drag and rotate with your mouse in third person (or lock with \"r\") and use your pointer to rotate in first person!",
+        barricade: "press \"q\"",
     };
 
     let mobileControls = {
