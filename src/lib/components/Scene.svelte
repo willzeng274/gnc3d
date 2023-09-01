@@ -31,7 +31,7 @@
 		getNewScoreByCakeType,
 		getRandomElementFromArray,
 		intToCakeType,
-		importEncryptionKey
+		importEncryptionKey,
 	} from "$lib/utils";
 	import type { Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
 	import {
@@ -57,6 +57,8 @@
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
 	import Bigvegas from "./models/Bigvegas.svelte";
 	import Boss from "./models/Boss.svelte";
+	import Assets from "./models/Assets.svelte";
+	import Timmy from "./models/Timmy.svelte";
 
 	const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -190,6 +192,7 @@
 			// }, 100);
 			console.log("WS seed:", seed);
 			const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://localhost:8080";
+			// const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://192.168.100.235:8080";
 			// const url = "192.168.0.84";
 			const ws = new WebSocket(
 				`${url}?username=${username}&room=${room}&skin=${skin === -1 ? 0 : skin}&seed=${seed === 0 ? 1 : seed}`
@@ -345,6 +348,7 @@
 							playerPos.set([0, 10, 3]);
 							host = true;
 						} else if (arr[0] === DIED_OF_DEATH) {
+							console.log("DIED");
 							if (!host) death.set(true);
 						} else if (arr[0] === GERMINATION_EVENT) {
 							console.log("Received seed", arr[1]);
@@ -446,10 +450,10 @@
 		};
 	});
 
-	$: (async _ => {
+	$: (async (_) => {
 		const key = await importEncryptionKey(jwk);
-		localStorage.setItem("zed-bra", await encrypt($azure+"", key));
-	})()
+		localStorage.setItem("zed-bra", await encrypt($azure + "", key));
+	})();
 
 	// You can no longer unlock wizard via k3
 
@@ -479,13 +483,13 @@
 		const key = await importEncryptionKey(jwk);
 
 		if ("zed-bra" in localStorage) {
-			azure.set(+await decrypt(localStorage.getItem("zed-bra")!, key));
+			azure.set(+(await decrypt(localStorage.getItem("zed-bra")!, key)));
 			console.log("AZURE", $azure);
 		}
 		// save at the end
 		window.addEventListener("unload", async (_) => {
 			localStorage.setItem("config", JSON.stringify($gameConfig));
-			localStorage.setItem("highScore", ""+highScore);
+			localStorage.setItem("highScore", "" + highScore);
 		});
 	});
 
@@ -533,18 +537,24 @@
 {#if menu}
 	<Suspense final on:load={() => (isSuspend = false)}>
 		<Root slot="fallback">
+			<!-- this to tw -->
 			<p
 				style="text-align: center; color: white; width: 100%; font-size: 500%; font-weight: bold; font-family:'Courier New', Courier, monospace"
 			>
 				Loading game assets...
 			</p>
 		</Root>
+		<Assets />
 		<Root>
-			<section class="contextmenu" class:hide={isSuspend}>
-				<ul>
+			<section class="w-full h-full flex flex-row items-center justify-end" class:hide={isSuspend}>
+				<ul class="flex flex-col h-full items-center justify-center mr-1 w-[10%] text-white list-none rounded-md p-1 z-[1]">
 					{#each contextMenuItems as ctx}
-						<li>
-							<button on:click={() => (currentCtx = ctx)}>{ctx.name}</button>
+						<li
+							data-state={currentCtx == ctx ? "active" : ""}
+							class="flex flex-col items-center justify-center w-[90%] h-[5%] p-4
+								duration-500 hover:h-[10%] border border-solid border-red-950"
+						>
+							<button class="bg-transparent border-none w-full h-full text-center text-white" on:click={() => (currentCtx = ctx)}>{ctx.name}</button>
 						</li>
 					{/each}
 				</ul>
@@ -552,10 +562,7 @@
 		</Root>
 
 		<!-- {#if currentCtx.name === "Skins"} -->
-		<T.PerspectiveCamera
-			makeDefault
-			bind:ref={cam}
-		/>
+		<T.PerspectiveCamera makeDefault bind:ref={cam} />
 		<T.Group visible={currentCtx.name === "Skins"}>
 			<T.DirectionalLight position={[0, 10, 10]} castShadow />
 			<T.Group position.x={mobile ? -1.5 : -3} position.z={mobile ? 1.5 : 3} in={zoomIn} out={zoomOut}>
@@ -635,7 +642,7 @@
 		<!-- {:else if currentCtx.name === "Seed"} -->
 		{#if currentCtx.name === "Seed"}
 			<Root>
-				<dialog class="seedMenu" in:scaleIn out:scaleOut>
+				<dialog class="block z-[2] duration-[5s] ease-in-out" in:scaleIn out:scaleOut>
 					Enter a map seed: (0 means random)
 					<input type="number" bind:value={seed} />
 				</dialog>
@@ -648,7 +655,9 @@
 				<T.Group
 					position.y={1}
 					position.z={0}
-					on:click={(_) => currentShopSkin.isUnlocked($gameConfig) && (skin === currentShopSkin.skin ? (skin = -1) : (skin = currentShopSkin.skin))}
+					on:click={(_) =>
+						currentShopSkin.isUnlocked($gameConfig) &&
+						(skin === currentShopSkin.skin ? (skin = -1) : (skin = currentShopSkin.skin))}
 				>
 					<T.Mesh
 						material={new MeshStandardMaterial({
@@ -659,35 +668,37 @@
 					</T.Mesh>
 				</T.Group>
 				<T.Group
-					position.y={1}
-					position.x={-2}
-					on:click={(_) => currentShopSkin = shopItems[Math.max(0, currentShopSkin.index - 1)]}
+					position.y={!mobile ? 1 : 2.2}
+					position.x={!mobile ? -2 : 0}
+					on:click={(_) => (currentShopSkin = shopItems[Math.max(0, currentShopSkin.index - 1)])}
 				>
 					<T.Mesh
 						material={new MeshStandardMaterial({
 							color: "yellow",
 						})}
 					>
-						<T.BoxGeometry args={[0.1, 2, 1]} />
+						<T.BoxGeometry args={mobile ? [2, 0.3, 1] : [0.1, 2, 1]} />
 					</T.Mesh>
 				</T.Group>
 				<T.Group
-					position.y={1}
-					position.x={2}
-					on:click={(_) => currentShopSkin = shopItems[Math.min(currentShopSkin.index + 1, shopItems.length - 1)]}
+					position.y={!mobile ? 1 : -0.5}
+					position.x={!mobile ? 2 : 0}
+					position.z={!mobile ? 0 : 1}
+					on:click={(_) => (currentShopSkin = shopItems[Math.min(currentShopSkin.index + 1, shopItems.length - 1)])}
 				>
 					<T.Mesh
 						material={new MeshStandardMaterial({
 							color: "lightgreen",
 						})}
 					>
-						<T.BoxGeometry args={[0.1, 2, 1]} />
+						<T.BoxGeometry args={mobile ? [2, 0.3, 1] : [0.1, 2, 1]} />
 					</T.Mesh>
 				</T.Group>
 				<T.Group rotation.y={rotation} position.y={1} position.z={1} castShadow>
 					<James currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 2} />
 					<Bigvegas currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 3} />
 					<Boss currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 4} />
+					<Timmy currentActionKey={skin === currentShopSkin.skin ? "tpose" : "idle"} visible={currentShopSkin.skin === 5} />
 				</T.Group>
 				<!-- <T.Group rotation.y={rotation} position.x={4} position.y={1} position.z={0} castShadow>
 					<Bigvegas currentActionKey={skin === 3 ? "tpose" : "idle"} />
@@ -697,7 +708,14 @@
 					<T.MeshStandardMaterial color="white" />
 				</T.Mesh>
 				{#if PUBLIC_CREATOR_HAS_WIFI === "true"}
-					<Text position.z={1.5} color={currentShopSkin.isUnlocked($gameConfig) ? 0x355E3B : "white"} text={currentShopSkin.skinText} fontSize={0.5} anchorX="50%" anchorY="100%" />
+					<Text
+						position.z={1.5}
+						color={currentShopSkin.isUnlocked($gameConfig) ? 0x355e3b : "white"}
+						text={currentShopSkin.skinText}
+						fontSize={0.5}
+						anchorX="50%"
+						anchorY="100%"
+					/>
 					<Text position.z={1.7} color="#9b870c" text={currentShopSkin.perk} fontSize={0.1} anchorX="50%" anchorY="100%" />
 					{#if !currentShopSkin.isUnlocked($gameConfig)}
 						<Text
@@ -717,19 +735,20 @@
 		<!-- {:else if currentCtx.name === "Play"} -->
 		{#if currentCtx.name === "Play"}
 			<Root>
-				<dialog class="playMenu" in:scaleIn out:scaleOut>
+				<dialog class="flex flex-col z-[2]" in:scaleIn out:scaleOut>
 					<button
 						on:click={() => {
 							realSeed = seed;
 							playerPos.set([0, 10, 3]);
 							startGame(false);
-						}}>Singleplayer</button>
+						}}>Singleplayer</button
+					>
 					<button
 						on:click={() => {
 							menu = false;
 							tutorial = true;
-						}}
-					>Play tutorial</button>
+						}}>Play tutorial</button
+					>
 					<p>Multiplayer rooms</p>
 					<div>
 						<input type="text" bind:value={room} /><button
@@ -744,32 +763,32 @@
 			</Root>
 		{:else if currentCtx.name === "Settings"}
 			<Root>
-				<dialog class="settingsMenu" in:scaleIn out:scaleOut>
-					<div>
+				<dialog class="flex flex-col z-[2]" in:scaleIn out:scaleOut>
+					<div class="mt-2">
 						Enable first person on start
 						<input type="checkbox" bind:checked={$gameConfig.fps} />
 					</div>
-					<div>
+					<div class="mt-2">
 						Enable shaders
 						<input type="checkbox" bind:checked={$gameConfig.shader} />
 					</div>
-					<div>
+					<div class="mt-2">
 						Enable debug mode (LAG WARNING)
 						<input type="checkbox" bind:checked={$gameConfig.debugMode} />
 					</div>
-					<div>
+					<div class="mt-2">
 						Enable blackhole mode
 						<input type="checkbox" bind:checked={$gameConfig.blackhole} />
 					</div>
-					<div>
+					<div class="mt-2">
 						# of women in singleplayer
 						<input type="number" bind:value={$gameConfig.womenCount} />
 					</div>
-					<div>
+					<div class="mt-2">
 						FOV
 						<input type="number" bind:value={$gameConfig.fov} />
 					</div>
-					<div>
+					<div class="mt-2">
 						Soundeffect volume
 						<input type="range" min={0} max={1000} step={1} bind:value={$gameConfig.volume} />
 						{$gameConfig.volume}%
@@ -778,8 +797,8 @@
 			</Root>
 		{:else if currentCtx.name === "Manual"}
 			<Root>
-				<dialog class="playMenu" in:scaleIn out:scaleOut>
-					WASD or Joystick for movement
+				<dialog class="flex flex-col max-h-[90%] max-w-[70%] overflow-scroll z-[2]" in:scaleIn out:scaleOut>
+					WASD or Joystick for movement (Hold shift to sprint, on mobile the sprint detection is automatic)
 					<br />
 					Pointer drag for camera rotation in Third Person (and both POVs on mobile)
 					<br />
@@ -821,28 +840,30 @@
 					<br />
 					ghost model, therefore the main threat of the game -- the ghost was replaced by the true threat of
 					<br />
-					all of the humanity -- the woman. Now in singleplayer, there is now a woman chasing after you
+					all of the humanity -- the woman. Now in singleplayer, there is a woman chasing after you
 					<br />
-					for your money! If you are broke, then you can picture her as an extreme feminist. However,
+					for your money! If you are broke, then you can picture her as an extreme feminist. If you are
 					<br />
-					if you are a woman, please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and
+					a woman (somehow), please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and then
 					<br />
-					picture the woman as an insane individual within your species.
+					picture the woman as an insane individual belonging to your (different) species.
 				</dialog>
 			</Root>
 		{/if}
 	</Suspense>
 {:else if tutorial}
-	<Tutorial on:end={() => {
-		death.set(false);
-		host = false;
-		realSeed = undefined;
-		tutorial = false;
-		menu = true;
-	}} />
+	<Tutorial
+		on:end={() => {
+			death.set(false);
+			host = false;
+			realSeed = undefined;
+			tutorial = false;
+			menu = true;
+		}}
+	/>
 {:else if realSeed === undefined}
 	<Root>
-		<dialog class="germination">Waiting for germination...</dialog>
+		<dialog class="block z-[2] duration-[5s] ease-in-out">Waiting for germination...</dialog>
 	</Root>
 {:else if lobby}
 	<Root>
@@ -872,19 +893,23 @@
 			{/if}
 			<button on:click={(_) => $socket?.close()}>{host ? "Disband" : "Leave"} lobby</button>
 		</dialog>
-		<dialog class="chat">
-			<div class="logs">
+		<dialog class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-0 max-h-[20%]">
+			<div class="w-full overflow-y-scroll">
 				{#each logs as msg}
 					<p>{msg}</p>
 				{/each}
 			</div>
-			<input type="text" bind:value={message} on:keypress={(e) => {
-				if (e.key === "Enter") {
-					logs = ["YOU: " + message, ...logs];
-					$socket?.send(TXT_MESSAGE_CREATE + message);
-					message = "";
-				}
-			}}/><button
+			<input
+				type="text"
+				bind:value={message}
+				on:keypress={(e) => {
+					if (e.key === "Enter") {
+						logs = ["YOU: " + message, ...logs];
+						$socket?.send(TXT_MESSAGE_CREATE + message);
+						message = "";
+					}
+				}}
+			/><button
 				on:click={(_) => {
 					logs = ["YOU: " + message, ...logs];
 					$socket?.send(TXT_MESSAGE_CREATE + message);
@@ -915,8 +940,8 @@
 		</T.Group>
 
 		<Root>
-			<div class="counters">
-				<div class="score"><p>Score: {$score} | Best: {highScore} | Azure crystals owned: {$azure}</p></div>
+			<div class="flex absolute top-[1px] w-[25%] h-[5%] items-center justify-center text-center">
+				<div class="flex flex-col select-none"><p>Score: {$score} | Best: {highScore} | Azure crystals owned: {$azure}</p></div>
 				<!-- Small inconvenience but it's fine! -->
 				{#if ($socket !== null && host) || $socket === null}
 					<div class="freeze"><p>Frozen for: {frozen}</p></div>
@@ -936,19 +961,23 @@
 			{:else}
 				<button on:click={() => $socket?.close()} class="quitbtn">Exit Game </button>
 			{/if}
-			<dialog class="chat" class:hidden={!chatActive}>
-				<div class="logs">
+			<dialog class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-[0] max-h-[20%]" class:hidden={!chatActive}>
+				<div class="w-full overflow-y-scroll">
 					{#each logs as msg}
 						<p>{msg}</p>
 					{/each}
 				</div>
-				<input type="text" bind:value={message} on:keypress={(e) => {
-					if (e.key === "Enter") {
-						logs = ["YOU: " + message, ...logs];
-						$socket?.send(TXT_MESSAGE_CREATE + message);
-						message = "";
-					}
-				}} /><button
+				<input
+					type="text"
+					bind:value={message}
+					on:keypress={(e) => {
+						if (e.key === "Enter") {
+							logs = ["YOU: " + message, ...logs];
+							$socket?.send(TXT_MESSAGE_CREATE + message);
+							message = "";
+						}
+					}}
+				/><button
 					on:click={(_) => {
 						logs = ["YOU: " + message, ...logs];
 						$socket?.send(TXT_MESSAGE_CREATE + message);
@@ -971,7 +1000,7 @@
 		</CollisionGroups>
 		<CollisionGroups groups={[0]}>
 			<House />
-			<Player {username} {host} skin={skin === -1 ? 0 : skin} on:tpress={_ => chatActive = !chatActive} />
+			<Player {username} {host} skin={skin === -1 ? 0 : skin} on:tpress={(_) => (chatActive = !chatActive)} />
 			<Door />
 			{#if $socket !== null}
 				{#if host}
@@ -1103,102 +1132,7 @@
 <style lang="css">
 	.hide {
 		display: none !important;
-	}
-
-	.germination {
-		display: block;
-		z-index: 2;
-		transition: 5s;
-		animation: ease-in-out 5s;
-	}
-
-	.contextmenu {
-		/* background-color: white; */
-		width: 100%;
-		height: 100%;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: flex-end;
-	}
-
-	.contextmenu ul {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		margin-right: 0.25em;
-		width: 10%;
-		height: 100%;
-		color: white;
-		list-style: none;
-		/* dumb canvas */
-		z-index: 1;
-	}
-
-	.contextmenu ul li {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		width: 90%;
-		height: 2%;
-		padding: 1em;
-		border: solid 1px red;
-		transition: 0.5s;
-	}
-
-	.contextmenu ul li:hover {
-		height: 10%;
-	}
-
-	.contextmenu ul li button {
-		background-color: transparent;
-		border: none;
-		width: 100%;
-		height: 100%;
-		text-align: center;
-		color: white;
-	}
-
-	.seedMenu {
-		display: block;
-		z-index: 2;
-		transition: 5s;
-		animation: ease-in-out 5s;
-	}
-
-	.playMenu {
-		display: flex;
-		flex-direction: column;
-		z-index: 2;
-	}
-
-	.settingsMenu {
-		display: flex;
-		flex-direction: column;
-		z-index: 2;
-	}
-
-	.settingsMenu div {
-		margin-top: 0.5em;
-	}
-
-	.chat {
-		display: flex;
-		flex-direction: column;
-		z-index: 2;
-		transition: 5s;
-		animation: ease-in-out 5s;
-		bottom: 0;
-		max-height: 20%;
-	}
-
-	.chat .logs {
-		width: 100%;
-		overflow-y: scroll;
-	}
-
+	} 
 	.lobby {
 		display: flex;
 		flex-direction: column;
@@ -1236,6 +1170,8 @@
 		border: 0.125em solid black;
 		padding: 0.125em;
 	}
+	/*
+
 
 	.counters {
 		display: flex;
@@ -1281,6 +1217,7 @@
 		width: 25%;
 		height: 5%;
 	}
+	*/
 
 	.hidden {
 		display: none;

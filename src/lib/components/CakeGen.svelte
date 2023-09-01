@@ -60,6 +60,7 @@
 	export let items: CakeGenItem[] = [];
 	let lastBodyMounted: number = 0;
 	let bodyEveryMilliseconds = 10000;
+	// let bodyEveryMilliseconds = 200;
 
 	// let longevityMilliseconds = 8000
 	useFrame(() => {
@@ -93,7 +94,7 @@
 				if (curr.type === 'frozen') {
 					freeze.update((f) => f + 1);
 				} else if (curr.type === 'gold') {
-					score.update((s) => s*2);
+					score.update((s) => s+9);
 				} else if (curr.type === 'azure') {
 					gameConfig.update((gc) => ({...gc, jamalUnlocked: true}));
 					azure.update((az) => az+1);

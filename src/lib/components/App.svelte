@@ -45,7 +45,7 @@
   </World>
 </Canvas>
 
-<style>
+<style lang="postcss">
   :global(canvas) {
     display: block;
     position: fixed;

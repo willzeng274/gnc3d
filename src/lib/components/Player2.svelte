@@ -10,6 +10,7 @@
 	import Bigvegas from "./models/Bigvegas.svelte";
 	import Boss from "./models/Boss.svelte";
 	import type { ActionName } from "$lib/types";
+	import Timmy from "./models/Timmy.svelte";
 	
 	let radius = 0.45; // used to be 0.3
 	let height = 2; // used to be 1.7
@@ -84,6 +85,8 @@
 				<Bigvegas currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
 			{:else if skin === 4}
 				<Boss currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+			{:else if skin === 5}
+				<Timmy currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
 			{/if}
 			<CollisionGroups groups={[15]}>
 				<T.Group position={[0, -height / 2 + radius, 0]}>

@@ -43,5 +43,6 @@ export interface Config {
     jamalUnlocked: boolean;
     vegasUnlocked: boolean;
     bossUnlocked: boolean;
+    timmyUnlocked: boolean;
     debugMode: boolean;
 }

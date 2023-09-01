@@ -19,6 +19,8 @@
 	import { DIED_OF_DEATH } from "$lib/constants";
 	import Bigvegas from "./models/Bigvegas.svelte";
 	import Boss from "./models/Boss.svelte";
+	import Barricade from "./models/Barricade.svelte";
+	import Timmy from "./models/Timmy.svelte";
 	export let skin: number;
 	export let host: boolean;
 	export let username: string;
@@ -46,6 +48,7 @@
 	// dash momentum
 	let dash: number = 0;
 	let lastDash = Date.now() - 5001;
+	let barricadeCd = Date.now() - 6001;
 
 	$: if (capsule) {
 		capRef = capsule;
@@ -135,7 +138,7 @@
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		// Big vegas can walk normal but 15% sprint reduction
-		const multi = shift ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : skin === 4 ? 1.1 : 1) : skin === 2 ? 0.6 : 0.5;
+		const multi = shift ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : skin === 2 ? 0.6 : 0.5;
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();
@@ -262,6 +265,12 @@
 			case "shift":
 				shift = 1;
 				break;
+			case "p":
+				if (Date.now() - barricadeCd >= (skin === 5 ? 500 : 4000)) {
+					spawnBarricade();
+					barricadeCd = Date.now();
+				}
+				break;
 			default:
 				// alert(e.key)
 				break;
@@ -387,7 +396,49 @@
 			right = 0;
 		});
 	});
+
+	interface Barricade {
+		position: [number, number, number];
+		rotation: [number, number, number];
+		id: number;
+	}
+
+	let barricades: Barricade[] = [];
+	let barricadeIndex: number = 0;
+
+	function spawnBarricade() {
+		if (!rigidBody) return;
+		const tl = rigidBody.translation();
+		const linvel = rigidBody.linvel();
+		const velAngle = Math.atan2(t.x, t.z) + Math.PI;
+		const eu = new Euler(0, velAngle, 0, "YXZ");
+		const id = barricadeIndex++;
+		barricades = [...barricades, {
+			// position: [tl.x, tl.y - 1, tl.z],
+			// position: [tl.x - Math.sign(linvel.x), tl.y, tl.z - Math.sign(linvel.z)],
+			position: [
+				tl.x - (Math.round(linvel.x) === 0 ? (Math.random() * 2 - 1) : Math.sign(linvel.x)),
+				tl.y, 
+				tl.z - (Math.round(linvel.z) === 0 ? (Math.random() * 2 - 1) : Math.sign(linvel.z)),
+			],
+			rotation: [eu.x, eu.y, eu.z],
+			id
+		}];
+		setTimeout(() => {
+			barricades = barricades.filter((b) => b.id !== id);
+		}, 3000);
+	}
 </script>
+
+{#each barricades as barricade (barricade.id)}
+	<T.Group position={barricade.position} rotation={barricade.rotation}>
+		<RigidBody type="dynamic">
+			<Collider shape="cuboid" args={[2, 1, 1/3]}>
+				<Barricade />
+			</Collider>
+		</RigidBody>
+	</T.Group>
+{/each}
 
 {#if mobile}
 	<Root>
@@ -417,6 +468,18 @@
 							setTimeout(() => {
 								lastDash = Date.now() - 6000;
 							}, 5000);
+						}
+					}}
+				/>
+			</div>
+			<div id="joystickWrapper4">
+				<!-- no indicator for barricades -->
+				<button
+					id="barricadeButton"
+					on:click={() => {
+						if (Date.now() - barricadeCd >= (skin === 5 ? 500 : 4000)) {
+							spawnBarricade();
+							barricadeCd = Date.now();
 						}
 					}}
 				/>
@@ -510,6 +573,8 @@
 					<Bigvegas bind:currentActionKey bind:ref={model} />
 				{:else if skin === 4}
 					<Boss bind:currentActionKey bind:ref={model} />
+				{:else if skin === 5}
+					<Timmy bind:currentActionKey bind:ref={model} />
 				{/if}
 			</T.Group>
 		</CollisionGroups>
@@ -604,6 +669,20 @@
 		touch-action: manipulation;
 	}
 
+	#joystickWrapper4 {
+		pointer-events: auto;
+		display: flex;
+		align-items: center;
+		position: absolute;
+		bottom: -80px;
+		right: 142px;
+		/* background-color: #000000; */
+		width: 60px;
+		height: 120px;
+		z-index: 12;
+		touch-action: manipulation;
+	}
+
 	#jumpButton {
 		position: absolute;
 		right: 15px;
@@ -621,6 +700,20 @@
 	}
 
 	#dashButton {
+		position: absolute;
+		width: 45px;
+		height: 45px;
+		border-radius: 50%;
+		background-color: white;
+		opacity: 0.5;
+		touch-action: manipulation;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		pointer-events: auto;
+	}
+
+	#barricadeButton {
 		position: absolute;
 		width: 45px;
 		height: 45px;
