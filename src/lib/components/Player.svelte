@@ -259,7 +259,7 @@
 			case "shift":
 				shift = 1;
 				break;
-			case "p":
+			case "q":
 				if (Date.now() - barricadeCd >= (skin === 5 ? 500 : 4000)) {
 					spawnBarricade();
 					barricadeCd = Date.now();
