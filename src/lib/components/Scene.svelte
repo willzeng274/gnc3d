@@ -941,7 +941,7 @@
 
 		<Root>
 			<div class="flex absolute top-[1px] w-[25%] h-[5%] items-center justify-center text-center">
-				<div class="flex flex-col select-none"><p>Score: {$score} | Best: {highScore} | Azure crystals owned: {$azure}</p></div>
+				<div class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] px-4"><p>Score: {$score} | Best: {highScore} | Azure crystals owned: {$azure}</p></div>
 				<!-- Small inconvenience but it's fine! -->
 				{#if ($socket !== null && host) || $socket === null}
 					<div class="freeze"><p>Frozen for: {frozen}</p></div>
@@ -1170,10 +1170,8 @@
 		border: 0.125em solid black;
 		padding: 0.125em;
 	}
-	/*
 
-
-	.counters {
+	/* .counters {
 		display: flex;
 		flex-direction: row;
 		position: absolute;
@@ -1183,9 +1181,9 @@
 		align-items: center;
 		justify-content: center;
 		text-align: center;
-	}
+	} */
 
-	.score {
+	/* .score {
 		display: flex;
 		flex-direction: column;
 		user-select: none;
@@ -1195,7 +1193,7 @@
 		border: solid 1px black;
 		z-index: 1;
 		padding: 0 1em;
-	}
+	} */
 
 	.freeze {
 		display: flex;
@@ -1217,7 +1215,7 @@
 		width: 25%;
 		height: 5%;
 	}
-	*/
+	
 
 	.hidden {
 		display: none;
