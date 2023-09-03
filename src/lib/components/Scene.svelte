@@ -14,6 +14,7 @@
 	import Fps from "./Fps.svelte";
 	import { spring } from "svelte/motion";
 	import Xbot from "./models/Xbot.svelte";
+	import TextInput from "$lib/ui/textInput.svelte";
 	import Root from "./Root.svelte";
 	import { onDestroy, onMount } from "svelte";
 	import { cubicOut } from "svelte/easing";
@@ -646,7 +647,7 @@
 			<Root>
 				<dialog class="block z-[2] duration-[5s] ease-in-out" in:scaleIn out:scaleOut>
 					Enter a map seed: (0 means random)
-					<input type="number" bind:value={seed} />
+					<input type="number" placeholder="Enter seed" bind:value={seed} />
 				</dialog>
 			</Root>
 		{/if}
@@ -737,30 +738,29 @@
 		<!-- {:else if currentCtx.name === "Play"} -->
 		{#if currentCtx.name === "Play"}
 			<Root>
-				<dialog class="flex flex-col z-[2]" in:scaleIn out:scaleOut>
+				<dialog class="flex flex-col z-[2] p-4" in:scaleIn out:scaleOut>
 					<button
 						on:click={() => {
 							realSeed = seed;
 							playerPos.set([0, 10, 3]);
 							startGame(false);
-						}}>Singleplayer</button
+						}} class="text-lg">Singleplayer</button
 					>
 					<button
 						on:click={() => {
 							menu = false;
 							tutorial = true;
-						}}>Play tutorial</button
+						}} class="text-lg font-semibold">Play tutorial</button
 					>
 					<p>Multiplayer rooms</p>
 					<div>
-						<input type="text" bind:value={room} /><button
+						<TextInput childAtStart={false} placeholder="Enter room ID" type="text" bind:value={room}><button
 							on:click={() => {
 								startGame(true);
-							}}>Join room</button
-						>
+							}}>Join room</button></TextInput>
 					</div>
-					<p>Username:</p>
-					<input type="text" bind:value={username} placeholder="Enter a username here:" />
+					
+					<TextInput type="text" showTopDivider={false} bind:value={username} placeholder="Enter a username"><p>Username:</p></TextInput>
 				</dialog>
 			</Root>
 		{:else if currentCtx.name === "Settings"}
@@ -901,8 +901,10 @@
 					<p>{msg}</p>
 				{/each}
 			</div>
-			<input
+			<TextInput
+			childAtStart={false}
 				type="text"
+				placeholder="Message"
 				bind:value={message}
 				on:keypress={(e) => {
 					if (e.key === "Enter") {
@@ -911,13 +913,13 @@
 						message = "";
 					}
 				}}
-			/><button
+			><button
 				on:click={(_) => {
 					logs = ["YOU: " + message, ...logs];
 					$socket?.send(TXT_MESSAGE_CREATE + message);
 					message = "";
 				}}>Send message</button
-			>
+			></TextInput>
 		</dialog>
 	</Root>
 {:else}
@@ -969,8 +971,9 @@
 						<p>{msg}</p>
 					{/each}
 				</div>
-				<input
+				<TextInput childAtStart={false}
 					type="text"
+					placeholder="Message"
 					bind:value={message}
 					on:keypress={(e) => {
 						if (e.key === "Enter") {
@@ -979,13 +982,12 @@
 							message = "";
 						}
 					}}
-				/><button
+				><button
 					on:click={(_) => {
 						logs = ["YOU: " + message, ...logs];
 						$socket?.send(TXT_MESSAGE_CREATE + message);
 						message = "";
-					}}>Send message</button
-				>
+					}}>Send message</button></TextInput>
 			</dialog>
 		</Root>
 
