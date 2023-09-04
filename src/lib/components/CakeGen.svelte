@@ -83,6 +83,7 @@
 				// Euler's order is default
 				// bytesize = 4 + 3*4 + 3*4 + 4 = 8 * 4
 				const arr = new Float32Array([CAKE_SPAWN_EVENT, id, ...position, rotation[0], rotation[1], rotation[2], cakeTypeAsInt(type)]);
+				// console.log(arr,$socket)
 				$socket?.send(arr);
 			}
 			// console.log(bodies.length)

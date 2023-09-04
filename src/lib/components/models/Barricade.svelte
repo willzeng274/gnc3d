@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type * as THREE from "three";
-	import { Group, Box3, Vector3 } from "three";
+	import { Group, Box3, Vector3,Euler } from "three";
 	import { T, forwardEventHandlers } from "@threlte/core";
 	import { useGltf, useSuspense } from "@threlte/extras";
 	import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 	import type { Props, Events, Slots } from "@threlte/core";
 
-	type $$Props = Props<Group> & { rotation?: [number, number, number]; visible?: boolean };
+	type $$Props = Props<Group> & { rotations?: [number, number, number]; visible?: boolean };
 	type $$Events = Events<Group>;
 	type $$Slots = Slots<Group> & { fallback: {}; error: { error: any } };
 
@@ -26,6 +26,7 @@
 
 	const component = forwardEventHandlers();
 </script>
+
 
 <T is={ref} dispose={false} {...$$restProps} bind:this={$component}>
 	{#await gltf}
