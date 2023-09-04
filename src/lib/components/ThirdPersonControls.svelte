@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onDestroy } from "svelte";
-	import { Camera, Euler, Vector2, Vector3 } from "three";
+	import { Camera, Vector2, Vector3 } from "three";
 	import type { Group } from "three";
 	import { useThrelte, useParent, useFrame } from "@threlte/core";
 	import { azure, gameConfig, score } from "$lib/store";
@@ -25,16 +25,12 @@
 	// export let idealOffset = { x: -0.5, y: 2, z: -3 }
 	export let idealOffset = { x: 0, y: 0, z: -5 };
 	export let zooming: number;
-	let isLocked: boolean = false;
-	export const lock = () => domElement.requestPointerLock();
-	export const unlock = () => document.exitPointerLock();
 	$: {
 		if (zooming !== -1) {
 			if (zooming < 1) {
-				zooming = 0;
-				plock = true;
-			} else {
-				idealOffset.z = -zooming;
+				// zooming = 0;
+				plock = true
+				// idealOffset.z = -zooming;
 			}
 		}
 	}
@@ -63,18 +59,12 @@
 	domElement.addEventListener("pointerleave", onPointerLeave);
 	domElement.addEventListener("pointerup", onPointerUp);
 	domElement.addEventListener("wheel", onWheel);
-	domElement.ownerDocument.addEventListener("pointerlockchange", onPointerlockChange);
-	domElement.ownerDocument.addEventListener("pointerlockerror", onPointerlockError);
 	onDestroy(() => {
 		domElement.removeEventListener("pointerdown", onPointerDown);
 		domElement.removeEventListener("pointermove", onPointerMove);
 		domElement.removeEventListener("pointerleave", onPointerLeave);
 		domElement.removeEventListener("pointerup", onPointerUp);
 		domElement.removeEventListener("wheel", onWheel);
-		domElement.ownerDocument.removeEventListener("pointerlockchange", onPointerlockChange);
-		domElement.ownerDocument.removeEventListener("pointerlockerror", onPointerlockError);
-		domElement.removeEventListener("mousemove", onMouseMove);
-		isLocked = false;
 	});
 	// This is basically update function
 	useFrame(() => {
@@ -106,16 +96,6 @@
 	}
 
 	function rotatePointer(x: number, y: number) {
-		if (isLocked) {
-			// console.log(x, y);
-			// console.log(movementX, movementY);
-			// _euler.setFromQuaternion($camera.quaternion);
-			// _euler.y -= movementX * 0.002 * pointerSpeed;
-			// _euler.x -= movementY * 0.002 * pointerSpeed;
-			// _euler.x = Math.max(_PI_2 - maxPolarAngle, Math.min(_PI_2 - minPolarAngle, _euler.x));
-			// $camera.quaternion.setFromEuler(_euler);
-			return;
-		}
 		if (pointerDown && !isOrbiting) {
 			// calculate distance from init down
 			const distCheck = Math.sqrt(Math.pow(x - rotateStart.x, 2) + Math.pow(y - rotateStart.y, 2)) > 10;
@@ -155,26 +135,12 @@
 			// 	vegasUnlocked: true,
 			// 	bossUnlocked: true
 			// }));
-		} else if (event.key.toLowerCase() === "r") {
-			if (isLocked) {
-				isLocked = false;
-				unlock();
-				domElement.removeEventListener("mousemove", onMouseMove);
-			} else {
-				isLocked = true;
-				lock();
-				domElement.addEventListener("mousemove", onMouseMove);
-			}
 		}
-	}
+		// else if (event.ctrlKey) {
+		// 	// cameraControls.theta -= rotateSpeed * 0.1;
 
-	function onMouseMove(event: MouseEvent) {
-		if (!isLocked) return;
-		if (!$camera) return;
-		const { movementX, movementY } = event;
-		cameraControls.phi -= movementY * 0.02;
-		cameraControls.theta -= movementX * 0.02;
-		cameraControls.phi = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, cameraControls.phi));
+		// 	plock = plock ? false : true;
+		// }
 	}
 
 	function onPointerDown(event: PointerEvent) {
@@ -193,18 +159,6 @@
 		rotateDelta.set(0, 0);
 		pointerDown = false;
 		isOrbiting = false;
-	}
-
-	function onPointerlockChange() {
-		if (document.pointerLockElement === domElement) {
-			isLocked = true;
-		} else {
-			isLocked = false;
-		}
-	}
-
-	function onPointerlockError() {
-		console.error("PointerLockControls: Unable to use Pointer Lock API");
 	}
 </script>
 
