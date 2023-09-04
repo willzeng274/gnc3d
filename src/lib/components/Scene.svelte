@@ -1014,7 +1014,17 @@
 		{/if}
 
 		<!-- <T.GridHelper args={[50]} position.y={0.01} /> -->
-
+		<Root>
+			{#each barricades as barricade (barricade.id)}
+				<T.Group position={barricade.position} rotation={barricade.rotation}>
+						<RigidBody type="dynamic">
+							<Collider shape="cuboid" args={[2, 1, 1/3]}>
+								<Barricade />
+							</Collider>
+						</RigidBody>
+					</T.Group>
+			{/each}
+		</Root>		
 		<CollisionGroups groups={[0, 15]}>
 			<Ground seed={realSeed} enableShaders={$gameConfig.shader} />
 		</CollisionGroups>
@@ -1027,15 +1037,7 @@
 					<CakeGen host bind:items={hostCakes} />			
 
 			{:else}			
-					{#each barricades as barricade (barricade.id)}
-						<T.Group position={barricade.position} rotation={barricade.rotation}>
-						<RigidBody type="dynamic">
-							<Collider shape="cuboid" args={[2, 1, 1/3]}>
-								<Barricade />
-							</Collider>
-						</RigidBody>
-					</T.Group>
-					{/each}				
+		
 					{#each cakes as cake (cake.id)}
 						<!-- the touch param is completely useless for a non-host -->
 						<Particle
