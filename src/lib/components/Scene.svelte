@@ -21,6 +21,8 @@
 	import Particle from "./Particle.svelte";
 	import Tutorial from "./Tutorial.svelte";
 	import James from "./models/James.svelte";
+	import Barricade from "./models/Barricade.svelte";
+	import { RigidBody, Collider } from "@threlte/rapier";
 	import { PUBLIC_PROD, PUBLIC_CREATOR_HAS_WIFI } from "$env/static/public";
 	import {
 		cakeTypeAsInt,
@@ -33,7 +35,7 @@
 		intToCakeType,
 		importEncryptionKey,
 	} from "$lib/utils";
-	import type { Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
+	import type { Cake, CakeGenItem, ConnectedPlayer, BarricadeItem } from "$lib/types";
 	import {
 		CAKES_UPDATE_EVENT,
 		CAKE_COLLIDE_EVENT,
@@ -52,6 +54,7 @@
 		shopItems,
 		jwk,
 		CAKE_GONE_EVENT,
+		BARRICADES_SPAWN_EVENT
 	} from "$lib/constants";
 	import House from "$lib/rapier/world/House.svelte";
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
@@ -116,7 +119,10 @@
 	let currentShopSkin = shopItems[0];
 
 	let cakes: Cake[] = [];
-
+	let barricades: BarricadeItem[] = [];
+	$:{
+		console.log('smoll pp',barricades);
+	}
 	let lastUpdated = Date.now();
 
 	// TODO: websocket frame rate, if frame rate drops below 3 then the host automatically disconnects
@@ -227,13 +233,14 @@
 						m.data.byteLength === 4 * 11 + 4 ||
 						m.data.byteLength === 4 * 9 + 4 ||
 						m.data.byteLength === 4 * 2 + 4 ||
-						m.data.byteLength === 4 * 8 + 4
+						m.data.byteLength === 4 * 8 + 4 ||
+						m.data.byteLength === 4*8
 					) {
 						// It's numeric data, for some reason JavaScript cannot modify ArrayBuffer
 						// or decode a Uint8Array into Float32Array
 
 						const arr = new Float32Array(m.data);
-
+						// console.log(arr,'arr there or not');
 						// this is always true
 						const ind = players.findIndex((p) => p.id === arr[1]);
 						if (arr[0] === USER_STATE_UPDATE) {
@@ -299,6 +306,17 @@
 									}
 								});
 							}
+						}
+						else if (arr[0] === BARRICADES_SPAWN_EVENT){
+							console.log("BARRICADES spawn id", arr[2]);
+
+							barricades = [ ...barricades,{	
+								id:arr[1],
+								position:[arr[2],arr[3],arr[4]],
+								rotation:[arr[5],arr[6],arr[7]],
+							}	
+							];
+							console.log('Recieved BARRICADES_SPAWN_EVENT :',barricades)
 						}
 					} else {
 						const arr = new Uint8Array(m.data);
@@ -383,6 +401,7 @@
 				menu = true;
 				// lobby = false;
 				cakes = [];
+				barricades = [];
 				hostCakes = [];
 				if (m.code === 4001) {
 					alert("Room already started!");
@@ -948,6 +967,7 @@
 				{/if}
 			</div>
 			{#if $socket === null}
+
 				<button
 					on:click={() => {
 						menu = true;
@@ -1004,8 +1024,18 @@
 			<Door />
 			{#if $socket !== null}
 				{#if host}
-					<CakeGen host bind:items={hostCakes} />
-				{:else}
+					<CakeGen host bind:items={hostCakes} />			
+
+			{:else}			
+					{#each barricades as barricade (barricade.id)}
+						<T.Group position={barricade.position} rotation={barricade.rotation}>
+						<RigidBody type="dynamic">
+							<Collider shape="cuboid" args={[2, 1, 1/3]}>
+								<Barricade />
+							</Collider>
+						</RigidBody>
+					</T.Group>
+					{/each}				
 					{#each cakes as cake (cake.id)}
 						<!-- the touch param is completely useless for a non-host -->
 						<Particle
@@ -1019,7 +1049,9 @@
 						/>
 					{/each}
 				{/if}
+
 			{:else}
+	
 				<CakeGen />
 				<Woman {skin} />
 				<!-- at least 1 woman from above -->
@@ -1041,6 +1073,9 @@
 					rotation={p.rotation}
 				/>
 			{/each}
+			<!-- {#each barricades as barricade (barricade.id)}
+			<Barricade positions={barricade.position} rotations={barricade.rotation} />
+{/each}	 -->
 		</CollisionGroups>
 		<CollisionGroups memberships={[5]} filter={[0]}>
 			<AutoColliders shape={"cuboid"} friction={0.15} restitution={0.1}>
@@ -1128,6 +1163,7 @@
 		</CollisionGroups>
 	</Suspense>
 {/if}
+
 
 <style lang="css">
 	.hide {

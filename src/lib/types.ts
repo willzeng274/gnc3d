@@ -17,6 +17,12 @@ export interface CakeGenItem {
     type: cakeType,
 }
 
+export interface BarricadeItem {
+    id: number;
+    position: [number, number, number];
+    rotation: [number, number, number];
+}
+
 export type ActionName = "idle" | "jump" | "running" | "tpose" | "walk" | "fall" | "dance";
 
 export interface ConnectedPlayer {

@@ -7,7 +7,9 @@
 	import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
+	import type { BarricadeItem } from '$lib/types';
 	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig } from "$lib/store";
+	import { BARRICADES_SPAWN_EVENT } from '$lib/constants';
 	import Ybot from "./models/Ybot.svelte";
 	import Xbot from "./models/Xbot.svelte";
 	import James from "./models/James.svelte";
@@ -391,13 +393,9 @@
 		});
 	});
 
-	interface Barricade {
-		position: [number, number, number];
-		rotation: [number, number, number];
-		id: number;
-	}
 
-	let barricades: Barricade[] = [];
+
+	let barricades: BarricadeItem[] = [];
 	let barricadeIndex: number = 0;
 
 	function spawnBarricade() {
@@ -407,17 +405,23 @@
 		const velAngle = Math.atan2(t.x, t.z) + Math.PI;
 		const eu = new Euler(0, velAngle, 0, "YXZ");
 		const id = barricadeIndex++;
-		barricades = [...barricades, {
-			// position: [tl.x, tl.y - 1, tl.z],
-			// position: [tl.x - Math.sign(linvel.x), tl.y, tl.z - Math.sign(linvel.z)],
-			position: [
+		const position:[number,number,number] = [
 				tl.x - (Math.round(linvel.x) === 0 ? (Math.random() * 2 - 1) : Math.sign(linvel.x)),
 				tl.y, 
 				tl.z - (Math.round(linvel.z) === 0 ? (Math.random() * 2 - 1) : Math.sign(linvel.z)),
-			],
-			rotation: [eu.x, eu.y, eu.z],
-			id
+		];
+		const rotation:[number, number, number] = [eu.x, eu.y, eu.z];
+		barricades = [...barricades, {
+			id,
+			position,
+			rotation,
 		}];
+		if ($socket){
+				// bytesize = 4 + 3*4 + 3*4 + 4 = 8 * 4
+				const arr = new Float32Array([BARRICADES_SPAWN_EVENT,id, ...position,...rotation]);
+				console.log(arr,$socket)
+				$socket?.send(arr);
+			}
 		setTimeout(() => {
 			barricades = barricades.filter((b) => b.id !== id);
 		}, 3000);
@@ -425,14 +429,15 @@
 </script>
 
 {#each barricades as barricade (barricade.id)}
-	<T.Group position={barricade.position} rotation={barricade.rotation}>
-		<RigidBody type="dynamic">
-			<Collider shape="cuboid" args={[2, 1, 1/3]}>
-				<Barricade />
-			</Collider>
-		</RigidBody>
-	</T.Group>
-{/each}
+<T.Group position={barricade.position} rotation={barricade.rotation}>
+	<RigidBody type="dynamic">
+		<Collider shape="cuboid" args={[2, 1, 1/3]}>
+			<Barricade />
+		</Collider>
+	</RigidBody>
+</T.Group>
+{/each}				
+
 
 {#if mobile}
 	<Root>
