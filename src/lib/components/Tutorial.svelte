@@ -100,10 +100,19 @@
 </script>
 
 <Root>
+    <!-- .dialog {
+        bottom: 1em;
+        display: block;
+        z-index: 2;
+    }
+
+    .dialog h6 {
+        margin: 2em 0 .125em 0;
+    } -->
     <button on:click={_ => currentStage++}>
-        <dialog class="dialog">
+        <dialog class="max-w-[80%] lg:max-w-[40%] bottom-4 z-[2] flex flex-col py-2 px-4 rounded-md text-gray-600">
             <p>{stages[currentStage]}</p>
-            <h6>Click to continue</h6>
+            <h6 class="mt-4 mb-0.5">Click to continue</h6>
         </dialog>
     </button>
 </Root>
@@ -125,15 +134,3 @@
         <Particle id={0} position={[0, 10, 50]} rotation={[0, 0, 0]} bind:touch type="normal" />
     {/if}
 </CollisionGroups>
-
-<style>
-    .dialog {
-        bottom: 1em;
-        display: block;
-        z-index: 2;
-    }
-
-    .dialog h6 {
-        margin: 2em 0 .125em 0;
-    }
-</style>

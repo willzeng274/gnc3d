@@ -2,6 +2,28 @@ import { animations } from "./constants";
 import { azure } from "./store";
 import type { cakeType, ActionName } from "./types";
 
+export function getSkinNameByNumber(skinId: number): string {
+    if (skinId === 0) {
+        return "default male";
+    }
+    if (skinId === 1) {
+        return "default female";
+    }
+    if (skinId === 2) {
+        return "James";
+    }
+    if (skinId === 3) {
+        return "Big vegas";
+    }
+    if (skinId === 4) {
+        return "Boss";
+    }
+    if (skinId === 5) {
+        return "Timmy";
+    }
+    return "default";
+}
+
 export function cakeTypeAsInt(cake: cakeType): number {
     if (cake === "normal") return 0;
     if (cake === "frozen") return 1;

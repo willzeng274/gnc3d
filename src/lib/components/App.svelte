@@ -56,15 +56,7 @@
   }
 
   .deathMenu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: red;
-    width: 20%;
-    height: 10%;
-    user-select: none;
-    opacity: 0.8;
-    z-index: 1;
+    @apply rounded-md flex flex-col items-center justify-center
+    bg-red-600 w-[60%] lg:w-[20%] h-[10%] select-none opacity-80 z-[1];
   }
 </style>

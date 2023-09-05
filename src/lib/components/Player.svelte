@@ -407,9 +407,7 @@
 		const velAngle = Math.atan2(t.x, t.z) + Math.PI;
 		const eu = new Euler(0, velAngle, 0, "YXZ");
 		const id = barricadeIndex++;
-		barricades = [...barricades, {
-			// position: [tl.x, tl.y - 1, tl.z],
-			// position: [tl.x - Math.sign(linvel.x), tl.y, tl.z - Math.sign(linvel.z)],
+		const newBr: Barricade = {
 			position: [
 				tl.x - (Math.round(linvel.x) === 0 ? (Math.random() * 2 - 1) : Math.sign(linvel.x)),
 				tl.y, 
@@ -417,7 +415,11 @@
 			],
 			rotation: [eu.x, eu.y, eu.z],
 			id
-		}];
+		};
+		barricades = [...barricades, newBr];
+		if ($socket) {
+			// $socket.send()
+		}
 		setTimeout(() => {
 			barricades = barricades.filter((b) => b.id !== id);
 		}, 3000);
@@ -526,6 +528,12 @@
 								rigidBody.setLinvel({ x: v.x, y: -(velY / 2), z: v.z }, true);
 								// rigidBody.setTranslation(, true);
 							}
+						}
+						// @ts-ignore
+						if (e.targetRigidBody.userData?.name === "cake") {
+							// this will kinda patch the big vegas flying bug in multiplayer
+							// although it's only going to increase the normal force
+							rigidBody?.applyImpulse(new Vector3(0, -10, 0), true);
 						}
 						if (host) {
 							// @ts-ignore
