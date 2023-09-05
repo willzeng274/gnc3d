@@ -234,7 +234,6 @@
 						m.data.byteLength === 4 * 9 + 4 ||
 						m.data.byteLength === 4 * 2 + 4 ||
 						m.data.byteLength === 4 * 8 + 4 ||
-						m.data.byteLength === 4*8
 					) {
 						// It's numeric data, for some reason JavaScript cannot modify ArrayBuffer
 						// or decode a Uint8Array into Float32Array
