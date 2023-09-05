@@ -14,8 +14,6 @@
 	import Fps from "./Fps.svelte";
 	import { spring } from "svelte/motion";
 	import Xbot from "./models/Xbot.svelte";
-	import TextInput from "$lib/ui/textInput.svelte";
-	import * as Modals from "$lib/ui/modal";
 	import Root from "./Root.svelte";
 	import { onDestroy, onMount } from "svelte";
 	import { cubicOut } from "svelte/easing";
@@ -23,6 +21,8 @@
 	import Particle from "./Particle.svelte";
 	import Tutorial from "./Tutorial.svelte";
 	import James from "./models/James.svelte";
+	import Barricade from "./models/Barricade.svelte";
+	import { RigidBody, Collider } from "@threlte/rapier";
 	import { PUBLIC_PROD, PUBLIC_CREATOR_HAS_WIFI } from "$env/static/public";
 	import {
 		cakeTypeAsInt,
@@ -34,9 +34,8 @@
 		getRandomElementFromArray,
 		intToCakeType,
 		importEncryptionKey,
-		getSkinNameByNumber,
 	} from "$lib/utils";
-	import type { Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
+	import type { Cake, CakeGenItem, ConnectedPlayer, BarricadeItem } from "$lib/types";
 	import {
 		CAKES_UPDATE_EVENT,
 		CAKE_COLLIDE_EVENT,
@@ -55,6 +54,7 @@
 		shopItems,
 		jwk,
 		CAKE_GONE_EVENT,
+		BARRICADES_SPAWN_EVENT
 	} from "$lib/constants";
 	import House from "$lib/rapier/world/House.svelte";
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
@@ -62,9 +62,6 @@
 	import Boss from "./models/Boss.svelte";
 	import Assets from "./models/Assets.svelte";
 	import Timmy from "./models/Timmy.svelte";
-    import NumberInput from "$lib/ui/numberInput.svelte";
-	import Button from "$lib/ui/button.svelte";
-	import ToggleInput from "$lib/ui/toggleInput.svelte";
 
 	const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -122,7 +119,10 @@
 	let currentShopSkin = shopItems[0];
 
 	let cakes: Cake[] = [];
-
+	let barricades: BarricadeItem[] = [];
+	$:{
+		console.log('smoll pp',barricades);
+	}
 	let lastUpdated = Date.now();
 
 	// TODO: websocket frame rate, if frame rate drops below 3 then the host automatically disconnects
@@ -233,13 +233,14 @@
 						m.data.byteLength === 4 * 11 + 4 ||
 						m.data.byteLength === 4 * 9 + 4 ||
 						m.data.byteLength === 4 * 2 + 4 ||
-						m.data.byteLength === 4 * 8 + 4
+						m.data.byteLength === 4 * 8 + 4 ||
+						m.data.byteLength === 4*8
 					) {
 						// It's numeric data, for some reason JavaScript cannot modify ArrayBuffer
 						// or decode a Uint8Array into Float32Array
 
 						const arr = new Float32Array(m.data);
-
+						// console.log(arr,'arr there or not');
 						// this is always true
 						const ind = players.findIndex((p) => p.id === arr[1]);
 						if (arr[0] === USER_STATE_UPDATE) {
@@ -305,6 +306,17 @@
 									}
 								});
 							}
+						}
+						else if (arr[0] === BARRICADES_SPAWN_EVENT){
+							console.log("BARRICADES spawn id", arr[2]);
+
+							barricades = [ ...barricades,{	
+								id:arr[1],
+								position:[arr[2],arr[3],arr[4]],
+								rotation:[arr[5],arr[6],arr[7]],
+							}	
+							];
+							console.log('Recieved BARRICADES_SPAWN_EVENT :',barricades)
 						}
 					} else {
 						const arr = new Uint8Array(m.data);
@@ -389,6 +401,7 @@
 				menu = true;
 				// lobby = false;
 				cakes = [];
+				barricades = [];
 				hostCakes = [];
 				if (m.code === 4001) {
 					alert("Room already started!");
@@ -552,17 +565,15 @@
 		</Root>
 		<Assets />
 		<Root>
-			<section class="w-full h-full flex flex-col lg:flex-row items-center justify-end" class:hide={isSuspend}>
-				<ul class="flex flex-row lg:flex-col h-[20%] lg:h-full items-center justify-center mr-1 w-full lg:w-[15%] bg-slate-800 text-white list-none rounded-md p-1 z-[1]">
+			<section class="w-full h-full flex flex-row items-center justify-end" class:hide={isSuspend}>
+				<ul class="flex flex-col h-full items-center justify-center mr-1 w-[10%] text-white list-none rounded-md p-1 z-[1]">
 					{#each contextMenuItems as ctx}
 						<li
-							data-state={currentCtx == ctx ? "active" : undefined}
-							class="flex flex-col items-center justify-center w-full h-[90%] lg:h-[7%] p-4 transition-[height]
-								duration-500 hover:h-[100%] lg:hover:h-[10%] border border-solid border-slate-700
-								first:rounded-l-[4px] last:rounded-r-[4px]
-								lg:first:rounded-t-[4px] lg:last:rounded-b-[4px]"
+							data-state={currentCtx == ctx ? "active" : ""}
+							class="flex flex-col items-center justify-center w-[90%] h-[5%] p-4
+								duration-500 hover:h-[10%] border border-solid border-red-950"
 						>
-							<button class="bg-transparent border-none text-xs sm:text-lg w-full h-full text-center text-white" on:click={() => (currentCtx = ctx)}>{ctx.name}</button>
+							<button class="bg-transparent border-none w-full h-full text-center text-white" on:click={() => (currentCtx = ctx)}>{ctx.name}</button>
 						</li>
 					{/each}
 				</ul>
@@ -650,20 +661,10 @@
 		<!-- {:else if currentCtx.name === "Seed"} -->
 		{#if currentCtx.name === "Seed"}
 			<Root>
-				<Modals.Modal isOpen>
-					<Modals.ModalTitle>Enter a map seed</Modals.ModalTitle>
-				  
-					<Modals.ModalBody>
-						Type a number, leave it as 0 for random
-						<NumberInput type="number" placeholder="Enter seed" showTopDivider={false} bind:value={seed}><p class="pt-1">Seed</p></NumberInput>
-					</Modals.ModalBody>
-				  
-					<!-- <Modals.ModalActions>
-						<Modals.ModalActionButton on:click={() => console.log("Clicked 1")}>
-							Ok
-						</Modals.ModalActionButton>
-					</Modals.ModalActions> -->
-				</Modals.Modal>
+				<dialog class="block z-[2] duration-[5s] ease-in-out" in:scaleIn out:scaleOut>
+					Enter a map seed: (0 means random)
+					<input type="number" bind:value={seed} />
+				</dialog>
 			</Root>
 		{/if}
 		<!-- {:else if currentCtx.name === "Shop"} -->
@@ -753,117 +754,119 @@
 		<!-- {:else if currentCtx.name === "Play"} -->
 		{#if currentCtx.name === "Play"}
 			<Root>
-				<dialog class="flex flex-col z-[2] p-4 rounded-md" in:scaleIn out:scaleOut>
-					<Button
+				<dialog class="flex flex-col z-[2]" in:scaleIn out:scaleOut>
+					<button
 						on:click={() => {
 							realSeed = seed;
 							playerPos.set([0, 10, 3]);
 							startGame(false);
-						}} class="text-lg font-semibold">Singleplayer</Button
+						}}>Singleplayer</button
 					>
-					<Button
+					<button
 						on:click={() => {
 							menu = false;
 							tutorial = true;
-						}} class="text-lg font-semibold my-2">Play tutorial</Button
+						}}>Play tutorial</button
 					>
 					<p>Multiplayer rooms</p>
 					<div>
-						<TextInput childAtStart={false} placeholder="Enter room ID" type="text" bind:value={room}><button
+						<input type="text" bind:value={room} /><button
 							on:click={() => {
 								startGame(true);
-							}}>Join room</button></TextInput>
+							}}>Join room</button
+						>
 					</div>
-					
-					<TextInput type="text" showTopDivider={false} bind:value={username} placeholder="Enter a username"><p>Username:</p></TextInput>
+					<p>Username:</p>
+					<input type="text" bind:value={username} placeholder="Enter a username here:" />
 				</dialog>
 			</Root>
 		{:else if currentCtx.name === "Settings"}
 			<Root>
-				<dialog class="flex flex-col z-[2] p-4 rounded-md" in:scaleIn out:scaleOut>
+				<dialog class="flex flex-col z-[2]" in:scaleIn out:scaleOut>
 					<div class="mt-2">
-						<!-- <input type="checkbox" bind:checked={$gameConfig.fps} /> -->
-						<ToggleInput bind:checked={$gameConfig.fps}>
-							<p class="pb-2">Enable first person on start</p>
-						</ToggleInput>
+						Enable first person on start
+						<input type="checkbox" bind:checked={$gameConfig.fps} />
 					</div>
 					<div class="mt-2">
-						<ToggleInput bind:checked={$gameConfig.shader}>
-							<p class="pb-2">Enable shaders</p>
-						</ToggleInput>
+						Enable shaders
+						<input type="checkbox" bind:checked={$gameConfig.shader} />
 					</div>
 					<div class="mt-2">
-						<ToggleInput bind:checked={$gameConfig.debugMode}>
-							<p class="pb-2">Enable debug mode (LAG WARNING)</p>
-						</ToggleInput>
+						Enable debug mode (LAG WARNING)
+						<input type="checkbox" bind:checked={$gameConfig.debugMode} />
 					</div>
 					<div class="mt-2">
-						<ToggleInput bind:checked={$gameConfig.blackhole}>
-							<p class="pb-2">Enable blackhole mode</p>
-						</ToggleInput>
+						Enable blackhole mode
+						<input type="checkbox" bind:checked={$gameConfig.blackhole} />
 					</div>
 					<div class="mt-2">
-						<NumberInput type="number" bind:value={$gameConfig.womenCount} class="my-1">
-							<p class="pt-1"># of women in singleplayer</p>
-						</NumberInput>
+						# of women in singleplayer
+						<input type="number" bind:value={$gameConfig.womenCount} />
 					</div>
 					<div class="mt-2">
-						<NumberInput type="number" bind:value={$gameConfig.fov} class="my-1">
-							<p class="pt-1">FOV</p>
-						</NumberInput>
+						FOV
+						<input type="number" bind:value={$gameConfig.fov} />
 					</div>
 					<div class="mt-2">
-						<p class="-translate-y-0.5 inline-block">Soundeffect volume</p>
+						Soundeffect volume
 						<input type="range" min={0} max={1000} step={1} bind:value={$gameConfig.volume} />
-						<p class="-translate-y-0.5 inline-block">{$gameConfig.volume}%</p>
+						{$gameConfig.volume}%
 					</div>
 				</dialog>
 			</Root>
 		{:else if currentCtx.name === "Manual"}
 			<Root>
-				<Modals.Modal isOpen class="max-w-[80%] lg:max-w-[60%]">
-					<Modals.ModalTitle>Game manual</Modals.ModalTitle>
-				  
-					<Modals.ModalBody>
-						WASD or Joystick for movement (Hold shift to sprint, on mobile the sprint detection is automatic)
-						<br />
-						Pointer drag for camera rotation in Third Person (and both POVs on mobile)
-						<br />
-						Pointer lock for camera rotation in First Person
-						<br />
-						Mouse wheel or Slider for zooming in/out
-						<br />
-						Adjust FOV in settings
-						<br />
-						Press "e" to emote with applicable skins
-						<br />
-						Press "f" to dash
-						<br />
-						Press "t" to open chat in multiplayer
-						<br />
-						Press "esc" to exit chat in multiplayer
-						<br />
-						Mobile players cannot chat
-						<br />
-						Press green panel in skin shop to go to next skin, yellow panel to go to previous
-						<br />
-						Enter a seed in the seed panel for persistent seeded terrain generation, leave at 0 for random
-						<br /><br />
-						Game history and lore: Ghost and cakes is a game originally created by Jerrdeh (2018) with block coding.
-						The point of the game was to click on cakes that randomly spawn while a ghost chases after your cursor.
-						Sir NastyPigz enhanced the block coding version in the 2019-2020 era, allowing more cake types
-						and a partially working multiplayer version. A JavaScript version was also transpiled during this time.
-						However, it wasn't until early 2022 that the game was completely rewritten in JavaScript and React 17,
-						bootstrapped with Next.js. Although, the game was stuck in 2D and had no sign of graphical improvements.
-						Now, time lapse to 2023, Sir NastyPigz have successfully studied enough Physics, Math, and Computer Science
-						to bring you a 3D experience of the game! However, there were some technical difficulties with creating a
-						ghost model, therefore the main threat of the game -- the ghost was replaced by the true threat of
-						all of the humanity -- the woman. Now in singleplayer, there is a woman chasing after you
-						for your money! If you are broke, then you can picture her as an extreme feminist. If you are
-						a woman (somehow), please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and then
-						picture the woman as an insane individual belonging to your (different) species.
-					</Modals.ModalBody>
-				</Modals.Modal>
+				<dialog class="flex flex-col max-h-[90%] max-w-[70%] overflow-scroll z-[2]" in:scaleIn out:scaleOut>
+					WASD or Joystick for movement (Hold shift to sprint, on mobile the sprint detection is automatic)
+					<br />
+					Pointer drag for camera rotation in Third Person (and both POVs on mobile)
+					<br />
+					Pointer lock for camera rotation in First Person
+					<br />
+					Mouse wheel or Slider for zooming in/out
+					<br />
+					Adjust FOV in settings
+					<br />
+					Press "e" to emote with applicable skins
+					<br />
+					Press "f" to dash
+					<br />
+					Press "t" to open chat in multiplayer
+					<br />
+					Press "esc" to exit chat in multiplayer
+					<br />
+					Mobile players cannot chat
+					<br />
+					Press green panel in skin shop to go to next skin, yellow panel to go to previous
+					<br />
+					Enter a seed in the seed panel for persistent seeded terrain generation, leave at 0 for random
+					<br /><br />
+					Game history and lore: Ghost and cakes is a game originally created by Jerrdeh (2018) with block coding.
+					<br />
+					The point of the game was to click on cakes that randomly spawn while a ghost chases after your cursor.
+					<br />
+					Sir NastyPigz enhanced the block coding version in the 2019-2020 era, allowing more cake types
+					<br />
+					and a partially working multiplayer version. A JavaScript version was also transpiled during this time.
+					<br />
+					However, it wasn't until early 2022 that the game was completely rewritten in JavaScript and React 17,
+					<br />
+					bootstrapped with Next.js. Although, the game was stuck in 2D and had no sign of graphical improvements.
+					<br />
+					Now, time lapse to 2023, Sir NastyPigz have successfully studied enough Physics, Math, and Computer Science
+					<br />
+					to bring you a 3D experience of the game! However, there were some technical difficulties with creating a
+					<br />
+					ghost model, therefore the main threat of the game -- the ghost was replaced by the true threat of
+					<br />
+					all of the humanity -- the woman. Now in singleplayer, there is a woman chasing after you
+					<br />
+					for your money! If you are broke, then you can picture her as an extreme feminist. If you are
+					<br />
+					a woman (somehow), please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and then
+					<br />
+					picture the woman as an insane individual belonging to your (different) species.
+				</dialog>
 			</Root>
 		{/if}
 	</Suspense>
@@ -883,42 +886,40 @@
 	</Root>
 {:else if lobby}
 	<Root>
-		<dialog class="lobby p-4 rounded-md">
+		<dialog class="lobby">
 			<h2>LOBBY MENU</h2>
 			<h3>You are {host ? "host" : "guest"}</h3>
 			<h4>Players:</h4>
 			<div class="player">
 				<p>YOU</p>
-				<div>SKIN {getSkinNameByNumber(skin)}</div>
+				<div>SKIN {skin}</div>
 			</div>
 			{#each players as p (p.id)}
 				<div class="player">
 					<p style={p.id === 0 ? "color: red" : undefined}>ID {p.id} NAME {p.name}</p>
 					<div>
-						SKIN {getSkinNameByNumber(p.skin)}
+						SKIN {p.skin}
 					</div>
 				</div>
 			{/each}
 			<h6>Player count: {players.length + 1}</h6>
 			{#if host}
-				<Button
+				<button
 					on:click={(_) => {
 						$socket?.send(new Uint8Array([START_LOBBY_EVENT]));
-					}}>Start game as (g)host</Button
+					}}>Start game as (g)host</button
 				>
 			{/if}
-			<Button on:click={(_) => $socket?.close()}>{host ? "Disband" : "Leave"} lobby</Button>
+			<button on:click={(_) => $socket?.close()}>{host ? "Disband" : "Leave"} lobby</button>
 		</dialog>
-		<dialog class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-0 max-h-[20%] p-2 rounded-md">
+		<dialog class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-0 max-h-[20%]">
 			<div class="w-full overflow-y-scroll">
 				{#each logs as msg}
 					<p>{msg}</p>
 				{/each}
 			</div>
-			<TextInput
-				childAtStart={false}
+			<input
 				type="text"
-				placeholder="Message"
 				bind:value={message}
 				on:keypress={(e) => {
 					if (e.key === "Enter") {
@@ -927,13 +928,13 @@
 						message = "";
 					}
 				}}
-			><Button
+			/><button
 				on:click={(_) => {
 					logs = ["YOU: " + message, ...logs];
 					$socket?.send(TXT_MESSAGE_CREATE + message);
 					message = "";
-				}}>Send message</Button
-			></TextInput>
+				}}>Send message</button
+			>
 		</dialog>
 	</Root>
 {:else}
@@ -958,17 +959,16 @@
 		</T.Group>
 
 		<Root>
-			<div class="flex flex-col lg:flex-row absolute top-4 w-[80%] lg:w-[35%] h-[5%] items-center justify-center text-center">
-				<div class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] px-4">
-					<p>Score: {$score} | Best: {highScore} | Azure crystals owned: {$azure}</p>
-				</div>
+			<div class="flex absolute top-[1px] w-[25%] h-[5%] items-center justify-center text-center">
+				<div class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] px-4"><p>Score: {$score} | Best: {highScore} | Azure crystals owned: {$azure}</p></div>
 				<!-- Small inconvenience but it's fine! -->
 				{#if ($socket !== null && host) || $socket === null}
 					<div class="freeze"><p>Frozen for: {frozen}</p></div>
 				{/if}
 			</div>
 			{#if $socket === null}
-				<Button
+
+				<button
 					on:click={() => {
 						menu = true;
 						death.set(false);
@@ -976,20 +976,19 @@
 						tutorial = false;
 						lobby = false;
 					}}
-					class="fixed top-0 right-0 z-[1] w-[25%] h-[10%] lg:h-[5%]">Exit game</Button
+					class="quitbtn">Exit game</button
 				>
 			{:else}
-				<Button on:click={() => $socket?.close()} class="fixed top-0 right-0 z-[1] w-[25%] h-[10%] lg:h-[5%]">Exit Game </Button>
+				<button on:click={() => $socket?.close()} class="quitbtn">Exit Game </button>
 			{/if}
-			<dialog class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-[0] max-h-[20%] p-2 rounded-md" class:hidden={!chatActive}>
+			<dialog class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-[0] max-h-[20%]" class:hidden={!chatActive}>
 				<div class="w-full overflow-y-scroll">
 					{#each logs as msg}
 						<p>{msg}</p>
 					{/each}
 				</div>
-				<TextInput childAtStart={false}
+				<input
 					type="text"
-					placeholder="Message"
 					bind:value={message}
 					on:keypress={(e) => {
 						if (e.key === "Enter") {
@@ -998,12 +997,13 @@
 							message = "";
 						}
 					}}
-				><Button
+				/><button
 					on:click={(_) => {
 						logs = ["YOU: " + message, ...logs];
 						$socket?.send(TXT_MESSAGE_CREATE + message);
 						message = "";
-					}}>Send message</Button></TextInput>
+					}}>Send message</button
+				>
 			</dialog>
 		</Root>
 
@@ -1014,7 +1014,17 @@
 		{/if}
 
 		<!-- <T.GridHelper args={[50]} position.y={0.01} /> -->
-
+		<Root>
+			{#each barricades as barricade (barricade.id)}
+				<T.Group position={barricade.position} rotation={barricade.rotation}>
+						<RigidBody type="dynamic">
+							<Collider shape="cuboid" args={[2, 1, 1/3]}>
+								<Barricade />
+							</Collider>
+						</RigidBody>
+					</T.Group>
+			{/each}
+		</Root>		
 		<CollisionGroups groups={[0, 15]}>
 			<Ground seed={realSeed} enableShaders={$gameConfig.shader} />
 		</CollisionGroups>
@@ -1024,8 +1034,10 @@
 			<Door />
 			{#if $socket !== null}
 				{#if host}
-					<CakeGen host bind:items={hostCakes} />
-				{:else}
+					<CakeGen host bind:items={hostCakes} />			
+
+			{:else}			
+		
 					{#each cakes as cake (cake.id)}
 						<!-- the touch param is completely useless for a non-host -->
 						<Particle
@@ -1039,7 +1051,9 @@
 						/>
 					{/each}
 				{/if}
+
 			{:else}
+	
 				<CakeGen />
 				<Woman {skin} />
 				<!-- at least 1 woman from above -->
@@ -1061,6 +1075,9 @@
 					rotation={p.rotation}
 				/>
 			{/each}
+			<!-- {#each barricades as barricade (barricade.id)}
+			<Barricade positions={barricade.position} rotations={barricade.rotation} />
+{/each}	 -->
 		</CollisionGroups>
 		<CollisionGroups memberships={[5]} filter={[0]}>
 			<AutoColliders shape={"cuboid"} friction={0.15} restitution={0.1}>
@@ -1149,6 +1166,7 @@
 	</Suspense>
 {/if}
 
+
 <style lang="css">
 	.hide {
 		display: none !important;
@@ -1191,6 +1209,30 @@
 		padding: 0.125em;
 	}
 
+	/* .counters {
+		display: flex;
+		flex-direction: row;
+		position: absolute;
+		top: 1px;
+		width: 25%;
+		height: 5%;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+	} */
+
+	/* .score {
+		display: flex;
+		flex-direction: column;
+		user-select: none;
+		opacity: 0.8;
+		top: 0;
+		background-color: white;
+		border: solid 1px black;
+		z-index: 1;
+		padding: 0 1em;
+	} */
+
 	.freeze {
 		display: flex;
 		flex-direction: column;
@@ -1201,6 +1243,15 @@
 		border: solid 1px black;
 		z-index: 1;
 		padding: 0 1em;
+	}
+
+	.quitbtn {
+		position: fixed;
+		top: 0;
+		right: 0;
+		z-index: 1;
+		width: 25%;
+		height: 5%;
 	}
 	
 
