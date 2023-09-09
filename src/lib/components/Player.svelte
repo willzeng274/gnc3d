@@ -431,7 +431,7 @@
 {#each barricades as barricade (barricade.id)}
 	<T.Group position={barricade.position} rotation={barricade.rotation}>
 		<RigidBody type="dynamic">
-			<Collider shape="cuboid" args={[2, 1, 1/3]} mass={50}>
+			<Collider shape="cuboid" args={[2, 1, 1/3]} mass={100}>
 				<Barricade />
 			</Collider>
 		</RigidBody>

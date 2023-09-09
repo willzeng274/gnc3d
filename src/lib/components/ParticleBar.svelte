@@ -57,7 +57,7 @@
 			$socket?.send(new Float32Array([BARRICADE_FINAL_EVENT, id, tl.x, tl.y, tl.z, eu.x, eu.y, eu.z]));
 		}}
 	>
-        <Collider shape="cuboid" args={[2, 1, 1/3]} mass={50}>
+        <Collider shape="cuboid" args={[2, 1, 1/3]} mass={100}>
             <Barricade />
         </Collider>
 	</RigidBody>
