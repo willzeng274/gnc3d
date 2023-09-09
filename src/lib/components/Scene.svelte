@@ -696,20 +696,13 @@
 		<!-- {:else if currentCtx.name === "Seed"} -->
 		{#if currentCtx.name === "Seed"}
 			<Root>
-				<Modals.Modal isOpen>
-					<Modals.ModalTitle>Enter a map seed</Modals.ModalTitle>
-				  
-					<Modals.ModalBody>
+				<dialog class="flex flex-col z-[2] p-4 rounded-md" in:scaleIn out:scaleOut>
+					<h1 class="text-xl text-center font-semibold pt-5 pb-1">Enter a map seed</h1>
+					<p class="text-sm text-gray-500 px-[7%] pb-5">
 						Type a number, leave it as 0 for random
-						<NumberInput type="number" placeholder="Enter seed" showTopDivider={false} bind:value={seed}><p class="pt-1">Seed</p></NumberInput>
-					</Modals.ModalBody>
-				  
-					<!-- <Modals.ModalActions>
-						<Modals.ModalActionButton on:click={() => console.log("Clicked 1")}>
-							Ok
-						</Modals.ModalActionButton>
-					</Modals.ModalActions> -->
-				</Modals.Modal>
+						<NumberInput type="number" placeholder="Enter seed" showTopDivider={false} bind:value={seed} class="w-full"><p class="pt-1">Seed</p></NumberInput>
+					</p>
+				</dialog>
 			</Root>
 		{/if}
 		<!-- {:else if currentCtx.name === "Shop"} -->
@@ -867,10 +860,9 @@
 			</Root>
 		{:else if currentCtx.name === "Manual"}
 			<Root>
-				<Modals.Modal isOpen class="max-w-[80%] lg:max-w-[60%]">
-					<Modals.ModalTitle>Game manual</Modals.ModalTitle>
-				  
-					<Modals.ModalBody>
+				<dialog class="flex flex-col z-[2] p-4 rounded-md max-w-[80%] lg:max-w-[60%] max-h-[70%] lg:max-h-full overflow-y-scroll" in:scaleIn out:scaleOut>
+					<h1 class="text-xl text-center font-semibold pt-5 pb-1">Game manual</h1>
+					<p class="text-sm text-gray-500 px-[7%] pb-5">
 						WASD or Joystick for movement (Hold shift to sprint, on mobile the sprint detection is automatic)
 						<br />
 						Pointer drag for camera rotation in Third Person (and both POVs on mobile)
@@ -908,8 +900,8 @@
 						for your money! If you are broke, then you can picture her as an extreme feminist. If you are
 						a woman (somehow), please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and then
 						picture the woman as an insane individual belonging to your (different) species.
-					</Modals.ModalBody>
-				</Modals.Modal>
+					</p>
+				</dialog>
 			</Root>
 		{/if}
 	</Suspense>

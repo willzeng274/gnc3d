@@ -63,7 +63,7 @@
     }
   
     dialog > div {
-      /* @apply m-2; */
+      @apply m-2;
     }
   
     dialog.open {
