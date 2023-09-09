@@ -9,6 +9,14 @@ export interface Cake {
     dynamic: boolean;
 }
 
+export interface Barricade {
+    id: number;
+    position: [number, number, number];
+    rotation: [number, number, number];
+    dynamic: boolean;
+    owner: number;
+}
+
 export interface CakeGenItem {
     id: number,
     position: Parameters<Vector3['set']>,

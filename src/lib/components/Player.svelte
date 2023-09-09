@@ -16,7 +16,7 @@
 	import type { JoystickManagerOptions } from "nipplejs";
 	import type { ActionName } from "$lib/types";
 	import { arraysSize3AreEqual } from "$lib/utils";
-	import { DIED_OF_DEATH } from "$lib/constants";
+	import { BARRICADE_GONE_EVENT, BARRICADE_SPAWN_EVENT, DIED_OF_DEATH } from "$lib/constants";
 	import Bigvegas from "./models/Bigvegas.svelte";
 	import Boss from "./models/Boss.svelte";
 	import Barricade from "./models/Barricade.svelte";
@@ -416,13 +416,15 @@
 			rotation: [eu.x, eu.y, eu.z],
 			id
 		};
-		barricades = [...barricades, newBr];
-		if ($socket) {
-			// $socket.send()
+		if ($socket === null) {
+			barricades = [...barricades, newBr];
+			setTimeout(() => {
+				barricades = barricades.filter((b) => b.id !== id);
+			}, 3000);
+		} else {
+			$socket.send(new Float32Array([BARRICADE_SPAWN_EVENT, ...newBr.position, ...newBr.rotation]));
+			// gone is implemented on barricade receive
 		}
-		setTimeout(() => {
-			barricades = barricades.filter((b) => b.id !== id);
-		}, 3000);
 	}
 </script>
 

@@ -36,7 +36,7 @@
 		importEncryptionKey,
 		getSkinNameByNumber,
 	} from "$lib/utils";
-	import type { Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
+	import type { Barricade, Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
 	import {
 		CAKES_UPDATE_EVENT,
 		CAKE_COLLIDE_EVENT,
@@ -55,6 +55,9 @@
 		shopItems,
 		jwk,
 		CAKE_GONE_EVENT,
+		BARRICADE_SPAWN_EVENT,
+		BARRICADE_GONE_EVENT,
+		BARRICADE_FINAL_EVENT,
 	} from "$lib/constants";
 	import House from "$lib/rapier/world/House.svelte";
 	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
@@ -65,6 +68,7 @@
     import NumberInput from "$lib/ui/numberInput.svelte";
 	import Button from "$lib/ui/button.svelte";
 	import ToggleInput from "$lib/ui/toggleInput.svelte";
+	import ParticleBar from "./ParticleBar.svelte";
 
 	const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -122,6 +126,10 @@
 	let currentShopSkin = shopItems[0];
 
 	let cakes: Cake[] = [];
+
+	let barricades: Barricade[] = [];
+
+	let own_id: number | null = null;
 
 	let lastUpdated = Date.now();
 
@@ -233,7 +241,7 @@
 						m.data.byteLength === 4 * 11 + 4 ||
 						m.data.byteLength === 4 * 9 + 4 ||
 						m.data.byteLength === 4 * 2 + 4 ||
-						m.data.byteLength === 4 * 8 + 4
+						m.data.byteLength === 4 * 8 + 4 /* or 4 * 7 + 4 * 2 barricade */
 					) {
 						// It's numeric data, for some reason JavaScript cannot modify ArrayBuffer
 						// or decode a Uint8Array into Float32Array
@@ -255,7 +263,7 @@
 							// console.log("Received animation, ", convertIntToAnimation(arr[11]));
 							players[ind].animation = convertIntToAnimation(arr[11]);
 						} else if (arr[0] === CAKE_SPAWN_EVENT) {
-							console.log("cake spawn id", arr[2]);
+							// console.log("cake spawn id", arr[2]);
 							// a WILD CAKE has spawned!
 							if (arr[1] === 0) {
 								// console.log("CAKE", arr.subarray(2));
@@ -305,6 +313,36 @@
 									}
 								});
 							}
+						} else if (arr[0] === BARRICADE_SPAWN_EVENT) {
+							console.log("OWNER", arr[1], "BARRICADE ID", arr[2]);
+							barricades = [...barricades, {
+								id: arr[2],
+								position: [arr[3], arr[4], arr[5]],
+								rotation: [arr[6], arr[7], arr[8]],
+								dynamic: true,
+								owner: arr[1]
+							}];
+							if (arr[1] === own_id) {
+								setTimeout(() => {
+									if (!$socket) return;
+									$socket.send(new Float32Array([BARRICADE_GONE_EVENT, arr[2]]));
+								}, 3000);
+							}
+						} else if (arr[0] === BARRICADE_GONE_EVENT) {
+							barricades = barricades.filter((br) => !(br.id === arr[2] && br.owner === arr[1]));
+						} else if (arr[0] === BARRICADE_FINAL_EVENT) {
+							barricades = barricades.map((br) => {
+								if (!(br.id === arr[2] && br.owner === arr[1])) {
+									return br;
+								} else {
+									return {
+										...br,
+										position: [arr[3], arr[4], arr[5]],
+										rotation: [arr[6], arr[7], arr[8]],
+										dynamic: false,
+									};
+								}
+							});
 						}
 					} else {
 						const arr = new Uint8Array(m.data);
@@ -1039,6 +1077,15 @@
 						/>
 					{/each}
 				{/if}
+				{#each barricades as barricade (barricade.id)}
+					<ParticleBar
+						id={barricade.id}
+						position={barricade.position}
+						rotation={barricade.rotation}
+						owner={barricade.owner === own_id}
+						dynamic={barricade.dynamic}
+					/>
+				{/each}
 			{:else}
 				<CakeGen />
 				<Woman {skin} />

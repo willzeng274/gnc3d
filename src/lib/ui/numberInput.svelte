@@ -27,9 +27,9 @@
 
 <div class="flex flex-row gap-2">
     {#if childAtStart}
-        <slot /> <input {...$$restProps} bind:value />
+        <slot /> <input on:keypress {...$$restProps} bind:value />
     {:else}
-        <input {...$$restProps} bind:value /> <slot />
+        <input on:keypress {...$$restProps} bind:value /> <slot />
     {/if}
 </div>
 <hr />
