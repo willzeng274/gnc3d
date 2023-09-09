@@ -314,7 +314,7 @@
 								});
 							}
 						} else if (arr[0] === BARRICADE_SPAWN_EVENT) {
-							console.log("OWNER", arr[1], "BARRICADE ID", arr[2]);
+							// console.log("OWNER", arr[1], "BARRICADE ID", arr[2], "ok", own_id);
 							barricades = [...barricades, {
 								id: arr[2],
 								position: [arr[3], arr[4], arr[5]],
@@ -323,8 +323,10 @@
 								owner: arr[1]
 							}];
 							if (arr[1] === own_id) {
+								console.log("ok so deleting soon");
 								setTimeout(() => {
 									if (!$socket) return;
+									console.log("Barricade gone");
 									$socket.send(new Float32Array([BARRICADE_GONE_EVENT, arr[2]]));
 								}, 3000);
 							}
@@ -388,9 +390,13 @@
 								},
 							];
 						} else if (arr[0] === IS_HOST_EVENT) {
-							realSeed = seed === 0 ? 1 : seed;
-							playerPos.set([0, 10, 3]);
-							host = true;
+							own_id = arr[1];
+							if (arr[1] == 0) {
+								realSeed = seed === 0 ? 1 : seed;
+								playerPos.set([0, 10, 3]);
+								host = true;
+							}
+							console.log(own_id);
 						} else if (arr[0] === DIED_OF_DEATH) {
 							console.log("DIED");
 							if (!host) death.set(true);
@@ -427,7 +433,9 @@
 				menu = true;
 				// lobby = false;
 				cakes = [];
+				barricades = [];
 				hostCakes = [];
+				own_id = null;
 				if (m.code === 4001) {
 					alert("Room already started!");
 				}
@@ -1078,6 +1086,7 @@
 					{/each}
 				{/if}
 				{#each barricades as barricade (barricade.id)}
+					{console.log(barricade)}
 					<ParticleBar
 						id={barricade.id}
 						position={barricade.position}

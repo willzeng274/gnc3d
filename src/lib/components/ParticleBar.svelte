@@ -41,9 +41,8 @@
 	</HTML>
 </T.Group> -->
 <T.Group
-	position={[position[0] * 10, position[1] * 10, position[2] * 10]}
-	rotation={[rotation[0] * 10, rotation[1] * 10, rotation[2] * 10, rotation[3]]}
-	scale={0.1}
+	position={[position[0], position[1], position[2]]}
+	rotation={[rotation[0], rotation[1], rotation[2], rotation[3]]}
 	bind:ref={g}
 >
 	<RigidBody
@@ -58,7 +57,7 @@
 			$socket?.send(new Float32Array([BARRICADE_FINAL_EVENT, id, tl.x, tl.y, tl.z, eu.x, eu.y, eu.z]));
 		}}
 	>
-        <Collider shape="cuboid" args={[2, 1, 1/3]}>
+        <Collider shape="cuboid" args={[2, 1, 1/3]} mass={50}>
             <Barricade />
         </Collider>
 	</RigidBody>

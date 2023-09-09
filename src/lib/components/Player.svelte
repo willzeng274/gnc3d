@@ -431,7 +431,7 @@
 {#each barricades as barricade (barricade.id)}
 	<T.Group position={barricade.position} rotation={barricade.rotation}>
 		<RigidBody type="dynamic">
-			<Collider shape="cuboid" args={[2, 1, 1/3]}>
+			<Collider shape="cuboid" args={[2, 1, 1/3]} mass={50}>
 				<Barricade />
 			</Collider>
 		</RigidBody>
@@ -500,7 +500,7 @@
 <Audio src="/audio/ocean.mp3" autoplay loop volume={$gameConfig.volume / 100} />
 
 <T.Group bind:ref={capsule} position={$playerPos} rotation.y={Math.PI}>
-	<Username {username} ypos={$playerPos[1]} />
+	<Username {username} ypos={$playerPos[1]} color={host ? "red" : "white"} />
 	<RigidBody bind:rigidBody enabledRotations={[false, false, false]} userData={{ name: "player" }}>
 		<CollisionGroups groups={[0, 5]}>
 			<!-- ground has e.targetCollider.handle = 0 -->
