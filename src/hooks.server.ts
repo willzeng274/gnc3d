@@ -1,6 +1,6 @@
 import type { Handle } from "@sveltejs/kit";
 
-const MY_API_BASE_URL = "/_vercel/insights";
+const MY_API_BASE_URL = "https://ghostandcakes3d.vercel.app/_vercel/insights";
 const PROXY_PATH = "/actions";
 
 const handleApiProxy: Handle = async ({ event }) => {
