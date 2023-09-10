@@ -894,6 +894,8 @@
 						<br />
 						Press "f" to dash
 						<br />
+						Press "q" to place barricades
+						<br />
 						Press "t" to open chat in multiplayer
 						<br />
 						Press "esc" to exit chat in multiplayer
