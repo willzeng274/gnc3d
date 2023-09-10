@@ -11,4 +11,7 @@
         <li>Device</li>
         <li>Referrer</li>
     </ol>
+
+    <br />
+    <p>ALL INFORMATION IS KEPT FOR A MAXIMUM OF 30 DAYS</p>
 </section>
