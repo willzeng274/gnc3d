@@ -954,6 +954,17 @@
 						<a data-sveltekit-preload-data="tap" href="https://github.com/jason-11x">
 							Jason
 						</a>
+						<iframe class="w-full h-[50vh] my-4 rounded-md" title="Ghost and cakes promotion video" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.youtube.com/embed/bdM8eMEgHJI?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0">
+						</iframe>
+						GitHub Links:
+						<br />
+						<a class="text-blue-600 hover:underline" data-sveltekit-preload-data="tap" href="https://github.com/NastyPigz/gnc3d">
+							Frontend
+						</a>
+						<br />
+						<a class="text-blue-600 hover:underline" data-sveltekit-preload-data="tap" href="https://github.com/NastyPigz/gnc3d-backend">
+							Backend
+						</a> 
 						<br /><br />
 						Copyright (c) 2023 NastyPigz
 						<br /><br />
