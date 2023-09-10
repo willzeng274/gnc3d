@@ -7,7 +7,7 @@
 	import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
-	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig } from "$lib/store";
+	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig, azure } from "$lib/store";
 	import Ybot from "./models/Ybot.svelte";
 	import Xbot from "./models/Xbot.svelte";
 	import James from "./models/James.svelte";
@@ -16,7 +16,7 @@
 	import type { JoystickManagerOptions } from "nipplejs";
 	import type { ActionName } from "$lib/types";
 	import { arraysSize3AreEqual } from "$lib/utils";
-	import { BARRICADE_GONE_EVENT, BARRICADE_SPAWN_EVENT, DIED_OF_DEATH } from "$lib/constants";
+	import { BARRICADE_SPAWN_EVENT, DIED_OF_DEATH } from "$lib/constants";
 	import Bigvegas from "./models/Bigvegas.svelte";
 	import Boss from "./models/Boss.svelte";
 	import Barricade from "./models/Barricade.svelte";
@@ -41,6 +41,7 @@
 	let shift = 0;
 	let model: THREE.Group = new Group();
 	let ground = false;
+	let structure = false;
 	let capsule: THREE.Group;
 	let capRef: THREE.Group;
 	let collider: RapierCollider;
@@ -99,10 +100,10 @@
 		if ($death) {
 			currentActionKey = "tpose";
 			dance = false;
-		} else if (!ground) {
+		} else if (!ground && !structure) {
 			currentActionKey = "fall";
 			dance = false;
-		} else if ((right || left || forward || backward) && shift) {
+		} else if ((right || left || forward || backward) && ($gameConfig.autosprint ? !shift : shift)) {
 			currentActionKey = "running";
 			dance = false;
 		} else if (right || left || forward || backward) {
@@ -138,7 +139,7 @@
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		// Big vegas can walk normal but 15% sprint reduction
-		const multi = shift ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : skin === 2 ? 0.6 : 0.5;
+		const multi = ($gameConfig.autosprint ? !shift : shift) ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : (skin === 2 ? 0.6 : 0.5);
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();
@@ -220,6 +221,21 @@
 	const dispatch = createEventDispatcher();
 
 	let chatActive = false;
+	let k = false;
+	let y = false;
+
+	$: {
+		if (k && y) {
+			azure.set(50);
+			gameConfig.update((cfg) => ({
+				...cfg,
+				jamalUnlocked: false,
+				vegasUnlocked: false,
+				bossUnlocked: false,
+				timmyUnlocked: false
+			}));
+		}
+	}
 
 	function onKeyDown(e: KeyboardEvent) {
 		if (e.key.toLowerCase() === "escape" && chatActive) {
@@ -264,6 +280,12 @@
 					spawnBarricade();
 					barricadeCd = Date.now();
 				}
+				break;
+			case "k":
+				k = true;
+				break;
+			case "y":
+				y = true;
 				break;
 			default:
 				// alert(e.key)
@@ -311,6 +333,12 @@
 				// const tl = rigidBody.translation();
 				// tl.y = 500;
 				// rigidBody.setTranslation(tl, true);
+				break;
+			case "k":
+				k = false;
+				break;
+			case "y":
+				y = false;
 				break;
 			default:
 				break;
@@ -492,7 +520,7 @@
 	{#if isPLOCK}
 		<PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} {zooming} />
 	{:else}
-		<Controller bind:object={capRef} bind:plock={isPLOCK} {zooming} />
+		<Controller bind:object={capRef} bind:plock={isPLOCK} {zooming} {chatActive} />
 	{/if}
 	<AudioListener />
 </T.PerspectiveCamera>
@@ -532,6 +560,10 @@
 							}
 						}
 						// @ts-ignore
+						if (e.targetRigidBody.userData?.name === "structure") {
+							structure = true;
+						}
+						// @ts-ignore
 						if (e.targetRigidBody.userData?.name === "cake") {
 							// this will kinda patch the big vegas flying bug in multiplayer
 							// although it's only going to increase the normal force
@@ -562,6 +594,11 @@
 					if (e.targetRigidBody && e.targetRigidBody.userData?.name === "ground" && rigidBody) {
 						ground = false;
 						rigidBody.resetForces(false);
+					}
+					// @ts-ignore
+					if (e.targetRigidBody.userData?.name === "structure") {
+						structure = false;
+						rigidBody?.resetForces(false);
 					}
 					// (e.targetRigidBody || e.targetCollider.handle !== 0) || [(ground = false), rigidBody.resetForces(true)/* console.log */]
 				}}

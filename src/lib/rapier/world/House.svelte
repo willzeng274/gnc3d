@@ -1,6 +1,6 @@
 <script lang="ts">
     import { T } from "@threlte/core";
-	import { AutoColliders, Debug } from "@threlte/rapier";
+	import { AutoColliders, Debug, RigidBody } from "@threlte/rapier";
     import { BoxGeometry, CylinderGeometry, ExtrudeGeometry, Mesh, MeshStandardMaterial, Shape } from "three";
     import { CSG } from "three-csg-ts";
 	import HouseDoor from "./HouseDoor.svelte";
@@ -35,10 +35,12 @@
 <!-- <Debug /> -->
 
 <T.Group position={[15, 0, 15]}>
-    <AutoColliders shape="trimesh">
-        <T
-            is={CSG.subtract(CSG.subtract(b, a), c)}
-        />
-    </AutoColliders>
+    <RigidBody type="fixed" userData={{ name: "structure" }}>
+        <AutoColliders shape="trimesh" friction={0.15} restitution={0.1}>
+            <T
+                is={CSG.subtract(CSG.subtract(b, a), c)}
+            />
+        </AutoColliders>
+    </RigidBody>
     <HouseDoor />
 </T.Group>

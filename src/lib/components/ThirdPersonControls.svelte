@@ -7,6 +7,7 @@
 	export let object: Group;
 	export let rotateSpeed = 1.0;
 	export let plock: boolean;
+	export let chatActive: boolean;
 	// $: if (object) {
 	// console.log(object)
 	// object.position.y = 10
@@ -137,6 +138,7 @@
 	}
 
 	function onKeyDown(event: KeyboardEvent) {
+		if (chatActive) return;
 		if (event.key === "ArrowLeft") {
 			cameraControls.theta += rotateSpeed * 0.1;
 		} else if (event.key === "ArrowRight") {
@@ -145,16 +147,6 @@
 			cameraControls.phi -= rotateSpeed * 0.1;
 		} else if (event.key === "ArrowDown") {
 			cameraControls.phi += rotateSpeed * 0.1;
-		// }
-		} else if (event.key === "m") {
-		    score.update((sc) => (sc+1) * 2);
-			azure.set(200);
-			// gameConfig.update((cfg) => ({
-			// 	...cfg,
-			// 	jamalUnlocked: true,
-			// 	vegasUnlocked: true,
-			// 	bossUnlocked: true
-			// }));
 		} else if (event.key.toLowerCase() === "r") {
 			if (isLocked) {
 				isLocked = false;
@@ -166,6 +158,11 @@
 				domElement.addEventListener("mousemove", onMouseMove);
 			}
 		}
+		// m was too op
+		// } else if (event.key === "m") {
+		//     score.update((sc) => (sc+1) * 2);
+		// 	azure.update((z) => z + 200);
+		// } 
 	}
 
 	function onMouseMove(event: MouseEvent) {

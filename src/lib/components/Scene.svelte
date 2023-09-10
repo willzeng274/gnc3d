@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T, useFrame } from "@threlte/core";
-	import { Suspense, createTransition, interactivity, transitions, Text, HTML } from "@threlte/extras";
-	import { AutoColliders, CollisionGroups, Debug } from "@threlte/rapier";
+	import { Suspense, createTransition, interactivity, transitions, Text } from "@threlte/extras";
+	import { AutoColliders, CollisionGroups, Debug, RigidBody } from "@threlte/rapier";
 	import { BoxGeometry, MeshStandardMaterial } from "three";
 	import Door from "../rapier/world/Door.svelte";
 	import Player from "./Player.svelte";
@@ -15,7 +15,7 @@
 	import { spring } from "svelte/motion";
 	import Xbot from "./models/Xbot.svelte";
 	import TextInput from "$lib/ui/textInput.svelte";
-	import * as Modals from "$lib/ui/modal";
+	// import * as Modals from "$lib/ui/modal";
 	import Root from "./Root.svelte";
 	import { onDestroy, onMount } from "svelte";
 	import { cubicOut } from "svelte/easing";
@@ -554,22 +554,24 @@
 
 	let cam: THREE.PerspectiveCamera | undefined;
 
+	let z_ratio = 1;
+
 	$: {
 		if (!cam) break $;
 		if (currentCtx.name === "Skins") {
-			cam.position.set(10, 10, 10);
+			cam.position.set(10 / z_ratio, 10 / z_ratio, 10 / z_ratio);
 			cam.fov = 90;
 			cam.lookAt(0, 1, 0);
 		} else if (currentCtx.name === "Shop") {
-			cam.position.set(0, 2, 6);
+			cam.position.set(0, z_ratio === 1 ? 2 : 0.7, z_ratio === 1 ? 6 : 2.7);
 			cam.fov = 120;
-			cam.lookAt(0, 1, 0);
+			cam.lookAt(0, 0.5, 0);
 			// cam.lookAt(5, 5, 0);
 		}
 	}
 
 	$: {
-		if ($score > 500) {
+		if ($score > 200) {
 			$gameConfig.vegasUnlocked = true;
 		}
 		if ($score > highScore) {
@@ -585,6 +587,10 @@
 </script>
 
 <Fps />
+
+<svelte:window on:resize={() => {
+	z_ratio = 2;
+}} />
 
 {#if menu}
 	<Suspense final on:load={() => (isSuspend = false)}>
@@ -783,8 +789,14 @@
 							fontSize={0.2}
 							anchorX="50%"
 							anchorY="100%"
-							on:click={currentShopSkin.handleClick()}
 						/>
+						{#if currentShopSkin.handleClick() !== null && currentCtx.name === "Shop"}
+							<Root>
+								<dialog class="flex flex-col z-[2] rounded-sm">
+									<Button on:click={currentShopSkin.handleClick()}>Buy</Button>
+								</dialog>
+							</Root>
+						{/if}
 					{/if}
 				{/if}
 			</T.Group>
@@ -839,6 +851,11 @@
 					<div class="mt-2">
 						<ToggleInput bind:checked={$gameConfig.blackhole}>
 							<p class="pb-2">Enable blackhole mode</p>
+						</ToggleInput>
+					</div>
+					<div class="mt-2">
+						<ToggleInput bind:checked={$gameConfig.autosprint}>
+							<p class="pb-2">Enable auto sprint</p>
 						</ToggleInput>
 					</div>
 					<div class="mt-2">
@@ -906,15 +923,25 @@
 		{/if}
 	</Suspense>
 {:else if tutorial}
-	<Tutorial
-		on:end={() => {
-			death.set(false);
-			host = false;
-			realSeed = undefined;
-			tutorial = false;
-			menu = true;
-		}}
-	/>
+	<Suspense>
+		<Root slot="fallback">
+			<!-- this to tw -->
+			<p
+				style="text-align: center; color: white; width: 100%; font-size: 500%; font-weight: bold; font-family:'Courier New', Courier, monospace"
+			>
+				Loading game assets...
+			</p>
+		</Root>
+		<Tutorial
+			on:end={() => {
+				death.set(false);
+				host = false;
+				realSeed = undefined;
+				tutorial = false;
+				menu = true;
+			}}
+		/>
+	</Suspense>
 {:else if realSeed === undefined}
 	<Root>
 		<dialog class="block z-[2] duration-[5s] ease-in-out">Waiting for germination...</dialog>
@@ -976,7 +1003,15 @@
 	</Root>
 {:else}
 	<Suspense final>
-		<T.Group slot="fallback">
+		<Root slot="fallback">
+			<!-- this to tw -->
+			<p
+				style="text-align: center; color: white; width: 100%; font-size: 500%; font-weight: bold; font-family:'Courier New', Courier, monospace"
+			>
+				Loading game assets...
+			</p>
+		</Root>
+		<!-- <T.Group slot="fallback">
 			<T.PerspectiveCamera
 				position={[0, 0, 0]}
 				on:create={({ ref }) => {
@@ -993,7 +1028,7 @@
 					</p>
 				</HTML>
 			</T.Group>
-		</T.Group>
+		</T.Group> -->
 
 		<Root>
 			<div class="flex flex-col lg:flex-row absolute top-4 w-[80%] lg:w-[35%] h-[5%] items-center justify-center text-center">
@@ -1111,88 +1146,90 @@
 			{/each}
 		</CollisionGroups>
 		<CollisionGroups memberships={[5]} filter={[0]}>
-			<AutoColliders shape={"cuboid"} friction={0.15} restitution={0.1}>
-				<T.Mesh
-					receiveShadow
-					castShadow
-					position.x={0}
-					position.y={4.4}
-					geometry={new BoxGeometry(1.75, 3.75, 0.15)}
-					material={new MeshStandardMaterial({
-						transparent: true,
-						opacity: 0.5,
-						color: 0x333333,
-					})}
-				/>
-				<!-- used to be 2.55 in height -->
-				<T.Mesh
-					receiveShadow
-					castShadow
-					position.x={10 + 0.7 + 0.15}
-					position.y={3.125}
-					geometry={new BoxGeometry(20, 6.3, 0.15)}
-					material={new MeshStandardMaterial({
-						transparent: true,
-						opacity: 0.5,
-						color: 0x333333,
-					})}
-				/>
+			<RigidBody type="fixed" userData={{ name: "structure" }}>
+				<AutoColliders shape={"cuboid"} friction={0.15} restitution={0.1}>
+					<T.Mesh
+						receiveShadow
+						castShadow
+						position.x={0}
+						position.y={4.4}
+						geometry={new BoxGeometry(1.75, 3.75, 0.15)}
+						material={new MeshStandardMaterial({
+							transparent: true,
+							opacity: 0.5,
+							color: 0x333333,
+						})}
+					/>
+					<!-- used to be 2.55 in height -->
+					<T.Mesh
+						receiveShadow
+						castShadow
+						position.x={10 + 0.7 + 0.15}
+						position.y={3.125}
+						geometry={new BoxGeometry(20, 6.3, 0.15)}
+						material={new MeshStandardMaterial({
+							transparent: true,
+							opacity: 0.5,
+							color: 0x333333,
+						})}
+					/>
 
-				<T.Mesh
-					receiveShadow
-					castShadow
-					position.x={-10 - 0.7 - 0.15}
-					position.y={3.125}
-					geometry={new BoxGeometry(20, 6.3, 0.15)}
-					material={new MeshStandardMaterial({
-						transparent: true,
-						opacity: 0.5,
-						color: 0x333333,
-					})}
-				/>
+					<T.Mesh
+						receiveShadow
+						castShadow
+						position.x={-10 - 0.7 - 0.15}
+						position.y={3.125}
+						geometry={new BoxGeometry(20, 6.3, 0.15)}
+						material={new MeshStandardMaterial({
+							transparent: true,
+							opacity: 0.5,
+							color: 0x333333,
+						})}
+					/>
 
-				<T.Mesh
-					receiveShadow
-					castShadow
-					position.x={-20 - 0.7 - 0.15}
-					position.y={3.125}
-					position.z={-10}
-					geometry={new BoxGeometry(0.15, 6.3, 20)}
-					material={new MeshStandardMaterial({
-						transparent: true,
-						opacity: 0.5,
-						color: 0x333333,
-					})}
-				/>
+					<T.Mesh
+						receiveShadow
+						castShadow
+						position.x={-20 - 0.7 - 0.15}
+						position.y={3.125}
+						position.z={-10}
+						geometry={new BoxGeometry(0.15, 6.3, 20)}
+						material={new MeshStandardMaterial({
+							transparent: true,
+							opacity: 0.5,
+							color: 0x333333,
+						})}
+					/>
 
-				<T.Mesh
-					receiveShadow
-					castShadow
-					position.x={20 + 0.7 + 0.15}
-					position.y={3.125}
-					position.z={-10}
-					geometry={new BoxGeometry(0.15, 6.3, 20)}
-					material={new MeshStandardMaterial({
-						transparent: true,
-						opacity: 0.5,
-						color: 0x333333,
-					})}
-				/>
+					<T.Mesh
+						receiveShadow
+						castShadow
+						position.x={20 + 0.7 + 0.15}
+						position.y={3.125}
+						position.z={-10}
+						geometry={new BoxGeometry(0.15, 6.3, 20)}
+						material={new MeshStandardMaterial({
+							transparent: true,
+							opacity: 0.5,
+							color: 0x333333,
+						})}
+					/>
 
-				<T.Mesh
-					receiveShadow
-					castShadow
-					position.x={0}
-					position.y={3.125}
-					position.z={-20}
-					geometry={new BoxGeometry(40 + 0.7 + 0.15 * 2 + 0.15 * 4, 6.3, 0.15)}
-					material={new MeshStandardMaterial({
-						transparent: true,
-						opacity: 0.5,
-						color: 0x333333,
-					})}
-				/>
-			</AutoColliders>
+					<T.Mesh
+						receiveShadow
+						castShadow
+						position.x={0}
+						position.y={3.125}
+						position.z={-20}
+						geometry={new BoxGeometry(40 + 0.7 + 0.15 * 2 + 0.15 * 4, 6.3, 0.15)}
+						material={new MeshStandardMaterial({
+							transparent: true,
+							opacity: 0.5,
+							color: 0x333333,
+						})}
+					/>
+				</AutoColliders>
+			</RigidBody>
 		</CollisionGroups>
 	</Suspense>
 {/if}

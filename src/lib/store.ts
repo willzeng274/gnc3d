@@ -16,6 +16,7 @@ export const gameConfig = writable<Config>({
     fps: false,
     shader: true,
     blackhole: false,
+    autosprint: false,
     womenCount: 1,
     jamalUnlocked: false,
     vegasUnlocked: false,

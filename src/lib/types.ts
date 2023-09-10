@@ -47,6 +47,7 @@ export interface Config {
     fps: boolean;
     shader: boolean;
     blackhole: boolean;
+    autosprint: boolean;
     womenCount: number;
     jamalUnlocked: boolean;
     vegasUnlocked: boolean;
