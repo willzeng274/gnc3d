@@ -41,9 +41,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     if (event.url.pathname.startsWith(PROXY_PATH)) {
         return await handleApiProxy({ event, resolve });
     }
-    if (event.url.pathname.startsWith("/_vercel/insights/script.js")) {
-        throw error(403, "Forbidden");
-    }
     const response = await resolve(event);
     return response;
   // ...the rest of your `handle` logic goes here
