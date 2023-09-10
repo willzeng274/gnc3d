@@ -563,7 +563,7 @@
 			cam.fov = 90;
 			cam.lookAt(0, 1, 0);
 		} else if (currentCtx.name === "Shop") {
-			cam.position.set(0, z_ratio === 1 ? 2 : 0.7, z_ratio === 1 ? 6 : 2.7);
+			cam.position.set(0, z_ratio === 1 ? 2 : 0.7, mobile ? z_ratio === 1 ? 10 : 4 : z_ratio === 1 ? 6 : 2.7);
 			cam.fov = 120;
 			cam.lookAt(0, 0.5, 0);
 			// cam.lookAt(5, 5, 0);
@@ -792,8 +792,8 @@
 						/>
 						{#if currentShopSkin.handleClick() !== null && currentCtx.name === "Shop"}
 							<Root>
-								<dialog class="flex flex-col z-[2] rounded-sm">
-									<Button on:click={currentShopSkin.handleClick()}>Buy</Button>
+								<dialog class="flex flex-col z-[2] rounded-md">
+									<Button on:click={currentShopSkin.handleClick()}>BUY</Button>
 								</dialog>
 							</Root>
 						{/if}
