@@ -526,6 +526,7 @@
 </T.PerspectiveCamera>
 
 <Audio src="/audio/ocean.mp3" autoplay loop volume={$gameConfig.volume / 100} />
+<Audio src="/audio/zen_garden.mp3" autoplay loop volume={$gameConfig.volume / 100} />
 
 <T.Group bind:ref={capsule} position={$playerPos} rotation.y={Math.PI}>
 	<Username {username} ypos={$playerPos[1]} color={host ? "red" : "white"} />

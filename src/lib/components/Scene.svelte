@@ -605,7 +605,7 @@
 		<Assets />
 		<Root>
 			<section class="w-full h-full flex flex-col lg:flex-row items-center justify-end" class:hide={isSuspend}>
-				<ul class="flex flex-row lg:flex-col h-[20%] lg:h-full items-center justify-center mr-1 w-full lg:w-[15%] bg-slate-800 text-white list-none rounded-md p-1 z-[1]">
+				<ul class="flex flex-row lg:flex-col overflow-x-scroll lg:overflow-auto h-[20%] lg:h-full items-center justify-start lg:justify-center mr-1 w-full lg:w-[15%] bg-slate-800 text-white list-none rounded-md p-1 z-[1]">
 					{#each contextMenuItems as ctx}
 						<li
 							data-state={currentCtx == ctx ? "active" : undefined}
@@ -917,6 +917,51 @@
 						for your money! If you are broke, then you can picture her as an extreme feminist. If you are
 						a woman (somehow), please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and then
 						picture the woman as an insane individual belonging to your (different) species.
+					</p>
+				</dialog>
+			</Root>
+		{:else if currentCtx.name === "Credits"}
+			<Root>
+				<dialog class="flex flex-col z-[2] p-2 rounded-md max-w-[80%] lg:max-w-[60%] max-h-[70%] lg:max-h-full overflow-y-scroll" in:scaleIn out:scaleOut>
+					<h1 class="text-xl text-center font-semibold pt-5 pb-1">Credits</h1>
+					<p class="text-sm text-gray-500 px-[7%] pb-5">
+						All character models attributed to Adobe Creative Cloud
+						<br />
+						Barricade modelled by Google Poly
+						<br />
+						Cakes modelled by Harry Charalambous from sketchfab
+						<br />
+						Soundtrack attributed to ImRuscelOfficial, Lyricist and Composer is Laura Shigihara
+						<br />
+						Developer team:
+						<a data-sveltekit-preload-data="tap" href="https://github.com/NastyPigz">
+							NastyPigz
+						</a>,
+						<a data-sveltekit-preload-data="tap" href="https://github.com/Rashaad1268">
+							Rush
+						</a>,
+						<a data-sveltekit-preload-data="tap" href="https://github.com/Rei-ath">
+							Rei-ath
+						</a>
+						<br />
+						Marketing team:
+						<a data-sveltekit-preload-data="tap" href="https://github.com/NastyPigz">
+							NastyPigz
+						</a>,
+						<a data-sveltekit-preload-data="tap" href="https://github.com/drapespy">
+							Drapes
+						</a>,
+						<a data-sveltekit-preload-data="tap" href="https://github.com/jason-11x">
+							Jason
+						</a>
+						<br /><br />
+						Copyright (c) 2023 NastyPigz
+						<br /><br />
+						Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+						<br /><br />
+						The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+						<br /><br />
+						THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					</p>
 				</dialog>
 			</Root>
