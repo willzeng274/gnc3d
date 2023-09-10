@@ -1,8 +1,0 @@
-{
-    "rewrites": [
-      {
-        "source": "/actions/:path*",
-        "destination": "/_vercel/insights/:path*"
-      }
-    ]
-}
