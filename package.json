@@ -35,6 +35,7 @@
   "type": "module",
   "dependencies": {
     "@dimforge/rapier3d": "^0.11.2",
+    "@vercel/analytics": "^1.0.2",
     "alea": "^1.0.1",
     "nipplejs": "^0.10.1",
     "simplex-noise": "^4.0.1",

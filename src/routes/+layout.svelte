@@ -2,6 +2,10 @@
 	import { page } from "$app/stores";
 	import "../app.css";
 	// console.log($page.url.hostname === "iamdefinitelylearning.vercel.app");
+	import { dev } from '$app/environment';
+	import { inject } from '@vercel/analytics';
+	
+	inject({ mode: dev ? 'development' : 'production' });
 </script>
 
 <svelte:head>

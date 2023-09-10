@@ -8,6 +8,9 @@ dependencies:
   '@dimforge/rapier3d':
     specifier: ^0.11.2
     version: 0.11.2
+  '@vercel/analytics':
+    specifier: ^1.0.2
+    version: 1.0.2
   alea:
     specifier: ^1.0.1
     version: 1.0.1
@@ -42,16 +45,16 @@ devDependencies:
     version: 0.6.2(@theatre/core@0.6.2)
   '@threlte/core':
     specifier: latest
-    version: 6.0.6(svelte@4.2.0)(three@0.153.0)
+    version: 6.0.8(svelte@4.2.0)(three@0.153.0)
   '@threlte/extras':
     specifier: latest
-    version: 5.4.1(svelte@4.2.0)(three@0.153.0)
+    version: 5.6.2(svelte@4.2.0)(three@0.153.0)
   '@threlte/rapier':
     specifier: latest
-    version: 1.1.0(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0)
+    version: 1.1.2(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0)
   '@threlte/theatre':
     specifier: latest
-    version: 2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.4.1)(svelte@4.2.0)(three@0.153.0)
+    version: 2.1.2(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.8)(@threlte/extras@5.6.2)(svelte@4.2.0)(three@0.153.0)
   '@types/three':
     specifier: ^0.152.1
     version: 0.152.1
@@ -452,8 +455,8 @@ packages:
       '@theatre/dataverse': 0.6.2
     dev: true
 
-  /@threlte/core@6.0.6(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-nB1MgGc/3vXmsbrgPVK9m9lTrFx5EdPB368oagzZZxzmqLD60aEmbRzF9JfyWtU59HP7KBLWC3Z8pXb883a4Sg==}
+  /@threlte/core@6.0.8(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-NhTc7rn+SGHa+Sz97Q580IFqT2vhPu39cvt6P0gXtLc6icAdNMMdftDPSEnr2LyK2IT3GCcgfKzAZSVTS2IfKA==}
     peerDependencies:
       svelte: '>=4'
       three: '>=0.133'
@@ -462,8 +465,8 @@ packages:
       three: 0.153.0
     dev: true
 
-  /@threlte/extras@5.4.1(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-aoA67Pkzyw+TAvKSDuGtSi8m6AC+mmLduZQKaWwd0y/Zx+24d/AHpnLqyA5uRK/mCVbxC0D/3Li6+fPBKHJa3g==}
+  /@threlte/extras@5.6.2(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-7VDUtAEji3w0mlmgLwidKCnRwgD9HFaBV4INa4M1oZpXPToXYr4L1wu8agsCSr79uag6dE8whQ9tJ8qH77OzUQ==}
     peerDependencies:
       svelte: '>=4'
       three: '>=0.133'
@@ -474,8 +477,8 @@ packages:
       troika-three-text: 0.47.2(three@0.153.0)
     dev: true
 
-  /@threlte/rapier@1.1.0(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-H9L7pffrvmNYkt9qNSNxiRcewYgmJWTuvVgLL4Ma2h6fO5QkrsRKkNeaXZoOEUilbQCLvK2XxmhzwNr7HCPuvw==}
+  /@threlte/rapier@1.1.2(@dimforge/rapier3d-compat@0.11.2)(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-2a9o1WkOex+inQGSRjp+gL6C01fsV6Njlyr9ug6UQdOt5FGVmjYR0Cz2aRMege/ZgKHX/bE8RLndvT6+/y4etA==}
     peerDependencies:
       '@dimforge/rapier3d-compat': '>=0.11'
       svelte: '>=4'
@@ -486,8 +489,8 @@ packages:
       three: 0.153.0
     dev: true
 
-  /@threlte/theatre@2.1.1(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.6)(@threlte/extras@5.4.1)(svelte@4.2.0)(three@0.153.0):
-    resolution: {integrity: sha512-TjWjVgmZSWxLoo/KLC3KHEay4kDdh13yzESJxiu7+z1RT2ODJb4Edhuw7Ntz3fbAk/qRV5OJ79kPaEpOl/ahxQ==}
+  /@threlte/theatre@2.1.2(@theatre/core@0.6.2)(@theatre/studio@0.6.2)(@threlte/core@6.0.8)(@threlte/extras@5.6.2)(svelte@4.2.0)(three@0.153.0):
+    resolution: {integrity: sha512-G0Pn6Q5hvoBpd6pEIzxHFRgq/md46jmVL3A/XRkmj6yGY6ExQH9uYpO6uMZuCLIUY6fc2jogHfTPZjaOOllG6Q==}
     peerDependencies:
       '@theatre/core': '>=0.6'
       '@theatre/studio': '>=0.6'
@@ -498,8 +501,8 @@ packages:
     dependencies:
       '@theatre/core': 0.6.2
       '@theatre/studio': 0.6.2(@theatre/core@0.6.2)
-      '@threlte/core': 6.0.6(svelte@4.2.0)(three@0.153.0)
-      '@threlte/extras': 5.4.1(svelte@4.2.0)(three@0.153.0)
+      '@threlte/core': 6.0.8(svelte@4.2.0)(three@0.153.0)
+      '@threlte/extras': 5.6.2(svelte@4.2.0)(three@0.153.0)
       svelte: 4.2.0
       three: 0.153.0
     dev: true
@@ -533,6 +536,10 @@ packages:
 
   /@types/webxr@0.5.4:
     resolution: {integrity: sha512-41gfGLTtqXZhcmoDlLDHqMJDuwAMwhHwXf9Q2job3TUBsvkNfPNI/3IWVEtLH4tyY1ElWtfwIaoNeqeEX238/Q==}
+
+  /@vercel/analytics@1.0.2:
+    resolution: {integrity: sha512-BZFxVrv24VbNNl5xMxqUojQIegEeXMI6rX3rg1uVLYUEXsuKNBSAEQf4BWEcjQDp/8aYJOj6m8V4PUA3x/cxgg==}
+    dev: false
 
   /acorn@8.10.0:
     resolution: {integrity: sha512-F0SAmZ8iUtS//m8DmCTA0jlh6TDKkHQyK6xc6V4KDTyZKA9dnvX9/3sRTVQrWm79glUAZbnmmNcdYwUIHWVybw==}
