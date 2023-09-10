@@ -1,7 +1,7 @@
 import { error, type Handle } from "@sveltejs/kit";
 
-const MY_API_BASE_URL = "https://api.my-website.com";
-const PROXY_PATH = "/api-proxy";
+const MY_API_BASE_URL = "/_vercel/insights";
+const PROXY_PATH = "/actions";
 
 const handleApiProxy: Handle = async ({ event }) => {
   const origin = event.request.headers.get("Origin");
