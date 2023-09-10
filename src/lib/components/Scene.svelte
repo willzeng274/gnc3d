@@ -1169,7 +1169,6 @@
 					{/each}
 				{/if}
 				{#each barricades as barricade (barricade.id)}
-					{console.log(barricade)}
 					<ParticleBar
 						id={barricade.id}
 						position={barricade.position}

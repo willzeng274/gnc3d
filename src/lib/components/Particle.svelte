@@ -101,14 +101,17 @@
 		bind:rigidBody
 		on:collisionenter={({ targetRigidBody }) => {
 			// host can score cakes so I don't have to care about physics not syncing
+			// @ts-ignore
 			if (targetRigidBody?.userData?.name === "player" && ($socket == null || host)) {
 				$socket?.send(new Float32Array([CAKE_COLLIDE_EVENT, id]));
 				touch = 1;
 				score.update((score) => score + 1);
 				// TODO: fix this
+			// @ts-ignore
 			} else if (targetRigidBody?.userData?.name === "water") {
 				// alert("TOUCHING WATER");
 				touch = 2;
+			// @ts-ignore
 			} else if (targetRigidBody?.userData?.name === "player2" && host) {
 				// man I wish I can do Uint16
 				// console.log("player touched cake");
