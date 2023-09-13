@@ -182,6 +182,7 @@
 	}, 50);
 
 	function startGame(connectWs: boolean = false) {
+		if (socket !== null) return;
 		console.log("Starting game... Connect:", connectWs);
 		if (connectWs) {
 			lobby = true;
