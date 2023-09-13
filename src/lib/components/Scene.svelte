@@ -181,30 +181,14 @@
 		}
 	}, 50);
 
+	let started = false;
+
 	function startGame(connectWs: boolean = false) {
-		if ($socket !== null) return;
+		if (started) return;
+		started = true;
 		console.log("Starting game... Connect:", connectWs);
 		if (connectWs) {
 			lobby = true;
-			// const intv = setInterval(() => {
-			// 	if (!$socket || lobby) return;
-			// 	// probably better if these are separate events...
-			// 	$socket.send(
-			// 		new Float32Array([
-			// 			USER_STATE_UPDATE,
-			// 			$playerPos[0],
-			// 			$playerPos[1],
-			// 			$playerPos[2],
-			// 			$playerLinvel[0],
-			// 			$playerLinvel[1],
-			// 			$playerLinvel[2],
-			// 			$playerRotation[0],
-			// 			$playerRotation[1],
-			// 			$playerRotation[2],
-			// 			convertAnimationToInt($playerAnimation),
-			// 		])
-			// 	);
-			// }, 100);
 			console.log("WS seed:", seed);
 			const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://localhost:8080";
 			// const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://192.168.100.235:8080";
