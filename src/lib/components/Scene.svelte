@@ -421,6 +421,7 @@
 				barricades = [];
 				hostCakes = [];
 				own_id = null;
+				started = false;
 				if (m.code === 4001) {
 					alert("Room already started!");
 				}
@@ -1091,6 +1092,7 @@
 						realSeed = undefined;
 						tutorial = false;
 						lobby = false;
+						started = false;
 					}}
 					class="fixed top-0 right-0 z-[1] w-[25%] h-[10%] lg:h-[5%]">Exit game</Button
 				>
