@@ -43,7 +43,7 @@ export const contextMenuItems = [
     },
 ];
 
-type ShopItem = {
+export type ShopItem = {
     skinText: string;
     perk: string;
     unlock: string;
