@@ -19,68 +19,70 @@
     let message = lobbyCtx.message;
 </script>
 
-<Root>
-    <dialog class="lobby p-4 rounded-md">
-        <h2>LOBBY lobby</h2>
-        <h3>You are {host ? "host" : "guest"}</h3>
-        <h4>Players:</h4>
-        <div class="player">
-            <p>YOU</p>
-            <div>SKIN {getSkinNameByNumber(skin)}</div>
-        </div>
-        {#each players as p (p.id)}
+{#if visible}
+    <Root>
+        <dialog class="lobby p-4 rounded-md">
+            <h2>LOBBY lobby</h2>
+            <h3>You are {host ? "host" : "guest"}</h3>
+            <h4>Players:</h4>
             <div class="player">
-                <p style={p.id === 0 ? "color: red" : undefined}>
-                    ID {p.id} NAME {p.name}
-                </p>
-                <div>
-                    SKIN {getSkinNameByNumber(p.skin)}
-                </div>
+                <p>YOU</p>
+                <div>SKIN {getSkinNameByNumber(skin)}</div>
             </div>
-        {/each}
-        <h6>Player count: {players.length + 1}</h6>
-        {#if host}
-            <Button
-                on:click={(_) => {
-                    $socket?.send(new Uint8Array([START_LOBBY_EVENT]));
-                }}>Start game as (g)host</Button
-            >
-        {/if}
-        <Button on:click={(_) => $socket?.close()}
-            >{host ? "Disband" : "Leave"} lobby</Button
-        >
-    </dialog>
-    <dialog
-        class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-0 max-h-[20%] p-2 rounded-md"
-    >
-        <div class="w-full overflow-y-scroll">
-            {#each logs as msg}
-                <p>{msg}</p>
+            {#each players as p (p.id)}
+                <div class="player">
+                    <p style={p.id === 0 ? "color: red" : undefined}>
+                        ID {p.id} NAME {p.name}
+                    </p>
+                    <div>
+                        SKIN {getSkinNameByNumber(p.skin)}
+                    </div>
+                </div>
             {/each}
-        </div>
-        <TextInput
-            childAtStart={false}
-            type="text"
-            placeholder="Message"
-            bind:value={message}
-            on:keypress={(e) => {
-                if (e.key === "Enter") {
-                    logs = ["YOU: " + message, ...logs];
-                    $socket?.send(TXT_MESSAGE_CREATE + message);
-                    message = "";
-                }
-            }}
-            ><Button
-                on:click={(_) => {
-                    logs = ["YOU: " + message, ...logs];
-                    $socket?.send(TXT_MESSAGE_CREATE + message);
-                    message = "";
-                }}>Send message</Button
-            ></TextInput
+            <h6>Player count: {players.length + 1}</h6>
+            {#if host}
+                <Button
+                    on:click={(_) => {
+                        $socket?.send(new Uint8Array([START_LOBBY_EVENT]));
+                    }}>Start game as (g)host</Button
+                >
+            {/if}
+            <Button on:click={(_) => $socket?.close()}
+                >{host ? "Disband" : "Leave"} lobby</Button
+            >
+        </dialog>
+        <dialog
+            class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-0 max-h-[20%] p-2 rounded-md"
         >
-    </dialog>
-</Root>
-
+            <div class="w-full overflow-y-scroll">
+                {#each logs as msg}
+                    <p>{msg}</p>
+                {/each}
+            </div>
+            <TextInput
+                childAtStart={false}
+                type="text"
+                placeholder="Message"
+                bind:value={message}
+                on:keypress={(e) => {
+                    if (e.key === "Enter") {
+                        logs = ["YOU: " + message, ...logs];
+                        $socket?.send(TXT_MESSAGE_CREATE + message);
+                        message = "";
+                    }
+                }}
+                ><Button
+                    on:click={(_) => {
+                        logs = ["YOU: " + message, ...logs];
+                        $socket?.send(TXT_MESSAGE_CREATE + message);
+                        message = "";
+                    }}>Send message</Button
+                ></TextInput
+            >
+        </dialog>
+    </Root>
+    
+{/if}
 <style lang="css">
     .lobby {
         display: flex;

@@ -1,13 +1,6 @@
 <script lang="ts">
-	import { T, useFrame } from "@threlte/core";
-	import { Suspense, createTransition, interactivity, transitions } from "@threlte/extras";
-	import { AutoColliders, CollisionGroups, Debug, RigidBody } from "@threlte/rapier";
-	import { BoxGeometry, MeshStandardMaterial } from "three";
-	import Door from "../rapier/world/Door.svelte";
-	import Player from "./Player.svelte";
-	import Ground from "../rapier/world/Ground.svelte";
-	import CakeGen from "./CakeGen.svelte";
-	import Woman from "$lib/rapier/world/Woman.svelte";
+	import { useFrame } from "@threlte/core";
+	import { createTransition, interactivity, transitions } from "@threlte/extras";
 	import { 
 		death, 
 		freeze, 
@@ -21,16 +14,13 @@
 		azure,
 		startGameBool
 		} from "$lib/store";
-	import Player2 from "./Player2.svelte";
 	import Fps from "./Fps.svelte";
 	import { spring } from "svelte/motion";
-	import TextInput from "$lib/ui/textInput.svelte";
 	// import * as Modals from "$lib/ui/modal";
 	import Root from "./Root.svelte";
 	import { onDestroy, onMount, setContext } from "svelte";
 	import { cubicOut } from "svelte/easing";
 	import { scale as SvelteScale } from "svelte/transition";
-	import Particle from "./Particle.svelte";
 	import { PUBLIC_PROD } from "$env/static/public";
 	import {
 		cakeTypeAsInt,
@@ -43,7 +33,7 @@
 		intToCakeType,
 		importEncryptionKey,
 	} from "$lib/utils";
-	import type { AssetItems, Barricade, Cake, CakeGenItem, ConnectedPlayer, LobbyItems, MenuItems, TutorialItems } from "$lib/types";
+	import type { Barricade, Cake, CakeGenItem, ConnectedPlayer, LobbyItems, MenuItems, TutorialItems } from "$lib/types";
 	import {
 		CAKES_UPDATE_EVENT,
 		CAKE_COLLIDE_EVENT,
@@ -67,13 +57,10 @@
 		BARRICADE_FINAL_EVENT,
         type ShopItem,
 	} from "$lib/constants";
-	import House from "$lib/rapier/world/House.svelte";
-	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
-	import Button from "$lib/ui/button.svelte";
-	import ParticleBar from "./ParticleBar.svelte";
 	import RenderLobby from "$lib/renders/renderLobby.svelte";
 	import RenderMenu from "$lib/renders/renderLobby.svelte";
 	import RenderTutorial from "$lib/renders/renderTutorial.svelte";
+	import RenderAssets from "$lib/renders/renderAssets.svelte";
 
 	export const scaleIn = (node: Element) =>
 		SvelteScale(node, {
@@ -95,7 +82,6 @@
 	let menu = true;
 	let lobby = false;
 	let tutorial = false;
-	let chatActive = false;
 	let skin: number = -1;
 	export // let skin: number = 4;
 	let frozen: number = 0;
@@ -182,27 +168,6 @@
 		}
 	}
 
-	const assetItemsObj = ():AssetItems=> {
-		return {
-			highScore,
-			host,
-			frozen,
-			tutorial,
-			lobby,
-			realSeed,
-			logs,
-			message,
-			username,
-			skin,
-			hostCakes,
-			cakes,
-			barricades,
-			chatActive,
-			menu,
-			own_id,
-			players
-		}
-	}
 	export let latest_frame: number[] | null = null;
 	$: {
 		if ($socket && Date.now() - lastUpdated >= 1000 / 30 && !lobby && !menu) {
@@ -248,29 +213,14 @@
 		}
 	}, 50);
 
+	let started = false;
+
 	function startGame(connectWs: boolean = false) {
+		if (started) return;
+		started = true;
 		console.log("Starting game... Connect:", connectWs);
 		if (connectWs) {
 			lobby = true;
-			// const intv = setInterval(() => {
-			// 	if (!$socket || lobby) return;
-			// 	// probably better if these are separate events...
-			// 	$socket.send(
-			// 		new Float32Array([
-			// 			USER_STATE_UPDATE,
-			// 			$playerPos[0],
-			// 			$playerPos[1],
-			// 			$playerPos[2],
-			// 			$playerLinvel[0],
-			// 			$playerLinvel[1],
-			// 			$playerLinvel[2],
-			// 			$playerRotation[0],
-			// 			$playerRotation[1],
-			// 			$playerRotation[2],
-			// 			convertAnimationToInt($playerAnimation),
-			// 		])
-			// 	);
-			// }, 100);
 			console.log("WS seed:", seed);
 			const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://localhost:8080";
 			// const url = PUBLIC_PROD === "true" ? "wss://gnc3d-backend.onrender.com/" : "ws://192.168.100.235:8080";
@@ -504,6 +454,7 @@
 				barricades = [];
 				hostCakes = [];
 				own_id = null;
+				started = false;
 				if (m.code === 4001) {
 					alert("Room already started!");
 				}
@@ -668,9 +619,12 @@
 	<Root>
 		<dialog class="block z-[2] duration-[5s] ease-in-out">Waiting for germination...</dialog>
 	</Root>
+{:else}
+<RenderAssets visible={true}/>
 {/if}
+
+
 <RenderMenu visible={menu}/>
 <RenderTutorial visible={tutorial}/>
-
-
 <RenderLobby visible={lobby}/>
+
