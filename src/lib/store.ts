@@ -25,3 +25,4 @@ export const gameConfig = writable<Config>({
     debugMode: false,
     volume: 20
 });
+export const startGameBool = writable<boolean>(false);
