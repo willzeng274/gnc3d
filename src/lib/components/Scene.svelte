@@ -2,11 +2,8 @@
 	import { T } from "@threlte/core";
 	import { Suspense, interactivity, transitions } from "@threlte/extras";
 	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig, azure, mobile, highScore, host } from "$lib/store";
-	import Fps from "./Fps.svelte";
-	// import * as Modals from "$lib/ui/modal";
-	import Root from "./Root.svelte";
+	import { Fps, Loading, Lobby, Root, Tutorial } from "./index";
 	import { onDestroy, onMount } from "svelte";
-	import Tutorial from "./Tutorial.svelte";
 	import { PUBLIC_PROD } from "$env/static/public";
 	import {
 		cakeTypeAsInt,
@@ -44,10 +41,7 @@
 	import { Assets } from "$lib/components/models/index";
 	import Sidebar from "./menu/Sidebar.svelte";
 	import { Skins, Manual, Shop, Seed, Play, Settings, Credits } from "./menu";
-	import Loading from "./Loading.svelte";
-	import Lobby from "./Lobby.svelte";
 	import Game from "$lib/runtime/Game.svelte";
-
 	export let seed: number | undefined;
 	let realSeed: number | undefined;
 	let isSuspend = true;

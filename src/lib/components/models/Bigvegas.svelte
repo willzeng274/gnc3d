@@ -5,7 +5,7 @@
 	import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
 	import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 	import type { Props, Events, Slots } from "@threlte/core";
-	import Attractor from "$lib/rapier/world/Attractor.svelte";
+	import { Attractor } from "$lib/rapier/world/index";
 
 	type $$Props = Props<Group> & { currentActionKey: ActionName; rotation?: [number, number, number], visible?: boolean };
 	type $$Events = Events<Group>;
