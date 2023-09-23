@@ -2,6 +2,10 @@ import { writable } from 'svelte/store';
 import type { Config, ActionName } from './types';
 
 export const score = writable<number>(0);
+export const highScore = writable<number>(0);
+// export const skin = writable<number>(-1);
+export const mobile = writable<boolean>(false);
+export const host = writable<boolean>(false);
 export const plane = writable<ArrayLike<number> | null>(null);
 export const playerPos = writable<[number, number, number]>([0, 10, 3]);
 export const playerLinvel = writable<[number, number, number]>([0, 0, 0]);

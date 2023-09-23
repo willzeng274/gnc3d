@@ -7,7 +7,7 @@
 	import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
-	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig, azure } from "$lib/store";
+	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig, azure, host } from "$lib/store";
 	import Ybot from "./models/Ybot.svelte";
 	import Xbot from "./models/Xbot.svelte";
 	import James from "./models/James.svelte";
@@ -22,7 +22,6 @@
 	import Barricade from "./models/Barricade.svelte";
 	import Timmy from "./models/Timmy.svelte";
 	export let skin: number;
-	export let host: boolean;
 	export let username: string;
 	let zooming: number = -1;
 	let dance: boolean = false;
@@ -63,9 +62,9 @@
 					// the player might've left by now
 					rigidBody.setTranslation(
 						{
-							x: host ? 0 : Math.floor(Math.random() * 200) - 100,
+							x: $host ? 0 : Math.floor(Math.random() * 200) - 100,
 							y: 10,
-							z: host ? 3 : Math.floor(Math.random() * 200) - 100,
+							z: $host ? 3 : Math.floor(Math.random() * 200) - 100,
 						},
 						false
 					);
@@ -126,7 +125,7 @@
 	useFrame((_, deltaTime) => {
 		// console.log("FPS: ", 1 / deltaTime);
 		if (!rigidBody || !capsule || $death) return;
-		if (host && $freeze > 0) {
+		if ($host && $freeze > 0) {
 			const linv = rigidBody.linvel();
 			linv.x = 0;
 			linv.z = 0;
@@ -529,7 +528,7 @@
 <Audio src="/audio/zen_garden.mp3" autoplay loop volume={$gameConfig.volume / 100} />
 
 <T.Group bind:ref={capsule} position={$playerPos} rotation.y={Math.PI}>
-	<Username {username} ypos={$playerPos[1]} color={host ? "red" : "white"} />
+	<Username {username} ypos={$playerPos[1]} color={$host ? "red" : "white"} />
 	<RigidBody bind:rigidBody enabledRotations={[false, false, false]} userData={{ name: "player" }}>
 		<CollisionGroups groups={[0, 5]}>
 			<!-- ground has e.targetCollider.handle = 0 -->
@@ -570,7 +569,7 @@
 							// although it's only going to increase the normal force
 							rigidBody?.applyImpulse(new Vector3(0, -10, 0), true);
 						}
-						if (host) {
+						if ($host) {
 							// @ts-ignore
 							if (e.targetRigidBody.userData?.name === "player2" && !e.targetRigidBody.userData?.death) {
 								// @ts-ignore
