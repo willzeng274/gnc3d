@@ -41,7 +41,7 @@
 		BARRICADE_GONE_EVENT,
 		BARRICADE_FINAL_EVENT,
 	} from "$lib/constants";
-	import Assets from "./models/Assets.svelte";
+	import { Assets } from "$lib/components/models/index";
 	import Sidebar from "./menu/Sidebar.svelte";
 	import { Skins, Manual, Shop, Seed, Play, Settings, Credits } from "./menu";
 	import Loading from "./Loading.svelte";
