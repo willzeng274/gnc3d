@@ -93,7 +93,7 @@
         enabledRotations={[false, false, false]}
         userData={{ name: "woman" }}
     >
-        <CollisionGroups groups={[0]}>
+        <CollisionGroups groups={[0, 6]}>
             <Collider
                 shape={'capsule'}
                 args={[0.5, 0.3]}

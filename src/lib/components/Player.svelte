@@ -4,7 +4,7 @@
 	import { RigidBody, CollisionGroups, Collider } from "@threlte/rapier";
 	import { AudioListener, Audio } from "@threlte/extras";
 	import { createEventDispatcher, onDestroy, onMount } from "svelte";
-	import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion } from "three";
+	import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion, Mesh, BoxGeometry } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
 	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig, azure, host } from "$lib/store";
@@ -236,6 +236,20 @@
 		}
 	}
 
+	function onClick() {
+		if (chatActive) return;
+		const cameraForward = new Vector3();
+		cam.getWorldDirection(cameraForward);
+
+		// Project to 2D Plane
+		cameraForward.y = 0;
+		cameraForward.normalize().multiplyScalar(50);
+		bullet.resetForces(false);
+		bullet.resetTorques(false);
+		bullet.setLinvel(cameraForward, true);
+		bullet.setTranslation(new Vector3(...$playerPos), true);
+	}
+
 	function onKeyDown(e: KeyboardEvent) {
 		if (e.key.toLowerCase() === "escape" && chatActive) {
 			dispatch("tpress");
@@ -292,10 +306,30 @@
 		}
 	}
 
+	let bullet: RapierRigidBody;
+
+	useFrame(() => {
+		const lv = bullet.linvel();
+		lv.y = 0;
+		bullet.setLinvel(lv, true);
+	});
+
 	function onKeyUp(e: KeyboardEvent) {
 		if (chatActive) return;
 		// console.log("Up", e.key)
 		switch (e.key.toLowerCase()) {
+			case "m":
+				const cameraForward = new Vector3();
+				cam.getWorldDirection(cameraForward);
+
+				// Project to 2D Plane
+				cameraForward.y = 0;
+				cameraForward.normalize().multiplyScalar(50);
+				bullet.resetForces(false);
+				bullet.resetTorques(false);
+				bullet.setLinvel(cameraForward, true);
+				bullet.setTranslation(new Vector3(...$playerPos), true);
+				break;
 			case "s":
 				backward = 0;
 				break;
@@ -455,6 +489,21 @@
 	}
 </script>
 
+<CollisionGroups groups={[6, 15]}>
+	<T.Group>
+		<RigidBody type="dynamic" bind:rigidBody={bullet} on:collisionenter={({ targetRigidBody }) => {
+			// alert(targetRigidBody?.userData.name);
+		}}>
+			<Collider shape="cuboid" args={[1/2, 1/2, 1/2]} mass={25}>
+				<T.Mesh
+					geometry={new BoxGeometry(1/2, 1/2, 1/2)}
+					material={new MeshBasicMaterial({ color: "gray" })}
+				/>
+			</Collider>
+		</RigidBody>
+	</T.Group>
+</CollisionGroups>
+
 {#each barricades as barricade (barricade.id)}
 	<T.Group position={barricade.position} rotation={barricade.rotation}>
 		<RigidBody type="dynamic">
@@ -513,7 +562,7 @@
 	</Root>
 {/if}
 
-<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
+<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} on:click={onClick} />
 
 <T.PerspectiveCamera makeDefault fov={$gameConfig.fov} bind:ref={cam}>
 	{#if isPLOCK}

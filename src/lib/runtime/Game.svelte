@@ -77,8 +77,6 @@
 	}
 </script>
 
-<svelte:window on:keyup={(e) => e.key.toLowerCase() === "m" && freeze.update((f) => f + 1)} />
-
 <Root>
     <div class="flex flex-col lg:flex-row absolute top-4 w-[80%] lg:w-[35%] h-[5%] items-center justify-center text-center">
         <div class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] px-4">
