@@ -2,8 +2,7 @@
 	import { T, useFrame } from "@threlte/core";
 	import { spring } from "svelte/motion";
 	import { MeshStandardMaterial } from "three";
-	import Xbot from "../models/Xbot.svelte";
-	import Ybot from "../models/Ybot.svelte";
+    import { Xbot, Ybot } from "$lib/components/models/index";
 	import { zoomIn, zoomOut } from "$lib/animations";
 	import { mobile } from "$lib/store";
     const scale = spring(1);
