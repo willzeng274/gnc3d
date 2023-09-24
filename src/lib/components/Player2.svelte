@@ -3,15 +3,11 @@
 	// import type * as THREE from "three";
 	import { CollisionGroups, Collider, RigidBody } from "@threlte/rapier";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
-	import Ybot from "./models/Ybot.svelte";
-	import Xbot from "./models/Xbot.svelte";
-	import James from "./models/James.svelte";
+
 	import Username from "./Username.svelte";
-	import Bigvegas from "./models/Bigvegas.svelte";
-	import Boss from "./models/Boss.svelte";
+	import { Bigvegas, Boss, James, Timmy, Xbot, Ybot } from "$lib/components/models/index";
 	import type { ActionName } from "$lib/types";
-	import Timmy from "./models/Timmy.svelte";
-	
+
 	let radius = 0.45; // used to be 0.3
 	let height = 2; // used to be 1.7
 	export let position: [number, number, number];

@@ -7,11 +7,9 @@
 	import { MeshStandardMaterial } from "three";
 	import Root from "../Root.svelte";
 	import Button from "$lib/ui/button.svelte";
-	import James from "../models/James.svelte";
-	import Bigvegas from "../models/Bigvegas.svelte";
-	import Boss from "../models/Boss.svelte";
-	import Timmy from "../models/Timmy.svelte";
+
 	import { shopItems } from "$lib/constants";
+    import { James, Bigvegas, Boss, Timmy } from "$lib/components/models/index";
 
     export let visible: boolean;
     export let skin: number;

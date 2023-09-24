@@ -1,16 +1,4 @@
 <script lang="ts">
-	import CakeGen from "$lib/components/CakeGen.svelte";
-	import Particle from "$lib/components/Particle.svelte";
-	import ParticleBar from "$lib/components/ParticleBar.svelte";
-	import Player from "$lib/components/Player.svelte";
-	import Player2 from "$lib/components/Player2.svelte";
-	import Root from "$lib/components/Root.svelte";
-	import Blackhole from "$lib/rapier/world/Blackhole.svelte";
-	import Door from "$lib/rapier/world/Door.svelte";
-	import Ground from "$lib/rapier/world/Ground.svelte";
-	import House from "$lib/rapier/world/House.svelte";
-	import Walls from "$lib/rapier/world/Walls.svelte";
-	import Woman from "$lib/rapier/world/Woman.svelte";
 	import { azure, freeze, gameConfig, highScore, host, score, socket } from "$lib/store";
 	import type { Barricade, Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
 	import Button from "$lib/ui/button.svelte";
@@ -18,7 +6,8 @@
 	import { T } from "@threlte/core";
 	import { CollisionGroups, Debug } from "@threlte/rapier";
 	import { createEventDispatcher } from "svelte";
-
+    import { CakeGen, Particle, ParticleBar, Player, Player2, Root } from "$lib/components/index";
+    import { Blackhole, Door, Ground, House, Walls, Woman } from "$lib/rapier/world/index";
     export let chatActive: boolean;
     export let logs: string[];
     export let players: ConnectedPlayer[];

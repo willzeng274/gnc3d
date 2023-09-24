@@ -1,11 +1,9 @@
 <script lang="ts">
     import { T } from "@threlte/core";
-	import Woman from "$lib/rapier/world/Woman.svelte";
+	import { Door, Ground, Woman } from "$lib/rapier/world/index";
 	import { createEventDispatcher, onMount } from "svelte";
 	import Player from "./Player.svelte";
-	import Door from "$lib/rapier/world/Door.svelte";
 	import { CollisionGroups } from "@threlte/rapier";
-	import Ground from "$lib/rapier/world/Ground.svelte";
     import { playerPos } from "$lib/store";
 	import Root from "./Root.svelte";
 	import Particle from "./Particle.svelte";
