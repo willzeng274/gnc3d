@@ -1,10 +1,10 @@
 <script lang="ts">
     import { T } from "@threlte/core";
-	import { Door, Ground, Woman } from "$lib/rapier/world/index";
+	import { Door, Ground, Woman } from "$lib/rapier/world";
 	import { createEventDispatcher, onMount } from "svelte";
 	import Player from "./Player.svelte";
 	import { CollisionGroups } from "@threlte/rapier";
-    import { playerPos } from "$lib/store";
+    import { host, playerPos } from "$lib/store";
 	import Root from "./Root.svelte";
 	import Particle from "./Particle.svelte";
 
@@ -38,6 +38,7 @@
     let stages: string[] = [];
 
     onMount(() => {
+        host.set(false);
         let mobile = false;
 		(function (a) {
 			if (
@@ -123,7 +124,7 @@
     <Ground seed={1} enableShaders={true} />
 </CollisionGroups>
 <CollisionGroups groups={[0]}>
-    <Player skin={0} host={false} {username} />
+    <Player skin={0} {username} />
     {#if currentStage >= 9}
         <Woman selfPos={[5, 5, 5]} skin={0} initialSpeed={speed} />
     {/if}

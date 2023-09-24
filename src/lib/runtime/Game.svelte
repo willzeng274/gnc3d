@@ -6,8 +6,8 @@
 	import { T } from "@threlte/core";
 	import { CollisionGroups, Debug } from "@threlte/rapier";
 	import { createEventDispatcher } from "svelte";
-    import { CakeGen, Particle, ParticleBar, Player, Player2, Root } from "$lib/components/index";
-    import { Blackhole, Door, Ground, House, Walls, Woman } from "$lib/rapier/world/index";
+    import { CakeGen, Particle, ParticleBar, Player, Player2, Root } from "$lib/components";
+    import { Blackhole, Door, Ground, House, Walls, Woman } from "$lib/rapier/world";
     export let chatActive: boolean;
     export let logs: string[];
     export let players: ConnectedPlayer[];

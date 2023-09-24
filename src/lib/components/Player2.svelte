@@ -5,7 +5,7 @@
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 
 	import Username from "./Username.svelte";
-	import { Bigvegas, Boss, James, Timmy, Xbot, Ybot } from "$lib/components/models/index";
+	import { Bigvegas, Boss, James, Timmy, Xbot, Ybot } from "$lib/components/models";
 	import type { ActionName } from "$lib/types";
 
 	let radius = 0.45; // used to be 0.3

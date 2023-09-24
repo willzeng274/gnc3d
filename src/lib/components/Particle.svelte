@@ -8,7 +8,7 @@
 	import { CAKE_COLLIDE_EVENT, CAKE_FINAL_EVENT } from "$lib/constants";
 	import type { cakeType } from "$lib/types";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
-	import { CakeFreeze, CakeGold, CakeNormal, CakePurple } from "$lib/components/models/index";
+	import { CakeFreeze, CakeGold, CakeNormal, CakePurple } from "$lib/components/models";
 	// import { onDestroy } from 'svelte';
 	// import { arraysSize3AreEqual } from '$lib/utils';
 	// import GLTFExporter from 'three-gltf-exporter';

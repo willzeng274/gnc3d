@@ -2,7 +2,6 @@
 	import { useFrame } from '@threlte/core'
 	import type { Euler, Vector3 } from 'three'
 	import Particle from './Particle.svelte'
-	import { Barricades } from "$lib/components/models/index";
 	import { freeze, plane, score, socket, gameConfig, azure } from '$lib/store';
 	import { CAKE_GONE_EVENT, CAKE_SPAWN_EVENT, height, width, x_units, y_units } from '$lib/constants';
 	import type { CakeGenItem } from '$lib/types';

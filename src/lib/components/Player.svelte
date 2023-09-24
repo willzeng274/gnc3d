@@ -1,14 +1,14 @@
 <script lang="ts">
 	import type { RigidBody as RapierRigidBody, Collider as RapierCollider } from "@dimforge/rapier3d-compat";
-	import { T, useFrame, useThrelte } from "@threlte/core";
+	import { T, useFrame } from "@threlte/core";
 	import { RigidBody, CollisionGroups, Collider } from "@threlte/rapier";
 	import { AudioListener, Audio } from "@threlte/extras";
 	import { createEventDispatcher, onDestroy, onMount } from "svelte";
-	import { PerspectiveCamera, Vector3, CapsuleGeometry, MeshBasicMaterial, Group, Euler, Quaternion, Mesh, BoxGeometry } from "three";
+	import { PerspectiveCamera, Vector3, MeshBasicMaterial, Group, Euler, Quaternion, BoxGeometry } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
 	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig, azure, host } from "$lib/store";
-	import { Barricade, Bigvegas, Boss, James, Timmy, Xbot, Ybot } from "$lib/components/models/index";
+	import { Barricade, Bigvegas, Boss, James, Timmy, Xbot, Ybot } from "$lib/components/models";
 	import Username from "./Username.svelte";
 	import Root from "./Root.svelte";
 	import type { JoystickManagerOptions } from "nipplejs";
@@ -230,7 +230,8 @@
 		}
 	}
 
-	function onClick() {
+	function onClick(e: MouseEvent) {
+		if (e.button !== 2) return;
 		if (chatActive) return;
 		const cameraForward = new Vector3();
 		cam.getWorldDirection(cameraForward);
@@ -556,7 +557,7 @@
 	</Root>
 {/if}
 
-<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} on:click={onClick} />
+<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} on:mousedown={onClick} />
 
 <T.PerspectiveCamera makeDefault fov={$gameConfig.fov} bind:ref={cam}>
 	{#if isPLOCK}

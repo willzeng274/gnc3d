@@ -7,7 +7,7 @@
 	import { Vector3 } from "three";
 	import { BARRICADE_FINAL_EVENT } from "$lib/constants";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
-	import { Barricade } from "$lib/components/models/index";
+	import { Barricade } from "$lib/components/models";
 	export let position: Parameters<THREE.Vector3["set"]>;
 	export let rotation: Parameters<THREE.Euler["set"]>;
 	export let owner: boolean = true;
