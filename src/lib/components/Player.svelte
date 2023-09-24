@@ -289,6 +289,9 @@
 					barricadeCd = Date.now();
 				}
 				break;
+			// case "g":
+			// 	score.update((s) => s + 50);
+			// 	break;
 			case "k":
 				k = true;
 				break;
