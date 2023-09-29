@@ -115,6 +115,7 @@
 
 	let prevPos = 0;
 	let velY = 0;
+	let camBack = false;
 	// let prevVel = 0;
 	useFrame((_, deltaTime) => {
 		// console.log("FPS: ", 1 / deltaTime);
@@ -132,7 +133,7 @@
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		// Big vegas can walk normal but 15% sprint reduction
-		const multi = ($gameConfig.autosprint ? !shift : shift) ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : (skin === 2 ? 0.6 : 0.5);
+		const multi = (camBack ? -1 : 1) * (($gameConfig.autosprint ? !shift : shift) ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : (skin === 2 ? 0.6 : 0.5));
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();
@@ -268,6 +269,9 @@
 		e.preventDefault();
 		// console.log("Down", e.key)
 		switch (e.key.toLowerCase()) {
+			case "v":
+				camBack = true;
+				break;
 			case "s":
 				backward = 1;
 				break;
@@ -316,6 +320,9 @@
 		if (chatActive) return;
 		// console.log("Up", e.key)
 		switch (e.key.toLowerCase()) {
+			case "v":
+				camBack = false;
+				break;
 			case "m":
 				const cameraForward = new Vector3();
 				cam.getWorldDirection(cameraForward);
@@ -564,9 +571,9 @@
 
 <T.PerspectiveCamera makeDefault fov={$gameConfig.fov} bind:ref={cam}>
 	{#if isPLOCK}
-		<PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} {zooming} />
+		<PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} {zooming} {camBack} />
 	{:else}
-		<Controller bind:object={capRef} bind:plock={isPLOCK} {zooming} {chatActive} />
+		<Controller bind:object={capRef} bind:plock={isPLOCK} {zooming} {chatActive} {camBack} />
 	{/if}
 	<AudioListener />
 </T.PerspectiveCamera>

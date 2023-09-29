@@ -3,11 +3,12 @@
 	import { Camera, Euler, Vector2, Vector3 } from "three";
 	import type { Group } from "three";
 	import { useThrelte, useParent, useFrame } from "@threlte/core";
-	import { azure, gameConfig, score } from "$lib/store";
+	// import { azure, gameConfig, score } from "$lib/store";
 	export let object: Group;
 	export let rotateSpeed = 1.0;
 	export let plock: boolean;
 	export let chatActive: boolean;
+	export let camBack: boolean;
 	// $: if (object) {
 	// console.log(object)
 	// object.position.y = 10
@@ -81,7 +82,8 @@
 	useFrame(() => {
 		// the object's position is bound to the prop
 		if (!object || !$camera) return;
-		const target = new Vector3().setFromSphericalCoords(idealOffset.z, Math.PI / 2 - cameraControls.phi, cameraControls.theta);
+		console.log(camBack);
+		const target = new Vector3().setFromSphericalCoords(idealOffset.z, Math.PI / 2 - cameraControls.phi, cameraControls.theta + (camBack ? Math.PI : 0));
 
 		// Update camera position
 		$camera.position.copy(target.clone().add(object.position));

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { T, useFrame } from "@threlte/core";
-	import { MeshStandardMaterial, PlaneGeometry, CanvasTexture, RepeatWrapping, TextureLoader, Vector3, BoxGeometry, MathUtils } from "three";
+	import { MeshStandardMaterial, PlaneGeometry, CanvasTexture, RepeatWrapping, TextureLoader, Vector3, MathUtils } from "three";
 	import { DEG2RAD } from "three/src/math/MathUtils";
 	import { createNoise2D } from "simplex-noise";
 	import { AutoColliders, RigidBody } from "@threlte/rapier";

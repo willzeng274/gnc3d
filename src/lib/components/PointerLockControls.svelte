@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { createEventDispatcher, onDestroy } from "svelte";
-	import { Euler, Camera, Group } from "three";
+	import { afterUpdate, createEventDispatcher, onDestroy } from "svelte";
+	import { Euler, Camera, Group, Quaternion } from "three";
 	import { useThrelte, useParent, useFrame } from "@threlte/core";
 	import Root from "./Root.svelte";
 	// Set to constrain the pitch of the camera
@@ -11,6 +11,7 @@
 	export let object: Group;
 	export let plock: boolean;
 	export let zooming: number;
+	export let camBack: boolean;
 	$: {
 		if (zooming !== -1) {
 			zooming > 1 && (plock = false);
@@ -75,6 +76,19 @@
 		$camera.quaternion.setFromEuler(_euler);
 		onChange();
 	}
+	
+	let oldCam = camBack;
+	afterUpdate(() => {
+		const new_value = camBack;
+		if (new_value != oldCam) {
+			console.log("Ran");
+			if (!isLocked) return;
+			if (!$camera) return;
+			const flipRotation = new Quaternion().setFromAxisAngle($camera.up, Math.PI);
+			$camera.quaternion.multiplyQuaternions(flipRotation, $camera.quaternion);
+			oldCam = new_value;
+		}
+	});
 	function onTouchEnd(event: TouchEvent) {
 		prev = null;
 	}
