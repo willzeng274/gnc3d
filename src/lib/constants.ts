@@ -65,7 +65,7 @@ export const shopItems: ShopItem[] = [
     },
     {
         skinText: "Big Vegas Skin",
-        perk: "Perks: Attracts cakes <20 blocks, 15% sprint nerf, 37.5% dash nerf",
+        perk: "Perks: Attracts cakes <20 blocks, 15% sprint nerf, 12.5% dash nerf",
         unlock: `Unlock by getting a score of 200 in one run`,
         skin: 3,
         index: 1,

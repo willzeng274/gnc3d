@@ -410,7 +410,7 @@
 		if ($host && players.length === 0) {
 			$socket.send(new Uint8Array([HOST_WIN_EVENT]));
 			alert("HOST WINS!");
-		} else if ($score >= 500) {
+		} else if ($score >= 100 * players.length) {
 			alert("The people have won!");
 		}
 	}

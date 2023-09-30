@@ -163,7 +163,7 @@
 		// console.log(forward-backward, right-left);
 		// Normalize
 		if (dash > 0) {
-			cameraForward.normalize().multiplyScalar(dash * (skin === 3 ? 10 : 16) * multi * speed);
+			cameraForward.normalize().multiplyScalar(dash * (skin === 3 ? 14 : 16) * multi * speed);
 			cameraRight.normalize().multiplyScalar(0);
 			dash = Math.max(dash - deltaTime, 0);
 		} else {
