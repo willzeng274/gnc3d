@@ -35,7 +35,7 @@ export function cakeTypeAsInt(cake: cakeType): number {
 export function getNewScoreByCakeType(score: number, cake: cakeType): number {
     if (cake === "normal") return score + 1;
     if (cake === "frozen") return score + 1;
-    if (cake === "gold") return (score + 1) * 2;
+    if (cake === "gold") return score + 10;
     if (cake === "azure") {
         azure.update((az) => az+1);
         return score + 1;

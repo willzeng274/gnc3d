@@ -7,16 +7,17 @@
 	import { PerspectiveCamera, Vector3, MeshBasicMaterial, Group, Euler, Quaternion, BoxGeometry } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
-	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig, azure, host } from "$lib/store";
+	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig, azure, host, lives } from "$lib/store";
 	import { Barricade, Bigvegas, Boss, James, Timmy, Xbot, Ybot } from "$lib/components/models";
 	import Username from "./Username.svelte";
 	import Root from "./Root.svelte";
 	import type { JoystickManagerOptions } from "nipplejs";
 	import type { ActionName } from "$lib/types";
 	import { arraysSize3AreEqual } from "$lib/utils";
-	import { BARRICADE_SPAWN_EVENT, DIED_OF_DEATH } from "$lib/constants";
+	import { BARRICADE_SPAWN_EVENT, BITCHLESS_EVENT, DIED_OF_DEATH } from "$lib/constants";
 	export let skin: number;
 	export let username: string;
+	export let spectator: boolean;
 	let zooming: number = -1;
 	let dance: boolean = false;
 	let mobile: boolean = false;
@@ -50,7 +51,22 @@
 
 	$: {
 		if ($death) {
-			score.set(0);
+			if ($socket === null) {
+				if ($lives > 1) {
+					lives.update(lives => lives - 1);
+				} else {
+					score.set(0);
+				}
+			} else {
+				if ($lives > 1) {
+					lives.update(lives => lives - 1);
+				} else {
+					// spectator
+					$socket.send(new Uint8Array([BITCHLESS_EVENT]));
+					lives.update(lives => Math.max(0, lives - 1));
+					spectator = true;
+				}
+			}
 			setTimeout(() => {
 				if (rigidBody) {
 					// the player might've left by now
@@ -232,8 +248,7 @@
 	}
 
 	function onClick(e: MouseEvent) {
-		if (e.button !== 2) return;
-		if (chatActive) return;
+		if (e.button !== 2 || chatActive || $socket) return;
 		const cameraForward = new Vector3();
 		cam.getWorldDirection(cameraForward);
 
@@ -288,19 +303,30 @@
 				shift = 1;
 				break;
 			case "q":
+				if (spectator) return;
 				if (Date.now() - barricadeCd >= (skin === 5 ? 500 : 4000)) {
 					spawnBarricade();
 					barricadeCd = Date.now();
 				}
 				break;
-			// case "g":
-			// 	score.update((s) => s + 50);
-			// 	break;
+			case "g":
+				score.update((s) => s + 50);
+				break;
 			case "k":
 				k = true;
 				break;
 			case "y":
 				y = true;
+				break;
+			case " ":
+				if (!ground || $death || !rigidBody) break;
+				const livVel = rigidBody.linvel();
+				livVel.y = 5;
+				// livVel.y = 30;
+				rigidBody.setLinvel(livVel, true);
+				// const tl = rigidBody.translation();
+				// tl.y = 500;
+				// rigidBody.setTranslation(tl, true);
 				break;
 			default:
 				// alert(e.key)
@@ -311,6 +337,7 @@
 	let bullet: RapierRigidBody;
 
 	useFrame(() => {
+		if ($socket) return;
 		const lv = bullet.linvel();
 		lv.y = 0;
 		bullet.setLinvel(lv, true);
@@ -324,6 +351,7 @@
 				camBack = false;
 				break;
 			case "m":
+				if ($socket) break;
 				const cameraForward = new Vector3();
 				cam.getWorldDirection(cameraForward);
 
@@ -361,16 +389,6 @@
 				break;
 			case "shift":
 				shift = 0;
-				break;
-			case " ":
-				if (!ground || $death || !rigidBody) break;
-				const livVel = rigidBody.linvel();
-				livVel.y = 5;
-				// livVel.y = 30;
-				rigidBody.setLinvel(livVel, true);
-				// const tl = rigidBody.translation();
-				// tl.y = 500;
-				// rigidBody.setTranslation(tl, true);
 				break;
 			case "k":
 				k = false;
@@ -494,6 +512,7 @@
 	}
 </script>
 
+{#if $socket === null}
 <CollisionGroups groups={[6, 15]}>
 	<T.Group>
 		<RigidBody type="dynamic" bind:rigidBody={bullet} on:collisionenter={({ targetRigidBody }) => {
@@ -508,6 +527,13 @@
 		</RigidBody>
 	</T.Group>
 </CollisionGroups>
+{/if}
+
+{#if $lives === 0}
+	<Root>
+		<dialog class="block z-[2]">YOU ARE NOW SPECTATING</dialog>
+	</Root>
+{/if}
 
 {#each barricades as barricade (barricade.id)}
 	<T.Group position={barricade.position} rotation={barricade.rotation}>
@@ -581,11 +607,10 @@
 <Audio src="/audio/ocean.mp3" autoplay loop volume={$gameConfig.volume / 100} />
 <Audio src="/audio/zen_garden.mp3" autoplay loop volume={$gameConfig.volume / 100} />
 
+<CollisionGroups groups={spectator ? [15] : [0, 5]}>
 <T.Group bind:ref={capsule} position={$playerPos} rotation.y={Math.PI}>
 	<Username {username} ypos={$playerPos[1]} color={$host ? "red" : "white"} />
 	<RigidBody bind:rigidBody enabledRotations={[false, false, false]} userData={{ name: "player" }}>
-		<CollisionGroups groups={[0, 5]}>
-			<!-- ground has e.targetCollider.handle = 0 -->
 			<Collider
 				bind:collider
 				shape={"capsule"}
@@ -672,7 +697,6 @@
 					<Timmy bind:currentActionKey bind:ref={model} />
 				{/if}
 			</T.Group>
-		</CollisionGroups>
 		<CollisionGroups groups={[15]}>
 			<T.Group position={[0, -height / 2 + radius, 0]}>
 				<Collider sensor shape={"ball"} args={[radius * 1.2]} />
@@ -680,6 +704,7 @@
 		</CollisionGroups>
 	</RigidBody>
 </T.Group>
+</CollisionGroups>
 
 <style>
 	:global(*) {

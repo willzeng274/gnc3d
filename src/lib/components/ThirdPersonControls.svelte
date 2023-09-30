@@ -82,7 +82,7 @@
 	useFrame(() => {
 		// the object's position is bound to the prop
 		if (!object || !$camera) return;
-		console.log(camBack);
+		// console.log(camBack);
 		const target = new Vector3().setFromSphericalCoords(idealOffset.z, Math.PI / 2 - cameraControls.phi, cameraControls.theta + (camBack ? Math.PI : 0));
 
 		// Update camera position

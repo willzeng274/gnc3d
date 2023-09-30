@@ -39,6 +39,7 @@ export interface ConnectedPlayer {
     linz: number;
     animation: ActionName;
     rotation: [number, number, number];
+
 }
 
 export interface Config {

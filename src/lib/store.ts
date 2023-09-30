@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import type { Config, ActionName } from './types';
 
+export const lives = writable<number>(Infinity);
 export const score = writable<number>(0);
 export const highScore = writable<number>(0);
 // export const skin = writable<number>(-1);

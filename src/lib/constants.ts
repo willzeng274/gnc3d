@@ -126,5 +126,7 @@ export const CAKE_GONE_EVENT = 11;
 export const BARRICADE_SPAWN_EVENT = 12;
 export const BARRICADE_FINAL_EVENT = 13;
 export const BARRICADE_GONE_EVENT = 14;
+export const BITCHLESS_EVENT = 15;
+export const HOST_WIN_EVENT = 16;
 export const GERMINATION_EVENT = 42;
 export const IS_HOST_EVENT = 69;

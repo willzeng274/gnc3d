@@ -60,7 +60,7 @@
 	export let items: CakeGenItem[] = [];
 	let lastBodyMounted: number = 0;
 	let bodyEveryMilliseconds = 10000;
-	// let bodyEveryMilliseconds = 200;
+	// let bodyEveryMilliseconds = 1000;
 
 	// let longevityMilliseconds = 8000
 	useFrame(() => {
@@ -82,6 +82,7 @@
 				// console.log("New cake at ", ...position);
 				// Euler's order is default
 				// bytesize = 4 + 3*4 + 3*4 + 4 = 8 * 4
+				console.log("Sending cake spawn");
 				const arr = new Float32Array([CAKE_SPAWN_EVENT, id, ...position, rotation[0], rotation[1], rotation[2], cakeTypeAsInt(type)]);
 				$socket?.send(arr);
 			}

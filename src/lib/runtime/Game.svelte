@@ -18,6 +18,7 @@
     export let hostCakes: CakeGenItem[];
     export let cakes: Cake[];
     export let barricades: Barricade[];
+    export let spectator: boolean;
 
     const dispatch = createEventDispatcher<{
         exit: null,
@@ -51,10 +52,10 @@
 	});
 
 	$: {
-		if ($score > 200) {
+		if ($score > 200 && $socket === null) {
 			$gameConfig.vegasUnlocked = true;
 		}
-		if ($score > $highScore) {
+		if ($score > $highScore && $socket === null) {
 			highScore.set($score);
 		}
 		// why would u have a high score of above a million
@@ -64,12 +65,23 @@
 			alert("Bro is exploiting! Your scores are reset");
 		}
 	}
+
+    // console.log($host);
 </script>
 
 <Root>
     <div class="flex flex-col lg:flex-row absolute top-4 w-[80%] lg:w-[35%] h-[5%] items-center justify-center text-center">
         <div class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] px-4">
-            <p>Score: {$score} | Best: {$highScore} | Azure crystals owned: {$azure}</p>
+            {#if $socket === null}
+                <p>Score: {$score} | Best: {$highScore} | Azure crystals owned: {$azure}</p>
+            {:else if $host}
+                <p>Azure crystals owned: {$azure}</p>
+            {:else}
+                <div class="overflow-hidden relative bg-gray-100 h-3 w-full">
+                    <div class="h-full transition-all duration-300 bg-gradient-to-br from-blue-500 via-transparent to-blue-500 bg-[length:1rem_1rem]" style={`width: ${Math.floor($score/500*1000)/10}%;`}></div>
+                </div>
+                <p>ROAD TO 500: {$score}/500 | Azure crystals owned: {$azure}</p>
+            {/if}
         </div>
         <!-- Small inconvenience but it's fine! -->
         {#if ($socket !== null && $host) || $socket === null}
@@ -132,12 +144,15 @@
 <CollisionGroups groups={[0, 15]}>
     <Ground seed={realSeed} enableShaders={$gameConfig.shader} />
 </CollisionGroups>
+
+<!-- Collision group is handled inside player -->
+<Player bind:spectator {username} skin={skin === -1 ? 0 : skin} on:tpress={(_) => (chatActive = !chatActive)} />
+
 <CollisionGroups groups={[0]}>
     <House />
-    <Player {username} skin={skin === -1 ? 0 : skin} on:tpress={(_) => (chatActive = !chatActive)} />
     <Door />
     {#if $socket !== null}
-        {#if host}
+        {#if $host}
             <CakeGen host bind:items={hostCakes} />
         {:else}
             {#each cakes as cake (cake.id)}
@@ -148,7 +163,7 @@
                     rotation={cake.rotation}
                     type={cake.type}
                     touch={0}
-                    {host}
+                    host={$host}
                     dynamic={cake.dynamic}
                 />
             {/each}
