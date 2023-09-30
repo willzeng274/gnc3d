@@ -149,7 +149,7 @@
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		// Big vegas can walk normal but 15% sprint reduction
-		const multi = (camBack ? -1 : 1) * (($gameConfig.autosprint ? !shift : shift) ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : (skin === 2 ? 0.6 : 0.5));
+		const multi = (camBack ? -1 : 1) * (spectator ? 10 : 1) * (($gameConfig.autosprint ? !shift : shift) ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : (skin === 2 ? 0.6 : 0.5));
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();

@@ -378,6 +378,7 @@
 				death.set(false);
 				host.set(false);
 				realSeed = undefined;
+				spectator = false;
 				players = [];
 				menu = true;
 				// lobby = false;
@@ -409,7 +410,7 @@
 		if ($host && players.length === 0) {
 			$socket.send(new Uint8Array([HOST_WIN_EVENT]));
 			alert("HOST WINS!");
-		} else if ($score >= 10) {
+		} else if ($score >= 500) {
 			alert("The people have won!");
 		}
 	}
