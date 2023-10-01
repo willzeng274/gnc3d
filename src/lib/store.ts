@@ -30,3 +30,5 @@ export const gameConfig = writable<Config>({
     debugMode: false,
     volume: 20
 });
+export const hostWin = writable<boolean>(false);
+export const gameEnd = writable<boolean>(false);

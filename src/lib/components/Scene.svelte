@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T } from "@threlte/core";
 	import { Suspense, interactivity, transitions } from "@threlte/extras";
-	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig, azure, mobile, highScore, host, lives } from "$lib/store";
+	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig, azure, mobile, highScore, host, lives, hostWin, gameEnd } from "$lib/store";
 	import { Fps, Loading, Lobby, Root, Tutorial } from "./index";
 	import { onDestroy, onMount } from "svelte";
 	import { PUBLIC_PROD } from "$env/static/public";
@@ -358,7 +358,11 @@
 						} else if (arr[0] === BITCHLESS_EVENT) {
 							players = players.filter((p) => p.id !== arr[1]);
 						} else if (arr[0] === HOST_WIN_EVENT) {
-							if (arr[1] === 0) alert("The host has won!");
+							if (arr[1] === 0) {
+								hostWin.set(true);
+								gameEnd.set(true);
+								// alert("The host has won!");
+							}
 						} else {
 							console.log("Unknown event", arr[0]);
 						}
@@ -387,6 +391,8 @@
 				hostCakes = [];
 				own_id = null;
 				started = false;
+				hostWin.set(false);
+				gameEnd.set(false);
 				if (m.code === 4001) {
 					alert("Room already started!");
 				}
@@ -409,9 +415,19 @@
 		if (!$socket || $socket.readyState !== 1 || !started || lobby) break $;
 		if ($host && players.length === 0) {
 			$socket.send(new Uint8Array([HOST_WIN_EVENT]));
-			alert("HOST WINS!");
+			hostWin.set(true);
+			gameEnd.set(true);
+			// alert("HOST WINS!");
 		} else if ($score >= 100 * players.length) {
-			alert("The people have won!");
+			hostWin.set(false);
+			gameEnd.set(true);
+			// alert("The people have won!");
+		}
+	}
+
+	$: {
+		if ($gameEnd && $host) {
+			setTimeout(()=> $socket?.close(),5000)
 		}
 	}
 
@@ -559,6 +575,8 @@
 			{players}
 			on:exit={_ => {
                 menu = true;
+				hostWin.set(false)
+				gameEnd.set(false)
                 death.set(false);
                 realSeed = undefined;
                 tutorial = false;

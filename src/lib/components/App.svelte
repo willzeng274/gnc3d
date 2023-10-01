@@ -3,14 +3,13 @@
   import { World } from '@threlte/rapier';
   // import { Text } from '@threlte/extras';
   import Scene from './Scene.svelte';
-  import { death } from '$lib/store';
+  import { death, lives } from '$lib/store';
 	// import { GLTF } from '@threlte/extras';
 	// import { DirectionalLight } from 'three';
 	// import Reaper from './models/Reaper.svelte';
 
   let counter = 0;
   let seed: number = 0;
-
   // 6 because it decrements the first time
   death.subscribe((d) => d && [(counter = 5), countDeath()]);
   
@@ -27,6 +26,11 @@
 
 <dialog class:deathMenu={$death}>
   <p>You died!</p>
+  <!-- {#if $lives !== Infinity}
+    <p>
+      {heartEmoji.repeat($lives)}
+    </p>  
+  {/if}   -->
   <p>You will respawn in {counter}</p>
 </dialog>
 

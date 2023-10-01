@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { azure, freeze, gameConfig, highScore, host, score, socket } from "$lib/store";
+	import { azure, freeze, gameConfig, highScore, host, score, socket,hostWin,gameEnd } from "$lib/store";
 	import type { Barricade, Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
 	import Button from "$lib/ui/button.svelte";
 	import TextInput from "$lib/ui/textInput.svelte";
@@ -69,6 +69,20 @@
     // console.log($host);
 </script>
 
+
+{#if $gameEnd}
+    <Root>
+        <dialog
+            class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-[0] max-h-[20%] rounded-md mb-2 "
+        >
+            {#if $hostWin}
+                <p>HOST WON</p>
+            {:else}
+                <p>PPL WON</p>
+            {/if}
+        </dialog>
+    </Root>
+{/if}
 <Root>
     <div class="flex flex-col lg:flex-row absolute top-4 w-[80%] lg:w-[35%] h-[5%] items-center justify-center text-center">
         <div class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] px-4">
