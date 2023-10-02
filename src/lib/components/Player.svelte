@@ -668,7 +668,7 @@
 
 {#if $lives === 0}
 	<Root>
-		<dialog class="block z-[2]">YOU ARE NOW SPECTATING</dialog>
+		<dialog class="spectate">YOU ARE NOW SPECTATING</dialog>
 	</Root>
 {/if}
 
@@ -1068,4 +1068,16 @@
 		left: 0;
 		z-index: 1;
 	}
+
+	.spectate {
+        background-color: white;
+        width: 100%;
+        margin: 0;
+        padding: .25em;
+        display: block;
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        z-index: 1;
+    }
 </style>

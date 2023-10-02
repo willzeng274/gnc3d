@@ -44,6 +44,7 @@
 	import Sidebar from "./menu/Sidebar.svelte";
 	import { Skins, Manual, Shop, Seed, Play, Settings, Credits } from "./menu";
 	import Game from "$lib/runtime/Game.svelte";
+	import { useRapier } from "@threlte/rapier";
 	export let seed: number | undefined;
 	let realSeed: number | undefined;
 	let isSuspend = true;
@@ -82,10 +83,16 @@
 	let lastUpdated = Date.now();
 
 	let spectator = false;
-
+	
 	// TODO: websocket frame rate, if frame rate drops below 3 then the host automatically disconnects
 	// we'll limit to 30 fps for now
 	// small issue: may not update latest frame
+	const { world } = useRapier() 
+
+	const normalGravity = ()=> { world.gravity = { x:0, y:-19.62, z:0 } } 
+	const noGravity = ()=> { world.gravity = { x:0, y:-0.5, z:0 } } 
+	
+
 	let latest_frame: number[] | null = null;
 	$: {
 		if (spectator) break $;
@@ -427,7 +434,7 @@
 
 	$: {
 		if ($gameEnd && $host) {
-			setTimeout(()=> $socket?.close(),5000)
+			// setTimeout(()=> $socket?.close(),5000)
 		}
 	}
 
@@ -435,6 +442,15 @@
 		const key = await importEncryptionKey(jwk);
 		localStorage.setItem("zed-bra", await encrypt($azure + "", key));
 	})();
+
+
+	$: {
+		if ($gameEnd) {
+			noGravity(); 
+		} else{
+			normalGravity();
+		} 
+	}
 
 	onMount(async () => {
 
