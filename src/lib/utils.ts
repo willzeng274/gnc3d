@@ -61,6 +61,21 @@ export function intToCakeType(n: number): cakeType {
     return "gold";
 }
 
+export function getMaxScoreByPlayerCount(n: number): number {
+    if (n <= 0) {
+        return Infinity;
+    } else if (n <= 2) {
+        // return 5;
+        return 100;
+    } else if (n <= 4) {
+        return 250;
+    } else if (n >= 5) {
+        return 500;
+    } else {
+        return Infinity;
+    }
+}
+
 export function getRandomElementFromArray<G>(array: Array<G>) {
     const randomIndex = Math.floor(Math.random() * array.length);
     return array[randomIndex];

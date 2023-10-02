@@ -37,9 +37,11 @@
         Walls,
         Woman,
     } from "$lib/rapier/world";
+	import { getMaxScoreByPlayerCount } from "$lib/utils";
     export let chatActive: boolean;
     export let logs: string[];
     export let players: ConnectedPlayer[];
+    export let playerCount: number;
     export let realSeed: number;
     export let skin: number;
     export let own_id: number | null;
@@ -111,6 +113,7 @@
                     {:else}
                         <p>"DEFEAT. Cakemania Victory"</p>
                     {/if}
+                    <p>Game closing in 10s...</p>
             </div>
         </div>
     </Root>
@@ -129,7 +132,9 @@
                     {$azure}
                 </p>
             {:else if $host}
-                <p>Azure crystals owned: {$azure}</p>
+                <p>
+                    Player progress: {$score}/{getMaxScoreByPlayerCount(playerCount)} | Azure crystals owned: {$azure}
+                </p>
             {:else}
                 <div class="overflow-hidden relative bg-gray-100 h-3 w-full">
                     <div
@@ -140,7 +145,7 @@
                     />
                 </div>
                 <p>
-                    ROAD TO 500: {$score}/500 | Azure crystals owned: {$azure}
+                    ROAD TO {getMaxScoreByPlayerCount(playerCount)}: {$score}/{getMaxScoreByPlayerCount(playerCount)} | Azure crystals owned: {$azure}
                 </p>
             {/if}
         </div>
@@ -223,8 +228,9 @@
 <Player
     bind:spectator
     {username}
+    {chatActive}
     skin={skin === -1 ? 0 : skin}
-    on:tpress={(_) => (chatActive = !chatActive)}
+    on:tpress={(_) => (chatActive = true)}
 />
 
 <CollisionGroups groups={[0]}>

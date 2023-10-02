@@ -36,6 +36,7 @@
       border: 1px solid lightgray;
       box-shadow: 0 0 0.5px lightgray;
     }
+    
     button.enabled:active {
       /* @apply dark:bg-[#2C2F33]; */
       background-color: rgb(246, 246, 246);

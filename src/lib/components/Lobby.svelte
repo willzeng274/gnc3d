@@ -14,6 +14,8 @@
 
     let message: string;
 
+    let timeout: number = 0;
+    let notEnough: boolean = false;
 
     const dispatch = createEventDispatcher<{
         message: string
@@ -42,9 +44,18 @@
         {#if $host}
             <Button
                 on:click={_ => {
-                    $socket?.send(new Uint8Array([START_LOBBY_EVENT]));
+                    if (players.length > 0) {
+                        $socket?.send(new Uint8Array([START_LOBBY_EVENT]));
+                    } else {
+                        notEnough = true;
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => notEnough = false, 5000);
+                    }
                 }}>Start game as (g)host</Button
             >
+            {#if notEnough}
+                <p class="text-red-400">Not enough players to start!</p>
+            {/if}
         {/if}
         <Button on:click={_ => $socket?.close()}>{$host ? "Disband" : "Leave"} lobby</Button>
     </dialog>

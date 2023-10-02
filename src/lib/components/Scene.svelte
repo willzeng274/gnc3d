@@ -15,6 +15,7 @@
 		getRandomElementFromArray,
 		intToCakeType,
 		importEncryptionKey,
+		getMaxScoreByPlayerCount,
 	} from "$lib/utils";
 	import type { Barricade, Cake, CakeGenItem, ConnectedPlayer } from "$lib/types";
 	import {
@@ -71,6 +72,7 @@
 
 	// TODO: use an object instead for fast access
 	let players: ConnectedPlayer[] = [];
+	let playerCount: number = 0;
 
 	let currentCtx = contextMenuItems[0];
 
@@ -361,6 +363,7 @@
 							console.log("Player left", arr[1]);
 							players = players.filter((p) => p.id !== arr[1]);
 						} else if (arr[0] === START_LOBBY_EVENT) {
+							playerCount = players.length;
 							lobby = false;
 						} else if (arr[0] === BITCHLESS_EVENT) {
 							players = players.filter((p) => p.id !== arr[1]);
@@ -425,7 +428,7 @@
 			hostWin.set(true);
 			gameEnd.set(true);
 			// alert("HOST WINS!");
-		} else if ($score >= 100 * players.length) {
+		} else if ($score >= getMaxScoreByPlayerCount(playerCount)) {
 			hostWin.set(false);
 			gameEnd.set(true);
 			// alert("The people have won!");
@@ -434,7 +437,7 @@
 
 	$: {
 		if ($gameEnd && $host) {
-			// setTimeout(()=> $socket?.close(),5000)
+			setTimeout(()=> $socket?.close(), 10000);
 		}
 	}
 
@@ -589,6 +592,7 @@
 			{barricades}
 			{skin}
 			{players}
+			{playerCount}
 			on:exit={_ => {
                 menu = true;
 				hostWin.set(false)
