@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T } from "@threlte/core";
 	import { Suspense, interactivity, transitions } from "@threlte/extras";
-	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig, azure, mobile, highScore, host, lives } from "$lib/store";
+	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig, azure, mobile, highScore, host, lives, hostWin, gameEnd } from "$lib/store";
 	import { Fps, Loading, Lobby, Root, Tutorial } from "./index";
 	import { onDestroy, onMount } from "svelte";
 	import { PUBLIC_PROD } from "$env/static/public";
@@ -44,6 +44,7 @@
 	import Sidebar from "./menu/Sidebar.svelte";
 	import { Skins, Manual, Shop, Seed, Play, Settings, Credits } from "./menu";
 	import Game from "$lib/runtime/Game.svelte";
+	import { useRapier } from "@threlte/rapier";
 	export let seed: number | undefined;
 	let realSeed: number | undefined;
 	let isSuspend = true;
@@ -82,10 +83,16 @@
 	let lastUpdated = Date.now();
 
 	let spectator = false;
-
+	
 	// TODO: websocket frame rate, if frame rate drops below 3 then the host automatically disconnects
 	// we'll limit to 30 fps for now
 	// small issue: may not update latest frame
+	const { world } = useRapier() 
+
+	const normalGravity = ()=> { world.gravity = { x:0, y:-19.62, z:0 } } 
+	const noGravity = ()=> { world.gravity = { x:0, y:-0.5, z:0 } } 
+	
+
 	let latest_frame: number[] | null = null;
 	$: {
 		if (spectator) break $;
@@ -358,7 +365,11 @@
 						} else if (arr[0] === BITCHLESS_EVENT) {
 							players = players.filter((p) => p.id !== arr[1]);
 						} else if (arr[0] === HOST_WIN_EVENT) {
-							if (arr[1] === 0) alert("The host has won!");
+							if (arr[1] === 0) {
+								hostWin.set(true);
+								gameEnd.set(true);
+								// alert("The host has won!");
+							}
 						} else {
 							console.log("Unknown event", arr[0]);
 						}
@@ -387,6 +398,8 @@
 				hostCakes = [];
 				own_id = null;
 				started = false;
+				hostWin.set(false);
+				gameEnd.set(false);
 				if (m.code === 4001) {
 					alert("Room already started!");
 				}
@@ -409,9 +422,19 @@
 		if (!$socket || $socket.readyState !== 1 || !started || lobby) break $;
 		if ($host && players.length === 0) {
 			$socket.send(new Uint8Array([HOST_WIN_EVENT]));
-			alert("HOST WINS!");
+			hostWin.set(true);
+			gameEnd.set(true);
+			// alert("HOST WINS!");
 		} else if ($score >= 100 * players.length) {
-			alert("The people have won!");
+			hostWin.set(false);
+			gameEnd.set(true);
+			// alert("The people have won!");
+		}
+	}
+
+	$: {
+		if ($gameEnd && $host) {
+			// setTimeout(()=> $socket?.close(),5000)
 		}
 	}
 
@@ -419,6 +442,15 @@
 		const key = await importEncryptionKey(jwk);
 		localStorage.setItem("zed-bra", await encrypt($azure + "", key));
 	})();
+
+
+	$: {
+		if ($gameEnd) {
+			noGravity(); 
+		} else{
+			normalGravity();
+		} 
+	}
 
 	onMount(async () => {
 
@@ -559,6 +591,8 @@
 			{players}
 			on:exit={_ => {
                 menu = true;
+				hostWin.set(false)
+				gameEnd.set(false)
                 death.set(false);
                 realSeed = undefined;
                 tutorial = false;

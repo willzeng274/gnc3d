@@ -1,20 +1,58 @@
 <script lang="ts">
-	import type { RigidBody as RapierRigidBody, Collider as RapierCollider } from "@dimforge/rapier3d-compat";
+	import type {
+		RigidBody as RapierRigidBody,
+		Collider as RapierCollider,
+	} from "@dimforge/rapier3d-compat";
 	import { T, useFrame } from "@threlte/core";
 	import { RigidBody, CollisionGroups, Collider } from "@threlte/rapier";
 	import { AudioListener, Audio } from "@threlte/extras";
 	import { createEventDispatcher, onDestroy, onMount } from "svelte";
-	import { PerspectiveCamera, Vector3, MeshBasicMaterial, Group, Euler, Quaternion, BoxGeometry } from "three";
+	import {
+		PerspectiveCamera,
+		Vector3,
+		MeshBasicMaterial,
+		Group,
+		Euler,
+		Quaternion,
+		BoxGeometry,
+	} from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
-	import { playerPos, death, score, playerLinvel, playerAnimation, playerRotation, socket, freeze, gameConfig, azure, host, lives } from "$lib/store";
-	import { Barricade, Bigvegas, Boss, James, Timmy, Xbot, Ybot } from "$lib/components/models";
+	import {
+		playerPos,
+		death,
+		score,
+		playerLinvel,
+		playerAnimation,
+		playerRotation,
+		socket,
+		freeze,
+		gameConfig,
+		azure,
+		host,
+		lives,
+		gameEnd,
+		hostWin,
+	} from "$lib/store";
+	import {
+		Barricade,
+		Bigvegas,
+		Boss,
+		James,
+		Timmy,
+		Xbot,
+		Ybot,
+	} from "$lib/components/models";
 	import Username from "./Username.svelte";
 	import Root from "./Root.svelte";
 	import type { JoystickManagerOptions } from "nipplejs";
 	import type { ActionName } from "$lib/types";
 	import { arraysSize3AreEqual } from "$lib/utils";
-	import { BARRICADE_SPAWN_EVENT, BITCHLESS_EVENT, DIED_OF_DEATH } from "$lib/constants";
+	import {
+		BARRICADE_SPAWN_EVENT,
+		BITCHLESS_EVENT,
+		DIED_OF_DEATH,
+	} from "$lib/constants";
 	export let skin: number;
 	export let username: string;
 	export let spectator: boolean;
@@ -53,17 +91,17 @@
 		if ($death) {
 			if ($socket === null) {
 				if ($lives > 1) {
-					lives.update(lives => lives - 1);
+					lives.update((lives) => lives - 1);
 				} else {
 					score.set(0);
 				}
 			} else {
 				if ($lives > 1) {
-					lives.update(lives => lives - 1);
+					lives.update((lives) => lives - 1);
 				} else {
 					// spectator
 					$socket.send(new Uint8Array([BITCHLESS_EVENT]));
-					lives.update(lives => Math.max(0, lives - 1));
+					lives.update((lives) => Math.max(0, lives - 1));
 					spectator = true;
 				}
 			}
@@ -72,9 +110,13 @@
 					// the player might've left by now
 					rigidBody.setTranslation(
 						{
-							x: $host ? 0 : Math.floor(Math.random() * 200) - 100,
+							x: $host
+								? 0
+								: Math.floor(Math.random() * 200) - 100,
 							y: 10,
-							z: $host ? 3 : Math.floor(Math.random() * 200) - 100,
+							z: $host
+								? 3
+								: Math.floor(Math.random() * 200) - 100,
 						},
 						false
 					);
@@ -112,7 +154,10 @@
 		} else if (!ground && !structure) {
 			currentActionKey = "fall";
 			dance = false;
-		} else if ((right || left || forward || backward) && ($gameConfig.autosprint ? !shift : shift)) {
+		} else if (
+			(right || left || forward || backward) &&
+			($gameConfig.autosprint ? !shift : shift)
+		) {
 			currentActionKey = "running";
 			dance = false;
 		} else if (right || left || forward || backward) {
@@ -120,7 +165,7 @@
 			dance = false;
 		} else if (dance) {
 			currentActionKey = "dance";
-		// } else if (!(right || left || forward || backward)) {
+			// } else if (!(right || left || forward || backward)) {
 		} else {
 			currentActionKey = "idle";
 			dance = false;
@@ -141,7 +186,13 @@
 			linv.x = 0;
 			linv.z = 0;
 			rigidBody.setLinvel(linv, true);
-			if (!arraysSize3AreEqual([0, Math.fround(linv.y), 0], $playerLinvel) || $socket === null)
+			if (
+				!arraysSize3AreEqual(
+					[0, Math.fround(linv.y), 0],
+					$playerLinvel
+				) ||
+				$socket === null
+			)
 				playerLinvel.set([0, Math.fround(linv.y), 0]);
 			return;
 		}
@@ -149,7 +200,20 @@
 		// sex nerf will be an option in the lobby menu
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		// Big vegas can walk normal but 15% sprint reduction
-		const multi = (camBack ? -1 : 1) * (spectator ? 10 : 1) * (($gameConfig.autosprint ? !shift : shift) ? (skin === 2 ? 1.2 : skin === 3 ? 0.85 : (skin === 4 || skin === 5) ? 1.1 : 1) : (skin === 2 ? 0.6 : 0.5));
+		const multi =
+			(camBack ? -1 : 1) *
+			(spectator ? 10 : 1) *
+			(($gameConfig.autosprint ? !shift : shift)
+				? skin === 2
+					? 1.2
+					: skin === 3
+					? 0.85
+					: skin === 4 || skin === 5
+					? 1.1
+					: 1
+				: skin === 2
+				? 0.6
+				: 0.5);
 		// const multi = shift ? 10 : 8;
 		const cameraForward = new Vector3();
 		const cameraRight = new Vector3();
@@ -163,12 +227,18 @@
 		// console.log(forward-backward, right-left);
 		// Normalize
 		if (dash > 0) {
-			cameraForward.normalize().multiplyScalar(dash * (skin === 3 ? 14 : 16) * multi * speed);
+			cameraForward
+				.normalize()
+				.multiplyScalar(dash * (skin === 3 ? 14 : 16) * multi * speed);
 			cameraRight.normalize().multiplyScalar(0);
 			dash = Math.max(dash - deltaTime, 0);
 		} else {
-			cameraForward.normalize().multiplyScalar((forward - backward) * multi * speed);
-			cameraRight.normalize().multiplyScalar((right - left) * multi * speed);
+			cameraForward
+				.normalize()
+				.multiplyScalar((forward - backward) * multi * speed);
+			cameraRight
+				.normalize()
+				.multiplyScalar((right - left) * multi * speed);
 		}
 		if (backward - forward && right - left) {
 			t.x = (cameraForward.x + cameraRight.x) * 0.7;
@@ -201,10 +271,20 @@
 		rigidBody.setLinvel(t, true);
 
 		// update linvel and pos
-		const lvArr: [number, number, number] = [Math.fround(t.x), Math.fround(t.y), Math.fround(t.z)];
-		const posArr: [number, number, number] = [Math.fround(pos.x), Math.fround(pos.y), Math.fround(pos.z)];
-		if (!arraysSize3AreEqual(lvArr, $playerLinvel) || $socket === null) playerLinvel.set(lvArr);
-		if (!arraysSize3AreEqual(posArr, $playerPos) || $socket === null) playerPos.set(posArr);
+		const lvArr: [number, number, number] = [
+			Math.fround(t.x),
+			Math.fround(t.y),
+			Math.fround(t.z),
+		];
+		const posArr: [number, number, number] = [
+			Math.fround(pos.x),
+			Math.fround(pos.y),
+			Math.fround(pos.z),
+		];
+		if (!arraysSize3AreEqual(lvArr, $playerLinvel) || $socket === null)
+			playerLinvel.set(lvArr);
+		if (!arraysSize3AreEqual(posArr, $playerPos) || $socket === null)
+			playerPos.set(posArr);
 
 		// add isPLOCK condition here if necessary
 		if (right || left || forward || backward) {
@@ -224,7 +304,11 @@
 				Math.fround(model.rotation.y),
 				Math.fround(model.rotation.z),
 			];
-			if (!arraysSize3AreEqual(rotArr, $playerRotation, false) || $socket === null) playerRotation.set(rotArr);
+			if (
+				!arraysSize3AreEqual(rotArr, $playerRotation, false) ||
+				$socket === null
+			)
+				playerRotation.set(rotArr);
 		}
 	});
 
@@ -242,7 +326,7 @@
 				jamalUnlocked: false,
 				vegasUnlocked: false,
 				bossUnlocked: false,
-				timmyUnlocked: false
+				timmyUnlocked: false,
 			}));
 		}
 	}
@@ -415,7 +499,7 @@
 				)
 			)
 				mobile = true;
-		// @ts-ignore
+			// @ts-ignore
 		})(navigator.userAgent || navigator.vendor || window["opera"]);
 		if (!mobile) return;
 		const nipplejs = (await import("nipplejs")).default;
@@ -435,7 +519,9 @@
 		const joyManager = nipplejs.create(options);
 
 		function customMulti(n: number) {
-			return 1 / ((Math.abs(n) - 2) ** 2 + 2.3 * (Math.abs(n) - 2)) + 1.756;
+			return (
+				1 / ((Math.abs(n) - 2) ** 2 + 2.3 * (Math.abs(n) - 2)) + 1.756
+			);
 		}
 
 		// @ts-ignore
@@ -493,12 +579,18 @@
 		const id = barricadeIndex++;
 		const newBr: Barricade = {
 			position: [
-				tl.x - (Math.round(linvel.x) === 0 ? (Math.random() * 2 - 1) : Math.sign(linvel.x)),
-				tl.y, 
-				tl.z - (Math.round(linvel.z) === 0 ? (Math.random() * 2 - 1) : Math.sign(linvel.z)),
+				tl.x -
+					(Math.round(linvel.x) === 0
+						? Math.random() * 2 - 1
+						: Math.sign(linvel.x)),
+				tl.y,
+				tl.z -
+					(Math.round(linvel.z) === 0
+						? Math.random() * 2 - 1
+						: Math.sign(linvel.z)),
 			],
 			rotation: [eu.x, eu.y, eu.z],
-			id
+			id,
 		};
 		if ($socket === null) {
 			barricades = [...barricades, newBr];
@@ -506,39 +598,84 @@
 				barricades = barricades.filter((b) => b.id !== id);
 			}, 3000);
 		} else {
-			$socket.send(new Float32Array([BARRICADE_SPAWN_EVENT, ...newBr.position, ...newBr.rotation]));
+			$socket.send(
+				new Float32Array([
+					BARRICADE_SPAWN_EVENT,
+					...newBr.position,
+					...newBr.rotation,
+				])
+			);
 			// gone is implemented on barricade receive
 		}
 	}
 </script>
 
 {#if $socket === null}
-<CollisionGroups groups={[6, 15]}>
-	<T.Group>
-		<RigidBody type="dynamic" bind:rigidBody={bullet} on:collisionenter={({ targetRigidBody }) => {
-			// alert(targetRigidBody?.userData.name);
-		}}>
-			<Collider shape="cuboid" args={[1/2, 1/2, 1/2]} mass={25}>
-				<T.Mesh
-					geometry={new BoxGeometry(1/2, 1/2, 1/2)}
-					material={new MeshBasicMaterial({ color: "gray" })}
+	<CollisionGroups groups={[6, 15]}>
+		<T.Group>
+			<RigidBody
+				type="dynamic"
+				bind:rigidBody={bullet}
+				on:collisionenter={({ targetRigidBody }) => {
+					// alert(targetRigidBody?.userData.name);
+				}}
+			>
+				<Collider shape="cuboid" args={[1 / 2, 1 / 2, 1 / 2]} mass={25}>
+					<T.Mesh
+						geometry={new BoxGeometry(1 / 2, 1 / 2, 1 / 2)}
+						material={new MeshBasicMaterial({ color: "gray" })}
+					/>
+				</Collider>
+			</RigidBody>
+		</T.Group>
+	</CollisionGroups>
+{/if}
+
+{#if $lives !== Infinity}
+	<Root>
+		<h1 class="lives">
+			<svg
+				height="50%"
+				width="50%"
+				version="1.1"
+				id="Layer_1"
+				xmlns="http://www.w3.org/2000/svg"
+				xmlns:xlink="http://www.w3.org/1999/xlink"
+				viewBox="0 0 512 512"
+				xml:space="preserve"
+			>
+				<path
+					style="fill:#FF6647;"
+					d="M474.655,74.503C449.169,45.72,413.943,29.87,375.467,29.87c-30.225,0-58.5,12.299-81.767,35.566
+	c-15.522,15.523-28.33,35.26-37.699,57.931c-9.371-22.671-22.177-42.407-37.699-57.931c-23.267-23.267-51.542-35.566-81.767-35.566
+	c-38.477,0-73.702,15.851-99.188,44.634C13.612,101.305,0,137.911,0,174.936c0,44.458,13.452,88.335,39.981,130.418
+	c21.009,33.324,50.227,65.585,86.845,95.889c62.046,51.348,123.114,78.995,125.683,80.146c2.203,0.988,4.779,0.988,6.981,0
+	c2.57-1.151,63.637-28.798,125.683-80.146c36.618-30.304,65.836-62.565,86.845-95.889C498.548,263.271,512,219.394,512,174.936
+	C512,137.911,498.388,101.305,474.655,74.503z"
 				/>
-			</Collider>
-		</RigidBody>
-	</T.Group>
-</CollisionGroups>
+				<path
+					style="fill:#E35336;"
+					d="M160.959,401.243c-36.618-30.304-65.836-62.565-86.845-95.889
+	c-26.529-42.083-39.981-85.961-39.981-130.418c0-37.025,13.612-73.631,37.345-100.433c21.44-24.213,49.775-39.271,81.138-43.443
+	c-5.286-0.786-10.653-1.189-16.082-1.189c-38.477,0-73.702,15.851-99.188,44.634C13.612,101.305,0,137.911,0,174.936
+	c0,44.458,13.452,88.335,39.981,130.418c21.009,33.324,50.227,65.585,86.845,95.889c62.046,51.348,123.114,78.995,125.683,80.146
+	c2.203,0.988,4.779,0.988,6.981,0c0.689-0.308,5.586-2.524,13.577-6.588C251.254,463.709,206.371,438.825,160.959,401.243z"
+				/>
+			</svg>x {$lives !== 3 ? $lives : 3}
+		</h1>
+	</Root>
 {/if}
 
 {#if $lives === 0}
 	<Root>
-		<dialog class="block z-[2]">YOU ARE NOW SPECTATING</dialog>
+		<dialog class="spectate">YOU ARE NOW SPECTATING</dialog>
 	</Root>
 {/if}
 
 {#each barricades as barricade (barricade.id)}
 	<T.Group position={barricade.position} rotation={barricade.rotation}>
 		<RigidBody type="dynamic">
-			<Collider shape="cuboid" args={[2, 1, 1/3]} mass={100}>
+			<Collider shape="cuboid" args={[2, 1, 1 / 3]} mass={100}>
 				<Barricade />
 			</Collider>
 		</RigidBody>
@@ -548,7 +685,13 @@
 {#if mobile}
 	<Root>
 		<!-- rip firefox users, they will not get vertical input range -->
-		<input type="range" min="0" max="100" bind:value={zooming} class="slider noSelect" />
+		<input
+			type="range"
+			min="0"
+			max="100"
+			bind:value={zooming}
+			class="slider noSelect"
+		/>
 		<div id="mobileInterface" class="noSelect">
 			<div id="joystickWrapper1" />
 			<div id="joystickWrapper2">
@@ -565,7 +708,9 @@
 			<div id="joystickWrapper3">
 				<button
 					id="dashButton"
-					style={Date.now() - lastDash < 5000 ? `background-color: black` : undefined}
+					style={Date.now() - lastDash < 5000
+						? `background-color: black`
+						: undefined}
 					on:click={() => {
 						if (Date.now() - lastDash > 5000) {
 							lastDash = Date.now();
@@ -582,7 +727,10 @@
 				<button
 					id="barricadeButton"
 					on:click={() => {
-						if (Date.now() - barricadeCd >= (skin === 5 ? 500 : 4000)) {
+						if (
+							Date.now() - barricadeCd >=
+							(skin === 5 ? 500 : 4000)
+						) {
 							spawnBarricade();
 							barricadeCd = Date.now();
 						}
@@ -593,24 +741,53 @@
 	</Root>
 {/if}
 
-<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} on:mousedown={onClick} />
+<svelte:window
+	on:keydown={onKeyDown}
+	on:keyup={onKeyUp}
+	on:mousedown={onClick}
+/>
 
 <T.PerspectiveCamera makeDefault fov={$gameConfig.fov} bind:ref={cam}>
 	{#if isPLOCK}
-		<PointerLockControls bind:lock bind:object={capRef} bind:plock={isPLOCK} {zooming} {camBack} />
+		<PointerLockControls
+			bind:lock
+			bind:object={capRef}
+			bind:plock={isPLOCK}
+			{zooming}
+			{camBack}
+		/>
 	{:else}
-		<Controller bind:object={capRef} bind:plock={isPLOCK} {zooming} {chatActive} {camBack} />
+		<Controller
+			bind:object={capRef}
+			bind:plock={isPLOCK}
+			{zooming}
+			{chatActive}
+			{camBack}
+		/>
 	{/if}
 	<AudioListener />
 </T.PerspectiveCamera>
 
 <Audio src="/audio/ocean.mp3" autoplay loop volume={$gameConfig.volume / 100} />
-<Audio src="/audio/zen_garden.mp3" autoplay loop volume={$gameConfig.volume / 100} />
+<Audio
+	src="/audio/zen_garden.mp3"
+	autoplay
+	loop
+	volume={$gameConfig.volume / 100}
+/>
 
 <CollisionGroups groups={spectator ? [15] : [0, 5]}>
-<T.Group bind:ref={capsule} position={$playerPos} rotation.y={Math.PI}>
-	<Username {username} ypos={$playerPos[1]} color={$host ? "red" : "white"} />
-	<RigidBody bind:rigidBody enabledRotations={[false, false, false]} userData={{ name: "player" }}>
+	<T.Group bind:ref={capsule} position={$playerPos} rotation.y={Math.PI}>
+		<Username
+			{username}
+			ypos={$playerPos[1]}
+			color={$host ? "red" : "white"}
+		/>
+		<RigidBody
+			bind:rigidBody
+			enabledRotations={[false, false, false]}
+			userData={{ name: "player" }}
+		>
 			<Collider
 				bind:collider
 				shape={"capsule"}
@@ -633,8 +810,14 @@
 								// This won't work if the character fell from > 3000 N of forces
 								const v = rigidBody.linvel();
 								const t = rigidBody.translation();
-								rigidBody.setTranslation({ x: t.x, y: $playerPos[1] + 0.1, z: t.z }, false);
-								rigidBody.setLinvel({ x: v.x, y: -(velY / 2), z: v.z }, true);
+								rigidBody.setTranslation(
+									{ x: t.x, y: $playerPos[1] + 0.1, z: t.z },
+									false
+								);
+								rigidBody.setLinvel(
+									{ x: v.x, y: -(velY / 2), z: v.z },
+									true
+								);
 								// rigidBody.setTranslation(, true);
 							}
 						}
@@ -646,31 +829,48 @@
 						if (e.targetRigidBody.userData?.name === "cake") {
 							// this will kinda patch the big vegas flying bug in multiplayer
 							// although it's only going to increase the normal force
-							rigidBody?.applyImpulse(new Vector3(0, -10, 0), true);
+							rigidBody?.applyImpulse(
+								new Vector3(0, -10, 0),
+								true
+							);
 						}
 						if ($host) {
 							// @ts-ignore
-							if (e.targetRigidBody.userData?.name === "player2" && !e.targetRigidBody.userData?.death) {
+							if (
+								e.targetRigidBody.userData?.name ===
+									"player2" &&
+								!e.targetRigidBody.userData?.death
+							) {
 								// @ts-ignore
 								e.targetRigidBody.userData.death = true;
 								// @ts-ignore
-								$socket?.send(new Uint8Array([DIED_OF_DEATH, e.targetRigidBody.userData?.id]));
+								$socket?.send(
+									new Uint8Array([
+										DIED_OF_DEATH,
+										e.targetRigidBody.userData?.id,
+									])
+								);
 								setTimeout(() => {
 									// @ts-ignore
 									e.targetRigidBody.userData.death = false;
-								// 1000ms ping margin of error
+									// 1000ms ping margin of error
 								}, 6000);
 							}
 							// host cannot die to water
 							return;
 						}
 						// @ts-ignore
-						if (e.targetRigidBody.userData?.name === "water") death.set(true);
+						if (e.targetRigidBody.userData?.name === "water")
+							death.set(true);
 					}
 				}}
 				on:collisionexit={(e) => {
 					// @ts-ignore
-					if (e.targetRigidBody && e.targetRigidBody.userData?.name === "ground" && rigidBody) {
+					if (
+						e.targetRigidBody &&
+						e.targetRigidBody.userData?.name === "ground" &&
+						rigidBody
+					) {
 						ground = false;
 						rigidBody.resetForces(false);
 					}
@@ -697,13 +897,13 @@
 					<Timmy bind:currentActionKey bind:ref={model} />
 				{/if}
 			</T.Group>
-		<CollisionGroups groups={[15]}>
-			<T.Group position={[0, -height / 2 + radius, 0]}>
-				<Collider sensor shape={"ball"} args={[radius * 1.2]} />
-			</T.Group>
-		</CollisionGroups>
-	</RigidBody>
-</T.Group>
+			<CollisionGroups groups={[15]}>
+				<T.Group position={[0, -height / 2 + radius, 0]}>
+					<Collider sensor shape={"ball"} args={[radius * 1.2]} />
+				</T.Group>
+			</CollisionGroups>
+		</RigidBody>
+	</T.Group>
 </CollisionGroups>
 
 <style>
@@ -856,4 +1056,28 @@
 		user-select: none;
 		-webkit-tap-highlight-color: transparent;
 	}
+
+	.lives {
+		/* background-color: white; */
+		/* opacity: 0.5; */
+		width: 4em;
+		margin-top: 1.5em;
+		display: flex;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 1;
+	}
+
+	.spectate {
+        background-color: white;
+        width: 100%;
+        margin: 0;
+        padding: .25em;
+        display: block;
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        z-index: 1;
+    }
 </style>
