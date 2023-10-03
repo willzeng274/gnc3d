@@ -395,7 +395,8 @@
 				spectator = false;
 				players = [];
 				menu = true;
-				// lobby = false;
+				// why did I comment this out
+				lobby = false;
 				cakes = [];
 				barricades = [];
 				hostCakes = [];
