@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { T, useFrame } from "@threlte/core";
-	import { MeshStandardMaterial, PlaneGeometry, CanvasTexture, RepeatWrapping, TextureLoader, Vector3, MathUtils } from "three";
+	import { MeshStandardMaterial, PlaneGeometry, CanvasTexture, RepeatWrapping, TextureLoader, Vector3, MathUtils, Mesh, BufferGeometry, type NormalBufferAttributes, Material } from "three";
 	import { DEG2RAD } from "three/src/math/MathUtils";
 	import { createNoise2D } from "simplex-noise";
 	import { AutoColliders, RigidBody } from "@threlte/rapier";
-	import { plane } from "$lib/store";
+	import { plane, planeGeometry } from "$lib/store";
 	import { height, width, x_units, y_units } from "$lib/constants";
 	import alea from "alea";
 	import { Quaternion, type Collider as RapierCollider } from "@dimforge/rapier3d-compat";
 	import { Sky } from "three/examples/jsm/objects/Sky";
 	import { Water } from "three/examples/jsm/objects/Water";
 	import { useSuspense } from "@threlte/extras";
+	import { onDestroy } from "svelte";
 	// @ts-ignore
 	// import Martini from '@mapbox/martini';
 	export let seed: number | undefined;
@@ -280,7 +281,10 @@
 			skyUniforms["mieCoefficient"].value = 0.005;
 			skyUniforms["mieDirectionalG"].value = 0.8;
 		}
-		console.log(texture, sky, water)
+		// console.log(texture, sky, water)
+
+		planeGeometry.set(mesh);
+
 		return {
 			texture,
 			// @ts-ignore
@@ -295,7 +299,17 @@
 		water.material.uniforms["time"].value += dt;
 	});
 
+	onDestroy(() => planeGeometry.set(null));
+
 	const suspend = useSuspense();
+
+	let mesh: Mesh<BufferGeometry<NormalBufferAttributes>, Material | Material[]>;
+
+	$: {
+		if (mesh) {
+			planeGeometry.set(mesh);
+		}
+	}
 </script>
 
 <!-- <T.Mesh
@@ -319,7 +333,7 @@
           bind:collider
           on:collisionenter={(e) => console.log("Height works", e)}
         > -->
-			<T.Mesh receiveShadow {geometry} material={new MeshStandardMaterial({ map: texture })} rotation.x={DEG2RAD * -90}>
+			<T.Mesh bind:ref={mesh} receiveShadow {geometry} material={new MeshStandardMaterial({ map: texture })} rotation.x={DEG2RAD * -90}>
 				<!-- <T.MeshStandardMaterial /> -->
 			</T.Mesh>
 			<!-- </Collider> -->

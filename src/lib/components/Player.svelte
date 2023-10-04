@@ -15,6 +15,7 @@
 		Euler,
 		Quaternion,
 		BoxGeometry,
+		Raycaster,
 	} from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
@@ -33,6 +34,7 @@
 		lives,
 		gameEnd,
 		hostWin,
+		planeGeometry,
 	} from "$lib/store";
 	import {
 		Barricade,
@@ -251,10 +253,25 @@
 		// don't override falling velocity
 		const linVel = rigidBody.linvel();
 		t.y = linVel.y + dash / 2;
-		// t.y = 0;
-		// t.y = 1;
 		// finally set the velocities and wake up the body
 		const pos = rigidBody.translation();
+		if (t.y < 0 && $planeGeometry) {
+			// prevent going through the ground
+			const rayOrigin = new Vector3(pos.x, pos.y, pos.z);
+			const rayDirection = new Vector3(0, -1, 0);
+			const raycaster = new Raycaster(rayOrigin, rayDirection);
+			const intersects = raycaster.intersectObject($planeGeometry);
+
+			if (intersects.length > 0) {
+				// Ray intersects with the ground
+				// console.log("Ray intersects with the ground.");
+			} else {
+				// Ray does not intersect with the ground
+				pos.y = 3;
+				rigidBody.setTranslation(pos, false);
+				console.log("Ray does not intersect with the ground.");
+			}
+		}
 		if (pos.y < -100) {
 			death.set(true);
 			return;
