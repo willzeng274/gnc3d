@@ -2,10 +2,10 @@
     import { T } from "@threlte/core";
     import { CollisionGroups, Collider, RigidBody } from "@threlte/rapier";
     import Xbot from '../../components/models/Xbot.svelte';
-    import { Vector3 } from "three";
+    import { Raycaster, Vector3 } from "three";
     import type { Group } from "three";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
-    import { death, freeze, playerPos, score } from "$lib/store";
+    import { death, freeze, planeGeometry, playerPos, score } from "$lib/store";
 	import type { ActionName } from "$lib/types";
     let inside = false;
     let rigidBody: RapierRigidBody;
@@ -27,7 +27,7 @@
         }
     });
     $: {
-        if ($playerPos && xbotRef && rigidBody && !$death) {
+        if ($playerPos && xbotRef && rigidBody && !$death && $planeGeometry) {
             // a - 2.5 and b + 3.5 if refreshed?? Idk
             const a: number = $playerPos[0] - selfPos[0], b: number = $playerPos[2] - selfPos[2], c: number = Math.sqrt(a**2 + b**2);
             // console.log($score / 100);
@@ -39,6 +39,21 @@
             // selfPos[2] += b*speed;
             const lv = rigidBody.linvel();
             const translation = rigidBody.translation();
+
+            // raycasting is too slow
+            // const rayOrigin = new Vector3(translation.x, translation.y, translation.z);
+			// const rayDirection = new Vector3(0, 1, 0);
+			// const raycaster = new Raycaster(rayOrigin, rayDirection);
+			// const intersects = raycaster.intersectObject($planeGeometry);
+
+            // if (intersects.length > 0) {
+			// 	translation.y += intersects[0].distance + 3;
+			// 	rigidBody.setTranslation(translation, false);
+			// 	lv.y = 0;
+			// 	// Ray intersects with the ground
+			// 	// console.log("Ray intersects with the ground.");
+			// }
+
             selfPos[0] = translation.x;
             selfPos[1] = translation.y;
             selfPos[2] = translation.z;

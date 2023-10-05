@@ -203,6 +203,7 @@
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		// Big vegas can walk normal but 15% sprint reduction
 		const multi =
+			// 10 * 
 			(camBack ? -1 : 1) *
 			(spectator ? 10 : 1) *
 			(($gameConfig.autosprint ? !shift : shift)
@@ -258,18 +259,16 @@
 		if (t.y < 0 && $planeGeometry) {
 			// prevent going through the ground
 			const rayOrigin = new Vector3(pos.x, pos.y, pos.z);
-			const rayDirection = new Vector3(0, -1, 0);
+			const rayDirection = new Vector3(0, 1, 0);
 			const raycaster = new Raycaster(rayOrigin, rayDirection);
 			const intersects = raycaster.intersectObject($planeGeometry);
 
 			if (intersects.length > 0) {
+				pos.y += intersects[0].distance + 3;
+				rigidBody.setTranslation(pos, false);
+				t.y = 0;
 				// Ray intersects with the ground
 				// console.log("Ray intersects with the ground.");
-			} else {
-				// Ray does not intersect with the ground
-				pos.y = 3;
-				rigidBody.setTranslation(pos, false);
-				console.log("Ray does not intersect with the ground.");
 			}
 		}
 		if (pos.y < -100) {
@@ -410,21 +409,28 @@
 					barricadeCd = Date.now();
 				}
 				break;
-			case "g":
-				score.update((s) => s + 50);
-				break;
+			// case "g":
+			// 	score.update((s) => s + 50);
+			// 	break;
 			case "k":
 				k = true;
 				break;
 			case "y":
 				y = true;
 				break;
+			case "g":
+				if (ground || $death || !rigidBody) break;
+				const position = rigidBody.translation();
+				if (position.y > 20) {
+					const linVel = rigidBody.linvel();
+					linVel.y = -50;
+					rigidBody.setLinvel(linVel, true);
+				}
 			case " ":
 				if (!ground || $death || !rigidBody) break;
-				const livVel = rigidBody.linvel();
-				livVel.y = 5;
-				// livVel.y = 30;
-				rigidBody.setLinvel(livVel, true);
+				const linVel = rigidBody.linvel();
+				linVel.y = 5;
+				rigidBody.setLinvel(linVel, true);
 				// const tl = rigidBody.translation();
 				// tl.y = 500;
 				// rigidBody.setTranslation(tl, true);
