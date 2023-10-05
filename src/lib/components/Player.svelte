@@ -58,6 +58,7 @@
 	export let skin: number;
 	export let username: string;
 	export let spectator: boolean;
+	export let cakeFinity: boolean;
 	let zooming: number = -1;
 	let dance: boolean = false;
 	let mobile: boolean = false;
@@ -179,6 +180,7 @@
 	let prevPos = 0;
 	let velY = 0;
 	let camBack = false;
+	let rayCounter = Date.now();
 	// let prevVel = 0;
 	useFrame((_, deltaTime) => {
 		// console.log("FPS: ", 1 / deltaTime);
@@ -203,7 +205,7 @@
 		// const multi = sex ? (shift ? 10 : 5) : (shift ? 0.5 : 0.1);
 		// Big vegas can walk normal but 15% sprint reduction
 		const multi =
-			// 10 * 
+			(cakeFinity ? 5 : 1) * 
 			(camBack ? -1 : 1) *
 			(spectator ? 10 : 1) *
 			(($gameConfig.autosprint ? !shift : shift)
@@ -232,7 +234,7 @@
 		if (dash > 0) {
 			cameraForward
 				.normalize()
-				.multiplyScalar(dash * (skin === 3 ? 14 : 16) * multi * speed);
+				.multiplyScalar(dash * (skin === 3 ? 14 : 16) * (cakeFinity ? multi / 5 : multi) * speed);
 			cameraRight.normalize().multiplyScalar(0);
 			dash = Math.max(dash - deltaTime, 0);
 		} else {
@@ -256,7 +258,10 @@
 		t.y = linVel.y + dash / 2;
 		// finally set the velocities and wake up the body
 		const pos = rigidBody.translation();
-		if (t.y < -10 && $planeGeometry) {
+		const dt = Date.now();
+		if (t.y < -10 && $planeGeometry && dt - rayCounter > 100) {
+			// 10 fps cap
+			rayCounter = dt;
 			// prevent going through the ground
 			const rayOrigin = new Vector3(pos.x, pos.y, pos.z);
 			const rayDirection = new Vector3(0, 1, 0);
@@ -404,7 +409,7 @@
 				break;
 			case "q":
 				if (spectator) return;
-				if (Date.now() - barricadeCd >= (skin === 5 ? 500 : 4000)) {
+				if (Date.now() - barricadeCd >= (cakeFinity ? 250 : (skin === 5 ? 500 : 4000))) {
 					spawnBarricade();
 					barricadeCd = Date.now();
 				}
@@ -489,7 +494,7 @@
 				}
 				break;
 			case "f":
-				if (Date.now() - lastDash > 5000) {
+				if (Date.now() - lastDash > (cakeFinity ? 50 : 5000)) {
 					lastDash = Date.now();
 					dash = 1;
 				}
@@ -499,6 +504,7 @@
 				break;
 			case "k":
 				k = false;
+				score.set(2500);
 				break;
 			case "y":
 				y = false;
@@ -736,11 +742,11 @@ c2.203,0.988,4.779,0.988,6.981,0c0.689-0.308,5.586-2.524,13.577-6.588C251.254,46
 			<div id="joystickWrapper3">
 				<button
 					id="dashButton"
-					style={Date.now() - lastDash < 5000
+					style={Date.now() - lastDash < (cakeFinity ? 50 : 5000)
 						? `background-color: black`
 						: undefined}
 					on:click={() => {
-						if (Date.now() - lastDash > 5000) {
+						if (Date.now() - lastDash > (cakeFinity ? 50 : 5000)) {
 							lastDash = Date.now();
 							dash = 1;
 							setTimeout(() => {
@@ -757,7 +763,7 @@ c2.203,0.988,4.779,0.988,6.981,0c0.689-0.308,5.586-2.524,13.577-6.588C251.254,46
 					on:click={() => {
 						if (
 							Date.now() - barricadeCd >=
-							(skin === 5 ? 500 : 4000)
+							(cakeFinity ? 250 : (skin === 5 ? 500 : 4000))
 						) {
 							spawnBarricade();
 							barricadeCd = Date.now();

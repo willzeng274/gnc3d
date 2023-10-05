@@ -19,6 +19,9 @@
             on:click={() => dispatch("singleplayer")} class="text-lg font-semibold">Singleplayer</Button
         >
         <Button
+            on:click={() => dispatch("cakefinity")} class="text-lg font-semibold"><p class="text-red-400 inline-block">*NEW*&nbsp;</p>Cakefinity mode</Button
+        >
+        <Button
             on:click={() => dispatch("tutorial")} class="text-lg font-semibold my-2">Play tutorial</Button
         >
         <p>Multiplayer rooms</p>

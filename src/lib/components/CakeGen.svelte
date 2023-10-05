@@ -12,6 +12,7 @@
 		return counter++;
 	}
 	export let host = false;
+	export let cakeFinity = false;
 	const getRandomPosition = (): Parameters<Vector3['set']> => {
 		// return [0.5 - Math.random() * 1, 5 - Math.random() * 1 + 10, 0.5 - Math.random() * 1]
 		// console.log("Called")
@@ -59,7 +60,7 @@
 
 	export let items: CakeGenItem[] = [];
 	let lastBodyMounted: number = 0;
-	let bodyEveryMilliseconds = 10000;
+	let bodyEveryMilliseconds = cakeFinity ? 1000 : 10000;
 	// let bodyEveryMilliseconds = 1000;
 
 	// let longevityMilliseconds = 8000
@@ -96,7 +97,7 @@
 					freeze.update((f) => f + 1);
 				} else if (curr.type === 'gold') {
 					score.update((s) => s+9);
-				} else if (curr.type === 'azure') {
+				} else if (curr.type === 'azure' && !cakeFinity) {
 					gameConfig.update((gc) => ({...gc, jamalUnlocked: true}));
 					azure.update((az) => az+1);
 				}

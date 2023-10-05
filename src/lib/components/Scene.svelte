@@ -504,6 +504,8 @@
 			// cam.lookAt(5, 5, 0);
 		}
 	}
+
+	let cakeFinity: boolean = false;
 </script>
 
 <Fps />
@@ -533,6 +535,7 @@
 			bind:username
 			bind:room
 			on:singleplayer={() => {
+				cakeFinity = false;
 				realSeed = seed;
 				playerPos.set([0, 10, 3]);
 				startGame(false);
@@ -541,6 +544,12 @@
 			on:tutorial={() => {
 				menu = false;
 				tutorial = true;
+			}}
+			on:cakefinity={() => {
+				cakeFinity = true;
+				realSeed = seed;
+				playerPos.set([0, 10, 3]);
+				startGame(false);
 			}}
 		/>
 		<!-- {:else if currentCtx.name === "Settings"} -->
@@ -594,6 +603,7 @@
 			{skin}
 			{players}
 			{playerCount}
+			{cakeFinity}
 			on:exit={_ => {
                 menu = true;
 				hostWin.set(false)

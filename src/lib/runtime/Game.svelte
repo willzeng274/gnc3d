@@ -50,6 +50,7 @@
     export let cakes: Cake[];
     export let barricades: Barricade[];
     export let spectator: boolean;
+    export let cakeFinity: boolean;
 
     const dispatch = createEventDispatcher<{
         exit: null;
@@ -83,10 +84,10 @@
     });
 
     $: {
-        if ($score > 200 && $socket === null) {
+        if ($score > 200 && $socket === null && !cakeFinity) {
             $gameConfig.vegasUnlocked = true;
         }
-        if ($score > $highScore && $socket === null) {
+        if ($score > $highScore && $socket === null && !cakeFinity) {
             highScore.set($score);
         }
         // why would u have a high score of above a million
@@ -227,6 +228,7 @@
 <!-- Collision group is handled inside player -->
 <Player
     bind:spectator
+    {cakeFinity}
     {username}
     {chatActive}
     skin={skin === -1 ? 0 : skin}
@@ -263,7 +265,7 @@
             />
         {/each}
     {:else}
-        <CakeGen />
+        <CakeGen {cakeFinity} />
         <Woman {skin} />
         <!-- at least 1 woman from above -->
         {#each { length: $gameConfig.womenCount - 1 } as _}
