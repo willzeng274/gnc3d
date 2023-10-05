@@ -256,7 +256,7 @@
 		t.y = linVel.y + dash / 2;
 		// finally set the velocities and wake up the body
 		const pos = rigidBody.translation();
-		if (t.y < 0 && $planeGeometry) {
+		if (t.y < -10 && $planeGeometry) {
 			// prevent going through the ground
 			const rayOrigin = new Vector3(pos.x, pos.y, pos.z);
 			const rayDirection = new Vector3(0, 1, 0);
