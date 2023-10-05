@@ -838,22 +838,22 @@ c2.203,0.988,4.779,0.988,6.981,0c0.689-0.308,5.586-2.524,13.577-6.588C251.254,46
 						if (e.targetRigidBody.userData?.name === "ground") {
 							ground = true;
 							// console.log("GROUND NOW")
-							if (velY < -10 && rigidBody) {
-								// alert("hmm");
-								// console.log(velY)
-								// This won't work if the character fell from > 3000 N of forces
-								const v = rigidBody.linvel();
-								const t = rigidBody.translation();
-								rigidBody.setTranslation(
-									{ x: t.x, y: $playerPos[1] + 0.1, z: t.z },
-									false
-								);
-								rigidBody.setLinvel(
-									{ x: v.x, y: -(velY / 2), z: v.z },
-									true
-								);
-								// rigidBody.setTranslation(, true);
-							}
+							// if (velY < -10 && rigidBody) {
+							// 	// alert("hmm");
+							// 	// console.log(velY)
+							// 	// This won't work if the character fell from > 3000 N of forces
+							// 	const v = rigidBody.linvel();
+							// 	const t = rigidBody.translation();
+							// 	rigidBody.setTranslation(
+							// 		{ x: t.x, y: $playerPos[1] + 0.1, z: t.z },
+							// 		false
+							// 	);
+							// 	rigidBody.setLinvel(
+							// 		{ x: v.x, y: -(Math.sqrt(velY)), z: v.z },
+							// 		true
+							// 	);
+							// 	// rigidBody.setTranslation(, true);
+							// }
 						}
 						// @ts-ignore
 						if (e.targetRigidBody.userData?.name === "structure") {
