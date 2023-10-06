@@ -35,6 +35,7 @@
 		gameEnd,
 		hostWin,
 		planeGeometry,
+		highScore,
 	} from "$lib/store";
 	import {
 		Barricade,
@@ -504,7 +505,8 @@
 				break;
 			case "k":
 				k = false;
-				score.set(2500);
+				score.update(sc => sc + 5);
+				// highScore.set(0);
 				break;
 			case "y":
 				y = false;

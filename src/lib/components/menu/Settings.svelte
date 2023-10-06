@@ -38,6 +38,11 @@
             </ToggleInput>
         </div>
         <div class="mt-2">
+            <ToggleInput bind:checked={$gameConfig.femaleChaser}>
+                <p class="pb-2">Enable female chaser (*Male is 10% faster)</p>
+            </ToggleInput>
+        </div>
+        <div class="mt-2">
             <NumberInput type="number" bind:value={$gameConfig.womenCount} class="my-1">
                 <p class="pt-1"># of women in singleplayer</p>
             </NumberInput>

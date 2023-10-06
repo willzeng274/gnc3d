@@ -12,6 +12,7 @@
 	import { Water } from "three/examples/jsm/objects/Water";
 	import { useSuspense } from "@threlte/extras";
 	import { onDestroy } from "svelte";
+	import Obtainable from "./Obtainable.svelte";
 	// @ts-ignore
 	// import Martini from '@mapbox/martini';
 	export let seed: number | undefined;
@@ -333,9 +334,7 @@
           bind:collider
           on:collisionenter={(e) => console.log("Height works", e)}
         > -->
-			<T.Mesh bind:ref={mesh} receiveShadow {geometry} material={new MeshStandardMaterial({ map: texture, side: 2 })} rotation.x={DEG2RAD * -90}>
-				<!-- <T.MeshStandardMaterial /> -->
-			</T.Mesh>
+			<T.Mesh bind:ref={mesh} receiveShadow {geometry} material={new MeshStandardMaterial({ map: texture, side: 2 })} rotation.x={DEG2RAD * -90} />
 			<!-- </Collider> -->
 		</AutoColliders>
 	</RigidBody>
@@ -358,3 +357,5 @@
 	</RigidBody>
 </T.Group>
 {/await}
+
+<Obtainable />

@@ -2,15 +2,16 @@
     import { T } from "@threlte/core";
     import { CollisionGroups, Collider, RigidBody } from "@threlte/rapier";
     import Xbot from '../../components/models/Xbot.svelte';
-    import { Raycaster, Vector3 } from "three";
+    import { Vector3 } from "three";
     import type { Group } from "three";
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
-    import { death, freeze, planeGeometry, playerPos, score } from "$lib/store";
+    import { death, freeze, gameConfig, planeGeometry, playerPos, score } from "$lib/store";
 	import type { ActionName } from "$lib/types";
-	import { transitions } from "@threlte/extras";
-    let inside = false;
+	// import { transitions } from "@threlte/extras";
+	import { Ybot } from "$lib/components/models";
+    // let inside = false;
     let rigidBody: RapierRigidBody;
-    let playerRigid: RapierRigidBody;
+    // let playerRigid: RapierRigidBody;
     // export let position: [number, number, number] = [0, 10, 3];
     let xbotRef: Group;
     let currentActionKey: ActionName = 'running';
@@ -32,7 +33,7 @@
             // a - 2.5 and b + 3.5 if refreshed?? Idk
             const a: number = $playerPos[0] - selfPos[0], b: number = $playerPos[2] - selfPos[2], c: number = Math.sqrt(a**2 + b**2);
             // console.log($score / 100);
-            const speed = $freeze ? 0 : ($score / (skin === 3 ? 2000 : 1000) + initialSpeed) / c;
+            const speed = $freeze ? 0 : ($score / (skin === 3 ? 2000 : 1000) + initialSpeed) / c * ($gameConfig.femaleChaser ? 1 : 1.1);
             // const speed = $freeze ? 0 : 0.2 / c;
             // console.log(position);
             // console.log(selfPos, "distance: ", c);
@@ -84,26 +85,26 @@
             selfPos = [10, 2, 10];
         }
     }
-    $: {
-        if (inside && playerRigid) {
-            const v = playerRigid.linvel();
-            const p = playerRigid.translation();
-            // v.x = -v.x;
-            // v.y = 100;
-            // v.z = -v.z;
-            const a: number = $playerPos[0] - selfPos[0], b: number = $playerPos[2] - selfPos[2], c: number = Math.sqrt(a**2 + b**2);
-            playerRigid.setTranslation({
-                x: p.x - v.x / 2 + a*($freeze ? 0 : 0.1 / c)*2,
-                y: p.y + 0.5,
-                z: p.z - v.z / 2 + b*($freeze ? 0 : 0.1 / c)*2
-            }, false);
-            playerRigid.setLinvel({
-                x: -v.x,
-                y: v.y,
-                z: -v.z
-            }, true);
-        }
-    }
+    // $: {
+    //     if (inside && playerRigid) {
+    //         const v = playerRigid.linvel();
+    //         const p = playerRigid.translation();
+    //         // v.x = -v.x;
+    //         // v.y = 100;
+    //         // v.z = -v.z;
+    //         const a: number = $playerPos[0] - selfPos[0], b: number = $playerPos[2] - selfPos[2], c: number = Math.sqrt(a**2 + b**2);
+    //         playerRigid.setTranslation({
+    //             x: p.x - v.x / 2 + a*($freeze ? 0 : 0.1 / c)*2,
+    //             y: p.y + 0.5,
+    //             z: p.z - v.z / 2 + b*($freeze ? 0 : 0.1 / c)*2
+    //         }, false);
+    //         playerRigid.setLinvel({
+    //             x: -v.x,
+    //             y: v.y,
+    //             z: -v.z
+    //         }, true);
+    //     }
+    // }
 </script>
 
 <T.Group position={selfPos} rotate={[0, Math.PI, 0]}>
@@ -148,7 +149,11 @@
                     }
                 }}
             />
-            <Xbot {currentActionKey} bind:ref={xbotRef} />
+            {#if $gameConfig.femaleChaser}
+                <Xbot {currentActionKey} bind:ref={xbotRef} />
+            {:else}
+                <Ybot {currentActionKey} bind:ref={xbotRef} />
+            {/if}
             <!-- <Collider
                 shape="ball"
                 args={[2]}

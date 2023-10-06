@@ -55,4 +55,5 @@ export interface Config {
     bossUnlocked: boolean;
     timmyUnlocked: boolean;
     debugMode: boolean;
+    femaleChaser: boolean;
 }

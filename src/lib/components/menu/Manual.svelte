@@ -45,10 +45,9 @@
             Now, time lapse to 2023, Sir NastyPigz have successfully studied enough Physics, Math, and Computer Science
             to bring you a 3D experience of the game! However, there were some technical difficulties with creating a
             ghost model, therefore the main threat of the game -- the ghost was replaced by the true threat of
-            all of the humanity -- the woman. Now in singleplayer, there is a woman chasing after you
-            for your money! If you are broke, then you can picture her as an extreme feminist. If you are
-            a woman (somehow), please first slide into Sir NastyPigz's DMs (Discord: Snarkatude) and then
-            picture the woman as an insane individual belonging to your (different) species.
+            all of the humanity -- the woman. Due to several complaints, a configurable property was added
+            to switch between a male and a female chaser. If you are a woman (somehow), please slide into Sir
+            NastyPigz's DMs (Discord: Snarkatude).
         </p>
     </dialog>
 </Root>

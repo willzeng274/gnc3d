@@ -1,10 +1,48 @@
 <script lang="ts">
+	// import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 	import { T } from "@threlte/core";
-	import { AutoColliders, RigidBody } from "@threlte/rapier";
+	import { AutoColliders, Collider, RigidBody } from "@threlte/rapier";
 	import { BoxGeometry, MeshStandardMaterial } from "three";
+
+    // let playerRigid: RapierRigidBody;
+    // let inside: boolean = false;
+    // $: {
+    //     if (inside && playerRigid) {
+    //         const v = playerRigid.linvel();
+    //         const p = playerRigid.translation();
+    //         playerRigid.setTranslation({
+    //             x: p.x - v.x / 2,
+    //             y: p.y + 0.5,
+    //             z: p.z - v.z / 2
+    //         }, false);
+    //         playerRigid.setLinvel({
+    //             x: -v.x,
+    //             y: v.y,
+    //             z: -v.z
+    //         }, true);
+    //     }
+    // }
 </script>
 
 <RigidBody type="fixed" userData={{ name: "structure" }}>
+    <!-- <Collider
+        shape="ball"
+        args={[5]}
+        sensor
+        on:sensorenter={({ targetRigidBody }) => {
+            // @ts-ignore
+            if (targetRigidBody?.userData?.name === 'player') {
+                playerRigid = targetRigidBody;
+                inside = true;
+            }
+        }}
+        on:sensorexit={({ targetRigidBody }) => {
+            // @ts-ignore
+            if (targetRigidBody?.userData?.name === 'player') {
+                inside = false;
+            }
+        }}
+    /> -->
     <AutoColliders shape={"cuboid"} friction={0.15} restitution={0.1}>
         <T.Mesh
             receiveShadow

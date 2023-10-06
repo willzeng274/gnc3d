@@ -29,7 +29,8 @@ export const gameConfig = writable<Config>({
     bossUnlocked: false,
     timmyUnlocked: false,
     debugMode: false,
-    volume: 20
+    volume: 20,
+    femaleChaser: true
 });
 export const hostWin = writable<boolean>(false);
 export const gameEnd = writable<boolean>(false);
