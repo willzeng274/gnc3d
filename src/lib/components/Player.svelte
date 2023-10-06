@@ -449,12 +449,12 @@
 
 	let bullet: RapierRigidBody;
 
-	useFrame(() => {
-		if ($socket) return;
-		const lv = bullet.linvel();
-		lv.y = 0;
-		bullet.setLinvel(lv, true);
-	});
+	// useFrame(() => {
+	// 	if ($socket) return;
+	// 	const lv = bullet.linvel();
+	// 	lv.y = 0;
+	// 	bullet.setLinvel(lv, true);
+	// });
 
 	function onKeyUp(e: KeyboardEvent) {
 		if (chatActive) return;
@@ -471,10 +471,13 @@
 				// Project to 2D Plane
 				cameraForward.y = 0;
 				cameraForward.normalize().multiplyScalar(50);
+				// cameraForward.normalize().multiplyScalar(35);
 				bullet.resetForces(false);
 				bullet.resetTorques(false);
-				bullet.setLinvel(cameraForward, true);
-				bullet.setTranslation(new Vector3(...$playerPos), true);
+				bullet.setLinvel(cameraForward, false);
+				bullet.setTranslation(new Vector3(...$playerPos), false);
+				bullet.setAngvel({ x: 0.0, y: 0.0, z: 0.0 }, false);
+				bullet.setRotation({ w: 1.0, x: 0.0, y: 0.0, z: 0.0 }, true);
 				break;
 			case "s":
 				backward = 0;
@@ -648,10 +651,17 @@
 				type="dynamic"
 				bind:rigidBody={bullet}
 				on:collisionenter={({ targetRigidBody }) => {
-					// alert(targetRigidBody?.userData.name);
+					// @ts-ignore
+					// if (targetRigidBody?.userData.name === "water") {
+					// 	const lv = bullet.linvel();
+					// 	lv.x = Math.sign(lv.x) * Math.log(Math.abs(lv.x)) / Math.log(2);
+					// 	lv.y = 0;
+					// 	lv.z = Math.sign(lv.z) * Math.log(Math.abs(lv.z)) / Math.log(2);
+					// 	bullet.setLinvel(lv, true);
+					// }
 				}}
 			>
-				<Collider shape="cuboid" args={[1 / 2, 1 / 2, 1 / 2]} mass={25}>
+				<Collider shape="cuboid" args={[1 / 2, 1 / 2, 1 / 2]} mass={25} restitution={0} friction={1}>
 					<T.Mesh
 						geometry={new BoxGeometry(1 / 2, 1 / 2, 1 / 2)}
 						material={new MeshBasicMaterial({ color: "gray" })}

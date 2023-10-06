@@ -348,7 +348,8 @@
 
 <T.Group position={[0, -10, 0]}>
 	<RigidBody type="fixed" userData={{ name: "water" }}>
-		<AutoColliders shape={"cuboid"}>
+		<!-- nothing shall move on water -->
+		<AutoColliders shape={"cuboid"} friction={1} restitution={0}>
 			<T.Mesh receiveShadow material={new MeshStandardMaterial({ color: 0x4f81ec, opacity: enableShaders ? 0 : 0.2, transparent: true })}>
 				<T.BoxGeometry args={[width, 1, height]} />
 				<!-- <T.MeshStandardMaterial /> -->

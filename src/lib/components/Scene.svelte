@@ -412,11 +412,16 @@
 				}
 				// Room now closes when host leaves
 			};
+			score.set(0);
 		} else {
 			lives.set(1);
+			if ($highScore > 200) {
+				score.set(100);
+			} else {
+				score.set(0);
+			}
 		}
 		menu = false;
-		score.set(0);
 		freeze.set(0);
 		// set when seed is germinated
 		// playerPos.set([0, 10, 3]);

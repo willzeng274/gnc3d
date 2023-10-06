@@ -8,7 +8,7 @@
 
     let playerRigid: RapierRigidBody;
     let inside: boolean = false;
-    useFrame(_ => {
+    useFrame((_, dt) => {
         if (inside && playerRigid) {
             const v = playerRigid.linvel();
             const p = playerRigid.translation();
@@ -16,9 +16,9 @@
             // v.y = 100;
             // v.z = -v.z;
             playerRigid.setTranslation({
-                x: p.x - Math.sign(v.x),
+                x: p.x - Math.sign(v.x) * Math.abs(v.x) * dt * 2,
                 y: p.y - v.y * 0.1,
-                z: p.z - Math.sign(v.z)
+                z: p.z - Math.sign(v.z) * Math.abs(v.z) * dt * 2
             }, false);
             playerRigid.setLinvel({
                 x: -v.x,
@@ -63,6 +63,7 @@
                 // @ts-ignore
                 if (targetRigidBody?.userData?.name === 'player') {
                     score.update(score => score+1);
+                    alert("Damn");
                 }
             }}
         >
