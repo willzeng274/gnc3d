@@ -7,6 +7,7 @@
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
     import { death, freeze, planeGeometry, playerPos, score } from "$lib/store";
 	import type { ActionName } from "$lib/types";
+	import { transitions } from "@threlte/extras";
     let inside = false;
     let rigidBody: RapierRigidBody;
     let playerRigid: RapierRigidBody;
@@ -53,6 +54,10 @@
 			// 	// Ray intersects with the ground
 			// 	// console.log("Ray intersects with the ground.");
 			// }
+
+            if (translation.y < -20) {
+                translation.y = 1;
+            }
 
             selfPos[0] = translation.x;
             selfPos[1] = translation.y;
