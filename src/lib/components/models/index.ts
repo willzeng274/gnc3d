@@ -10,3 +10,4 @@ export { default as CakeFreeze } from "./cakes/CakeFreeze.svelte";
 export { default as CakeGold } from "./cakes/CakeGold.svelte";
 export { default as CakeNormal } from "./cakes/CakeNormal.svelte";
 export { default as CakePurple } from "./cakes/CakePurple.svelte";
+export { default as Fish } from "./Fish.svelte";

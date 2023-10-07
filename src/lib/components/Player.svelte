@@ -16,6 +16,7 @@
 		Quaternion,
 		BoxGeometry,
 		Raycaster,
+		SphereGeometry,
 	} from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
 	import Controller from "./ThirdPersonControls.svelte";
@@ -32,8 +33,6 @@
 		azure,
 		host,
 		lives,
-		gameEnd,
-		hostWin,
 		planeGeometry,
 		highScore,
 	} from "$lib/store";
@@ -56,6 +55,7 @@
 		BITCHLESS_EVENT,
 		DIED_OF_DEATH,
 	} from "$lib/constants";
+	import Fish from "$lib/rapier/world/Fish.svelte";
 	export let skin: number;
 	export let username: string;
 	export let spectator: boolean;
@@ -179,12 +179,17 @@
 	}
 
 	let prevPos = 0;
-	let velY = 0;
+	// let velY = 0;
 	let camBack = false;
 	let rayCounter = Date.now();
+	let ballPos: [number, number] = [0, 0];
 	// let prevVel = 0;
 	useFrame((_, deltaTime) => {
 		// console.log("FPS: ", 1 / deltaTime);
+		if (fishBall) {
+			const tl = fishBall.translation();
+			ballPos = [tl.x, tl.z];
+		}
 		if (!rigidBody || !capsule || $death) return;
 		if ($host && $freeze > 0) {
 			const linv = rigidBody.linvel();
@@ -281,7 +286,7 @@
 			death.set(true);
 			return;
 		}
-		velY = (pos.y - prevPos) / deltaTime;
+		// velY = (pos.y - prevPos) / deltaTime;
 		// console.log((velY - prevVel) / deltaTime);
 		prevPos = pos.y;
 
@@ -449,12 +454,7 @@
 
 	let bullet: RapierRigidBody;
 
-	// useFrame(() => {
-	// 	if ($socket) return;
-	// 	const lv = bullet.linvel();
-	// 	lv.y = 0;
-	// 	bullet.setLinvel(lv, true);
-	// });
+	let fishBall: RapierRigidBody;
 
 	function onKeyUp(e: KeyboardEvent) {
 		if (chatActive) return;
@@ -463,7 +463,7 @@
 			case "v":
 				camBack = false;
 				break;
-			case "m":
+			case "b":
 				if ($socket) break;
 				const cameraForward = new Vector3();
 				cam.getWorldDirection(cameraForward);
@@ -478,6 +478,23 @@
 				bullet.setTranslation(new Vector3(...$playerPos), false);
 				bullet.setAngvel({ x: 0.0, y: 0.0, z: 0.0 }, false);
 				bullet.setRotation({ w: 1.0, x: 0.0, y: 0.0, z: 0.0 }, true);
+				break;
+			case "m":
+				if ($socket) break;
+				const cf = new Vector3();
+				cam.getWorldDirection(cf);
+
+				// Project to 2D Plane
+				cf.y = 0;
+				cf.normalize().multiplyScalar(25);
+				// cameraForward.normalize().multiplyScalar(35);
+				fishBall.resetForces(false);
+				fishBall.resetTorques(false);
+				fishBall.setLinvel(cf, false);
+				fishBall.setEnabledTranslations(true, true, true, false);
+				fishBall.setTranslation(new Vector3($playerPos[0], $playerPos[1] + 2, $playerPos[2]), false);
+				fishBall.setAngvel({ x: 0.0, y: 0.0, z: 0.0 }, false);
+				fishBall.setRotation({ w: 1.0, x: 0.0, y: 0.0, z: 0.0 }, true);
 				break;
 			case "s":
 				backward = 0;
@@ -508,8 +525,8 @@
 				break;
 			case "k":
 				k = false;
-				score.update(sc => sc + 5);
-				// highScore.set(0);
+				// score.update(sc => sc + 5);
+				highScore.set(0);
 				break;
 			case "y":
 				y = false;
@@ -670,7 +687,44 @@
 			</RigidBody>
 		</T.Group>
 	</CollisionGroups>
+
+	<CollisionGroups groups={[6, 15, 9]}>
+		<T.Group position={[0, 0, 0]}>
+			<RigidBody
+				type="dynamic"
+				bind:rigidBody={fishBall}
+				enabledTranslations={[false, false, false]}
+				on:collisionenter={({ targetRigidBody }) => {
+					// @ts-ignore
+					if (targetRigidBody?.userData.name === "water") {
+						const lv = fishBall.linvel();
+						lv.x = Math.sign(lv.x) * Math.log(Math.abs(lv.x)) / Math.log(2);
+						lv.y = 0;
+						lv.z = Math.sign(lv.z) * Math.log(Math.abs(lv.z)) / Math.log(2);
+						fishBall.setLinvel(lv, true);
+					// @ts-ignore
+					} else if (targetRigidBody?.userData.name === "ground") {
+						fishBall.setEnabledTranslations(false, false, false, true);
+						fishBall.setTranslation({ x: 0, y: 0, z: 0}, true);
+						fishBall.setLinvel({ x: 0, y: 0, z: 0 }, true);
+					}
+				}}
+				userData={{
+					name: "fishBall"
+				}}
+			>
+				<Collider shape="cuboid" args={[1/2, 1/2, 1/2]} mass={50} restitution={0} friction={1}>
+					<T.Mesh
+						geometry={new SphereGeometry(1/4)}
+						material={new MeshBasicMaterial({ color: "white" })}
+					/>
+				</Collider>
+			</RigidBody>
+		</T.Group>
+	</CollisionGroups>
 {/if}
+
+<Fish {ballPos} />
 
 <Root>
 	<h1 class="lives">
