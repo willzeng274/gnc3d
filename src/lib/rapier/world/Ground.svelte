@@ -1,6 +1,18 @@
 <script lang="ts">
 	import { T, useFrame } from "@threlte/core";
-	import { MeshStandardMaterial, PlaneGeometry, CanvasTexture, RepeatWrapping, TextureLoader, Vector3, MathUtils, Mesh, BufferGeometry, type NormalBufferAttributes, Material } from "three";
+	import {
+		MeshStandardMaterial,
+		PlaneGeometry,
+		CanvasTexture,
+		RepeatWrapping,
+		TextureLoader,
+		Vector3,
+		MathUtils,
+		Mesh,
+		BufferGeometry,
+		type NormalBufferAttributes,
+		Material,
+	} from "three";
 	import { DEG2RAD } from "three/src/math/MathUtils";
 	import { createNoise2D } from "simplex-noise";
 	import { AutoColliders, RigidBody } from "@threlte/rapier";
@@ -13,8 +25,7 @@
 	import { useSuspense } from "@threlte/extras";
 	import { onDestroy } from "svelte";
 	import Obtainable from "./Obtainable.svelte";
-	// @ts-ignore
-	// import Martini from '@mapbox/martini';
+
 	export let seed: number | undefined;
 	export let enableShaders: boolean = true;
 	const geometry = new PlaneGeometry(width, height, x_units, y_units);
@@ -81,7 +92,7 @@
 		index: number;
 	}[] = [];
 	let heights: number[] = [];
-	let sun: Vector3, waterGeometry: PlaneGeometry, water: Water, sky: Sky
+	let sun: Vector3, waterGeometry: PlaneGeometry, water: Water, sky: Sky;
 	// note that 200 is the 3rd and 4th parameter of PlaneGeometry
 
 	async function loadGround(): Promise<any> {
@@ -141,13 +152,7 @@
 						// geometry
 						// textureContext.fillStyle = getColorBasedOnHeight(h);
 						// textureContext.fillRect(j, i, 1, 1);
-						textureContext.drawImage(
-							offscreenCanvas,
-							j, i,
-							offscreenCanvas.width, offscreenCanvas.height,
-							j, i,
-							1, 1
-						);
+						textureContext.drawImage(offscreenCanvas, j, i, offscreenCanvas.width, offscreenCanvas.height, j, i, 1, 1);
 						// @ts-ignore
 						vertices[index + 2] = h - 30;
 					}
@@ -165,14 +170,8 @@
 						// geometry
 						// textureContext.fillStyle = getColorBasedOnHeight(h);
 						// textureContext.fillRect(j, i, 1, 1);
-						textureContext.drawImage(
-							offscreenCanvas,
-							j, i,
-							1, 1,
-							j, i,
-							1, 1
-						);
-  					// @ts-ignore
+						textureContext.drawImage(offscreenCanvas, j, i, 1, 1, j, i, 1, 1);
+						// @ts-ignore
 						vertices[index + 2] = h - 30;
 					}
 				} else {
@@ -285,13 +284,13 @@
 		// console.log(texture, sky, water)
 
 		planeGeometry.set(mesh);
-
+		
 		return {
 			texture,
 			// @ts-ignore
 			sky: enableShaders ? sky : undefined,
 			// @ts-ignore
-			water: enableShaders ? water : undefined
+			water: enableShaders ? water : undefined,
 		};
 	}
 
@@ -323,40 +322,49 @@
 </T.Mesh> -->
 <!-- used to have a -0.5 offset, but it didn't look pretty -->
 {#await suspend(loadGround())}
-<!-- loading -->
-{:then { sky, water, texture}}
-<T.Group position={[0, -0.01, 0]}>
-	<RigidBody type={"fixed"} userData={{ name: "ground" }}>
-		<AutoColliders shape="trimesh">
-			<!-- <Collider
+	<!-- loading -->
+{:then { sky, water, texture }}
+	<T.Group position={[0, -0.01, 0]}>
+		<RigidBody type={"fixed"} userData={{ name: "ground" }}>
+			<AutoColliders shape="trimesh">
+				<!-- <Collider
           shape="heightfield"
           args={[x_units, y_units, fl, new Vector3(-100, 1, 100)]}
           bind:collider
           on:collisionenter={(e) => console.log("Height works", e)}
         > -->
-			<T.Mesh bind:ref={mesh} receiveShadow {geometry} material={new MeshStandardMaterial({ map: texture, side: 2 })} rotation.x={DEG2RAD * -90} />
-			<!-- </Collider> -->
-		</AutoColliders>
-	</RigidBody>
-</T.Group>
+				<T.Mesh
+					bind:ref={mesh}
+					receiveShadow
+					{geometry}
+					material={new MeshStandardMaterial({ map: texture, side: 2 })}
+					rotation.x={DEG2RAD * -90}
+				/>
+				<!-- </Collider> -->
+			</AutoColliders>
+		</RigidBody>
+	</T.Group>
 
-{#if enableShaders}
-	<T is={sky} />
+	{#if enableShaders}
+		<T is={sky} />
 
-	<T is={water} position.y={-10} />
-{/if}
+		<T is={water} position.y={-10} />
+	{/if}
 
-<T.Group position={[0, -10, 0]}>
-	<RigidBody type="fixed" userData={{ name: "water" }}>
-		<!-- nothing shall move on water -->
-		<AutoColliders shape={"cuboid"}>
-			<T.Mesh receiveShadow material={new MeshStandardMaterial({ color: 0x4f81ec, opacity: enableShaders ? 0 : 0.2, transparent: true })}>
-				<T.BoxGeometry args={[width, 1, height]} />
-				<!-- <T.MeshStandardMaterial /> -->
-			</T.Mesh>
-		</AutoColliders>
-	</RigidBody>
-</T.Group>
+	<T.Group position={[0, -10, 0]}>
+		<RigidBody type="fixed" userData={{ name: "water" }}>
+			<!-- nothing shall move on water -->
+			<AutoColliders shape={"cuboid"}>
+				<T.Mesh
+					receiveShadow
+					material={new MeshStandardMaterial({ color: 0x4f81ec, opacity: enableShaders ? 0 : 0.2, transparent: true })}
+				>
+					<T.BoxGeometry args={[width, 1, height]} />
+					<!-- <T.MeshStandardMaterial /> -->
+				</T.Mesh>
+			</AutoColliders>
+		</RigidBody>
+	</T.Group>
 {/await}
 
 <Obtainable />

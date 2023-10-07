@@ -7,7 +7,7 @@
 	import { Fish } from "$lib/components/models";
 	import { score } from "$lib/store";
 
-	export let ballPos: [number, number];
+	export let ballPos: [number, number, number];
 	let rigidBody: RapierRigidBody;
 	let fishRef: THREE.Group;
 	let selfPos = [0, -8.5, 0];
@@ -15,11 +15,11 @@
 	const axisY = new Vector3(0, 1, 0);
 
 	useFrame(() => {
-		if (fishRef && rigidBody && selfPos && !isNaN(ballPos[0]) && !isNaN(ballPos[1]) && !(ballPos[0] === 0 || ballPos[1] === 0)) {
+		if (fishRef && rigidBody && selfPos && !isNaN(ballPos[0]) && !isNaN(ballPos[2]) && !(ballPos[0] === 0 || ballPos[2] === 0)) {
 			const translation = rigidBody.translation();
-			console.log("BALL", ballPos, "\nFISH", translation, selfPos);
+			// console.log("BALL", ballPos, "\nFISH", translation, selfPos);
 			const a: number = ballPos[0] - selfPos[0],
-				b: number = ballPos[1] - selfPos[2],
+				b: number = ballPos[2] - selfPos[2],
 				c: number = Math.sqrt(a ** 2 + b ** 2);
 			// console.log(a, b, c);
 			const speed = 1 / (c === 0 ? 1 : c);
@@ -35,7 +35,7 @@
 				true
 			);
 			fishRef.setRotationFromAxisAngle(axisY, -(Math.atan2(b, a) - Math.PI / 2));
-		} else if (ballPos[0] === 0  && ballPos[1] === 0) {
+		} else if (ballPos[0] === 0  && ballPos[2] === 0) {
             rigidBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
         }
 	});

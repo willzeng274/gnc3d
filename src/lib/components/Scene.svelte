@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { T } from "@threlte/core";
-	import { Suspense, interactivity, transitions } from "@threlte/extras";
+	import { MeshLineGeometry, MeshLineMaterial, Suspense, interactivity, transitions } from "@threlte/extras";
 	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig, azure, mobile, highScore, host, lives, hostWin, gameEnd } from "$lib/store";
 	import { Fps, Loading, Lobby, Root, Tutorial } from "./index";
 	import { onDestroy, onMount } from "svelte";
@@ -46,6 +46,7 @@
 	import { Skins, Manual, Shop, Seed, Play, Settings, Credits } from "./menu";
 	import Game from "$lib/runtime/Game.svelte";
 	import { useRapier } from "@threlte/rapier";
+	import { Vector3 } from "three";
 	export let seed: number | undefined;
 	let realSeed: number | undefined;
 	let isSuspend = true;
@@ -524,6 +525,7 @@
 		<Root slot="fallback">
 			<Loading />
 		</Root>
+
 		<Assets />
 		<Sidebar {isSuspend} bind:currentCtx />
 
