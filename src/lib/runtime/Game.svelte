@@ -1,14 +1,10 @@
 <script lang="ts">
     import {
-        azure,
-        freeze,
         gameConfig,
         highScore,
         host,
         score,
         socket,
-        hostWin,
-        gameEnd,
     } from "$lib/store";
     import type {
         Barricade,
@@ -16,18 +12,14 @@
         CakeGenItem,
         ConnectedPlayer,
     } from "$lib/types";
-    import Button from "$lib/ui/button.svelte";
-    import TextInput from "$lib/ui/textInput.svelte";
     import { T } from "@threlte/core";
     import { CollisionGroups, Debug } from "@threlte/rapier";
-    import { createEventDispatcher } from "svelte";
     import {
         CakeGen,
         Particle,
         ParticleBar,
         Player,
         Player2,
-        Root,
     } from "$lib/components";
     import {
         Blackhole,
@@ -37,7 +29,11 @@
         Walls,
         Woman,
     } from "$lib/rapier/world";
-	import { getMaxScoreByPlayerCount } from "$lib/utils";
+	import GameUi from "./GameUi.svelte";
+    import Root from "$lib/components/Root.svelte";
+    import TextInput from "$lib/ui/textInput.svelte";
+    import Button from "$lib/ui/button.svelte";
+    import { createEventDispatcher } from "svelte";
     export let chatActive: boolean;
     export let logs: string[];
     export let players: ConnectedPlayer[];
@@ -51,37 +47,11 @@
     export let barricades: Barricade[];
     export let spectator: boolean;
     export let cakeFinity: boolean;
-
+    let message :string;
     const dispatch = createEventDispatcher<{
         exit: null;
         message: string;
-    }>();
-
-    let message: string;
-    let frozen: number = 0;
-
-    let tm: number;
-    let intervalTm: number;
-
-    freeze.subscribe((fr) => {
-        if (fr) {
-            const now = Date.now();
-            const unfreezeTime = now + frozen + 2500;
-            // unfreeze time = freezeTime + frozen + 5000
-            clearInterval(intervalTm);
-            intervalTm = setInterval(() => {
-                frozen = unfreezeTime - Date.now();
-                if (frozen <= 0) {
-                    frozen = 0;
-                    clearInterval(intervalTm);
-                }
-            }, 50);
-            clearTimeout(tm);
-            tm = setTimeout(() => {
-                freeze.set(0);
-            }, unfreezeTime - now);
-        }
-    });
+    }>(); 
 
     $: {
         if ($score > 200 && $socket === null && !cakeFinity) {
@@ -98,120 +68,13 @@
         }
     }
 
-    // console.log($host);
+
 </script>
 
-{#if $gameEnd}
-    <Root>
-        <div class="overlay">
-            <div class="game-end">
-                    {#if $hostWin && $host}
-                        <p>"VICTORY! The cake was a lie"</p>
-                    {:else if !$hostWin && $host}
-                        <p>"DEFEAT. The cake was a lie"</p>
-                    {:else if !$hostWin && !$host}
-                        <p>"VICTORY! Cake Crusaders Prevail!"</p>
-                    {:else}
-                        <p>"DEFEAT. Cakemania Victory"</p>
-                    {/if}
-                    <p>Game closing in 10s...</p>
-            </div>
-        </div>
-    </Root>
-{/if}
-
-<Root>
-    <div
-        class="flex flex-col lg:flex-row absolute top-4 w-[80%] lg:w-[35%] h-[5%] items-center justify-center text-center"
-    >
-        <div
-            class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] px-4"
-        >
-            {#if $socket === null}
-                <p>
-                    Score: {$score} | Best: {$highScore} | Azure crystals owned:
-                    {$azure}
-                </p>
-            {:else if $host}
-                <p>
-                    Player progress: {$score}/{getMaxScoreByPlayerCount(playerCount)} | Azure crystals owned: {$azure}
-                </p>
-            {:else}
-                <div class="overflow-hidden relative bg-gray-100 h-3 w-full">
-                    <div
-                        class="h-full transition-all duration-300 bg-gradient-to-br from-blue-500 via-transparent to-blue-500 bg-[length:1rem_1rem]"
-                        style={`width: ${
-                            Math.floor(($score / 500) * 1000) / 10
-                        }%;`}
-                    />
-                </div>
-                <p>
-                    ROAD TO {getMaxScoreByPlayerCount(playerCount)}: {$score}/{getMaxScoreByPlayerCount(playerCount)} | Azure crystals owned: {$azure}
-                </p>
-            {/if}
-        </div>
-        <!-- Small inconvenience but it's fine! -->
-        {#if ($socket !== null && $host) || $socket === null}
-            <div
-                class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] py-0 px-4"
-            >
-                <p>Frozen for: {frozen}</p>
-            </div>
-        {/if}
-    </div>
-    {#if $socket === null}
-        <Button
-            on:click={() => dispatch("exit")}
-            class="fixed top-0 right-0 z-[1] w-[25%] h-[10%] lg:h-[5%]"
-            >Exit game</Button
-        >
-    {:else}
-        <Button
-            on:click={() => $socket?.close()}
-            class="fixed top-0 right-0 z-[1] w-[25%] h-[10%] lg:h-[5%]"
-            >Exit Game
-        </Button>
-    {/if}
-    <dialog
-        class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-[0] max-h-[20%] rounded-md mb-2 opacity-80"
-        class:hidden={!chatActive}
-    >
-        <div class="w-full overflow-y-scroll mx-2 mt-2">
-            {#each logs as msg}
-                <p>{msg}</p>
-            {/each}
-        </div>
-        <TextInput
-            class="ml-2"
-            childAtStart={false}
-            type="text"
-            placeholder="Message"
-            bind:value={message}
-            on:keypress={(e) => {
-                if (e.key === "Enter") {
-                    dispatch("message", message);
-                    message = "";
-                }
-            }}
-        >
-            <Button
-                class="mr-2"
-                on:click={(_) => {
-                    dispatch("message", message);
-                    message = "";
-                }}>Send message</Button
-            >
-        </TextInput>
-        <button
-            on:click={(_) => (chatActive = false)}
-            class="w-full h-full border-r border-[lightgrey] rounded-md
-            py-2 text-red-500
-            hover:bg-gray-100 active:bg-gray-200 transition-colors"
-        >
-            Close
-        </button>
-    </dialog>
-</Root>
+<!-- InGame Ui handled here -->
+<GameUi 
+{playerCount}
+/>
 
 <T.DirectionalLight castShadow position={[8, 20, -3]} />
 
@@ -299,31 +162,45 @@
     <Walls />
 </CollisionGroups>
 
-<style lang="css">
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        z-index: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .game-end {
-        background-color: #1e1e1e;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        text-align: center;
-        padding: 20px;
-        color: white;
-    }
-
-    .game-end p {
-        color: green;
-    }
-</style>
+<!-- messages -->
+<Root>
+<dialog
+class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-[0] max-h-[20%] rounded-md mb-2 opacity-80"
+class:hidden={!chatActive}
+>
+<div class="w-full overflow-y-scroll mx-2 mt-2">
+    {#each logs as msg}
+        <p>{msg}</p>
+    {/each}
+</div>
+<TextInput
+    class="ml-2"
+    childAtStart={false}
+    type="text"
+    placeholder="Message"
+    bind:value={message}
+    on:keypress={(e) => {
+        if (e.key === "Enter") {
+            dispatch("message", message);
+            message = "";
+        }
+    }}
+>
+    <Button
+        class="mr-2"
+        on:click={(_) => {
+            dispatch("message", message);
+            message = "";
+        }}>Send message</Button
+    >
+</TextInput>
+<button
+    on:click={(_) => (chatActive = false)}
+    class="w-full h-full border-r border-[lightgrey] rounded-md
+    py-2 text-red-500
+    hover:bg-gray-100 active:bg-gray-200 transition-colors"
+>
+    Close
+</button>
+</dialog>
+</Root>
