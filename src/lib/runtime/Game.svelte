@@ -29,7 +29,7 @@
         Walls,
         Woman,
     } from "$lib/rapier/world";
-	import GameUi from "./GameUi.svelte";
+	import InGameUi from "./InGameUi.svelte";
     import Root from "$lib/components/Root.svelte";
     import TextInput from "$lib/ui/textInput.svelte";
     import Button from "$lib/ui/button.svelte";
@@ -72,7 +72,7 @@
 </script>
 
 <!-- InGame Ui handled here -->
-<GameUi 
+<InGameUi 
 {playerCount}
 />
 
