@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onDestroy } from "svelte";
-	import { Camera, Euler, Vector2, Vector3 } from "three";
+	import { Camera, Vector2, Vector3 } from "three";
 	import type { Group } from "three";
 	import { useThrelte, useParent, useFrame } from "@threlte/core";
 	// import { azure, gameConfig, score } from "$lib/store";

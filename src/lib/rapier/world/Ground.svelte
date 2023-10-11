@@ -12,6 +12,12 @@
 		BufferGeometry,
 		type NormalBufferAttributes,
 		Material,
+		Matrix4,
+		InstancedMesh,
+		BoxGeometry,
+		MeshBasicMaterial,
+		BufferAttribute,
+		ShaderMaterial,
 	} from "three";
 	import { DEG2RAD } from "three/src/math/MathUtils";
 	import { createNoise2D } from "simplex-noise";
@@ -22,6 +28,7 @@
 	import { Quaternion, type Collider as RapierCollider } from "@dimforge/rapier3d-compat";
 	import { Sky } from "three/examples/jsm/objects/Sky";
 	import { Water } from "three/examples/jsm/objects/Water";
+	import { MeshSurfaceSampler } from "three/addons/math/MeshSurfaceSampler";
 	import { useSuspense } from "@threlte/extras";
 	import { onDestroy } from "svelte";
 	import Obtainable from "./Obtainable.svelte";
@@ -32,6 +39,9 @@
 	const prng = seed ? alea(seed) : alea();
 	const noise = createNoise2D(prng);
 	const vertices = geometry.getAttribute("position").array;
+	// console.log("Bruh");
+	geometry.setAttribute("color", geometry.attributes.position.clone());
+	const colors = geometry.getAttribute("color").array;
 	console.log("Length: ", vertices.length);
 
 	const textureCanvas = document.createElement("canvas");
@@ -137,6 +147,8 @@
 					textureContext.fillRect(j, i, 1, 1);
 					// @ts-ignore
 					vertices[index + 2] = -25;
+					// @ts-ignore
+					colors[index] = 0;
 				} else if (h === 30 && canHaveBuilding) {
 					const rng = noise(x, y);
 					// alert(rng);
@@ -147,7 +159,11 @@
 							j,
 							index,
 						});
-						// set all around to be the same height
+						// just in case it is NOT chosen
+						// @ts-ignore
+						vertices[index + 2] = 0;
+						// @ts-ignore
+						colors[index] = 0;
 					} else {
 						// geometry
 						// textureContext.fillStyle = getColorBasedOnHeight(h);
@@ -155,6 +171,8 @@
 						textureContext.drawImage(offscreenCanvas, j, i, offscreenCanvas.width, offscreenCanvas.height, j, i, 1, 1);
 						// @ts-ignore
 						vertices[index + 2] = h - 30;
+						// @ts-ignore
+						colors[index] = 1;
 					}
 				} else if (h === 30) {
 					const rng = noise(x, y);
@@ -166,6 +184,8 @@
 						// set all around to be the same height
 						// @ts-ignore
 						vertices[index + 2] = 2;
+						// @ts-ignore
+						colors[index] = 0.5;
 					} else {
 						// geometry
 						// textureContext.fillStyle = getColorBasedOnHeight(h);
@@ -173,6 +193,8 @@
 						textureContext.drawImage(offscreenCanvas, j, i, 1, 1, j, i, 1, 1);
 						// @ts-ignore
 						vertices[index + 2] = h - 30;
+						// @ts-ignore
+						colors[index] = 1;
 					}
 				} else {
 					// geometry
@@ -180,6 +202,8 @@
 					textureContext.fillRect(j, i, 1, 1);
 					// @ts-ignore
 					vertices[index + 2] = h - 30;
+					// @ts-ignore
+					colors[index] = 0;
 				}
 				heights.push(vertices[index + 2]);
 				index += 3;
@@ -195,21 +219,39 @@
 		// @ts-ignore
 		vertices[b.index - 1] = 5;
 		// @ts-ignore
+		colors[b.index - 3] = 0;
+		// @ts-ignore
 		vertices[b.index + 2] = 5;
+		// @ts-ignore
+		colors[b.index] = 0;
 		// @ts-ignore
 		vertices[b.index + 5] = 5;
 		// @ts-ignore
+		colors[b.index + 3] = 0;
+		// @ts-ignore
 		vertices[b.index - 1 - (x_units + 1) * 3] = 5;
+		// @ts-ignore
+		colors[b.index - 3 - (x_units + 1) * 3] = 0;
 		// @ts-ignore
 		vertices[b.index + 2 - (x_units + 1) * 3] = 5;
 		// @ts-ignore
+		colors[b.index - (x_units + 1) * 3] = 0;
+		// @ts-ignore
 		vertices[b.index + 5 - (x_units + 1) * 3] = 5;
+		// @ts-ignore
+		colors[b.index + 3 - (x_units + 1) * 3] = 0;
 		// @ts-ignore
 		vertices[b.index - 1 + (x_units + 1) * 3] = 5;
 		// @ts-ignore
+		colors[b.index - 3 + (x_units + 1) * 3] = 0;
+		// @ts-ignore
 		vertices[b.index + 2 + (x_units + 1) * 3] = 5;
 		// @ts-ignore
+		colors[b.index + (x_units + 1) * 3] = 0;
+		// @ts-ignore
 		vertices[b.index + 5 + (x_units + 1) * 3] = 5;
+		// @ts-ignore
+		colors[b.index + 3 + (x_units + 1) * 3] = 0;
 		textureContext.fillStyle = `rgb(0, 0, 255)`;
 		textureContext.fillRect(b.j - 1, b.i - 1, 1, 1);
 		textureContext.fillRect(b.j - 1, b.i, 1, 1);
@@ -284,7 +326,7 @@
 		// console.log(texture, sky, water)
 
 		planeGeometry.set(mesh);
-		
+
 		return {
 			texture,
 			// @ts-ignore
@@ -305,21 +347,216 @@
 
 	let mesh: Mesh<BufferGeometry<NormalBufferAttributes>, Material | Material[]>;
 
+	let grmesh: Mesh;
+
+	// Time Uniform
+	const startTime = enableShaders && Date.now();
+
+	const grassTexture = enableShaders && new TextureLoader().load("/textures/grass.jpg");
+	const cloudTexture = enableShaders && new TextureLoader().load("/textures/cloud.jpg");
+	if (enableShaders) {
+		cloudTexture.wrapS = cloudTexture.wrapT = 1000;
+	}
+
+	const timeUniform = enableShaders && { type: "f", value: 0.0 };
+
+	const grassUniforms = enableShaders && {
+		textures: { value: [grassTexture, cloudTexture] },
+		iTime: timeUniform,
+	};
+
+	useFrame(() => {
+		if (!enableShaders) return;
+		const elapsedTime = Date.now() - startTime;
+		grassUniforms.iTime.value = elapsedTime;
+	});
+
+	const grassMaterial = enableShaders && new ShaderMaterial({
+		uniforms: grassUniforms,
+		vertexShader: `
+				varying vec2 vUv;
+varying vec2 cloudUV;
+
+varying vec3 vColor;
+uniform float iTime;
+
+void main() {
+  vUv = uv;
+  cloudUV = uv;
+  vColor = color;
+  vec3 cpos = position;
+
+  float waveSize = 10.0f;
+  float tipDistance = 0.3f;
+  float centerDistance = 0.1f;
+
+  if (color.x > 0.6f) {
+    cpos.x += sin((iTime / 500.) + (uv.x * waveSize)) * tipDistance;
+  }else if (color.x > 0.0f) {
+    cpos.x += sin((iTime / 500.) + (uv.x * waveSize)) * centerDistance;
+  }
+
+  float diff = position.x - cpos.x;
+  cloudUV.x += iTime / 20000.;
+  cloudUV.y += iTime / 10000.;
+
+  vec4 worldPosition = vec4(cpos, 1.);
+  vec4 mvPosition = projectionMatrix * modelViewMatrix * vec4(cpos, 1.0);
+  gl_Position = mvPosition;
+}
+				`,
+		fragmentShader: `
+				uniform sampler2D texture1;
+uniform sampler2D textures[4];
+
+varying vec2 vUv;
+varying vec2 cloudUV;
+varying vec3 vColor;
+
+void main() {
+  float contrast = 1.5;
+  float brightness = 0.1;
+  vec3 color = texture2D(textures[0], vUv).rgb * contrast;
+  color = color + vec3(brightness, brightness, brightness);
+  color = mix(color, texture2D(textures[1], cloudUV).rgb, 0.4);
+  gl_FragColor.rgb = color;
+  gl_FragColor.a = 1.;
+}
+				`,
+		vertexColors: true,
+		side: 2,
+	});
+
 	$: {
 		if (mesh) {
 			planeGeometry.set(mesh);
+
+			if (!enableShaders) break $;
+			const start = Date.now();
+
+			// const newGeo = geometry.clone();
+			const newGeo = new PlaneGeometry(width, height, x_units, y_units);
+			newGeo.setAttribute("color", geometry.getAttribute("color").clone());
+			const newMesh = new Mesh(newGeo);
+			const sampler = new MeshSurfaceSampler(newMesh).setWeightAttribute("color").build();
+			const position = new Vector3();
+			// sampler.sample(position);
+			// console.log(position);
+			// let grassCube = new Mesh(new BoxGeometry(1, 1, 5));
+			// grassCube.geometry.translate(0, 5, 0);
+			// const gmesh = new InstancedMesh(grassCube.geometry, grassCube.material, 10000);
+			newMesh.rotation.x = Math.PI * -0.5;
+
+			// const position = new Vector3();
+			// const matrix = new Matrix4();
+
+			const allPositions = [];
+			const allUvs = [];
+			const allIndices = [];
+			const allColors = [];
+
+			// Sample randomly from the surface, creating an instance of the sample
+			// geometry at each sample point.
+			for (let i = 0; i < BLADE_COUNT; i++) {
+				sampler.sample(position);
+				// console.log(position);
+
+				const MID_WIDTH = BLADE_WIDTH * 0.5;
+				const TIP_OFFSET = 0.1;
+				const height = BLADE_HEIGHT + Math.random() * BLADE_HEIGHT_VARIATION;
+
+				const yaw = Math.random() * Math.PI * 2;
+				const yawUnitVec = new Vector3(Math.sin(yaw), 0, -Math.cos(yaw));
+				const tipBend = Math.random() * Math.PI * 2;
+				const tipBendUnitVec = new Vector3(Math.sin(tipBend), 0, -Math.cos(tipBend));
+
+				// Find the Bottom Left, Bottom Right, Top Left, Top right, Top Center vertex positions
+				const bl = new Vector3().addVectors(position, new Vector3().copy(yawUnitVec).multiplyScalar((BLADE_WIDTH / 2) * 1));
+				const br = new Vector3().addVectors(position, new Vector3().copy(yawUnitVec).multiplyScalar((BLADE_WIDTH / 2) * -1));
+				const tl = new Vector3().addVectors(position, new Vector3().copy(yawUnitVec).multiplyScalar((MID_WIDTH / 2) * 1));
+				const tr = new Vector3().addVectors(position, new Vector3().copy(yawUnitVec).multiplyScalar((MID_WIDTH / 2) * -1));
+				const tc = new Vector3().addVectors(position, new Vector3().copy(tipBendUnitVec).multiplyScalar(TIP_OFFSET));
+
+				tl.z += height / 2;
+				tr.z += height / 2;
+				tc.z += height;
+
+				// Vertex Colors
+				const black = [0, 0, 0];
+				const gray = [0.5, 0.5, 0.5];
+				const white = [1.0, 1.0, 1.0];
+
+				const PLANE_SIZE = 30;
+
+				const surfaceMin = (PLANE_SIZE / 2) * -1;
+				const surfaceMax = PLANE_SIZE / 2;
+
+				const uv = [convertRange(position.x, surfaceMin, surfaceMax, 0, 1), convertRange(position.y, surfaceMin, surfaceMax, 0, 1)];
+
+				const verts = [
+					{ pos: bl.toArray(), uv: uv, color: black },
+					{ pos: br.toArray(), uv: uv, color: black },
+					{ pos: tr.toArray(), uv: uv, color: gray },
+					{ pos: tl.toArray(), uv: uv, color: gray },
+					{ pos: tc.toArray(), uv: uv, color: white },
+				];
+
+				const VERTEX_COUNT = 5;
+				const vArrOffset = i * VERTEX_COUNT;
+
+				const indices = [
+					vArrOffset,
+					vArrOffset + 1,
+					vArrOffset + 2,
+					vArrOffset + 2,
+					vArrOffset + 4,
+					vArrOffset + 3,
+					vArrOffset + 3,
+					vArrOffset,
+					vArrOffset + 2,
+				];
+
+				verts.forEach((vert) => {
+					allPositions.push(...vert.pos);
+					allUvs.push(...vert.uv);
+					allColors.push(...vert.color);
+				});
+				indices.forEach((indice) => allIndices.push(indice));
+
+				// matrix.makeTranslation(position.x, position.y, position.z);
+
+				// gmesh.setMatrixAt(i, matrix);
+			}
+
+			newGeo.setAttribute("position", new BufferAttribute(new Float32Array(allPositions), 3));
+			newGeo.setAttribute("uv", new BufferAttribute(new Float32Array(allUvs), 2));
+			newGeo.setAttribute("color", new BufferAttribute(new Float32Array(allColors), 3));
+			newGeo.setIndex(allIndices);
+			newGeo.computeVertexNormals();
+			// newGeo.computeFaceNormals();
+
+			newMesh.material = grassMaterial;
+
+			console.log("Generated blades in ", Date.now() - start);
+
+			grmesh = newMesh;
 		}
+	}
+
+	const BLADE_COUNT = 100000;
+	const BLADE_WIDTH = 0.1 * 3;
+	const BLADE_HEIGHT = 0.8 * 3;
+	const BLADE_HEIGHT_VARIATION = 0.6;
+
+	function convertRange(val: number, oldMin: number, oldMax: number, newMin: number, newMax: number): number {
+		return ((val - oldMin) * (newMax - newMin)) / (oldMax - oldMin) + newMin;
 	}
 </script>
 
-<!-- <T.Mesh
-  receiveShadow
-  {geometry}
-  material={new MeshStandardMaterial({ map: texture })}
-  rotation.x={DEG2RAD * -90}
->
-  <T.MeshStandardMaterial />
-</T.Mesh> -->
+{#if grmesh}
+	<T is={grmesh} />
+{/if}
+
 <!-- used to have a -0.5 offset, but it didn't look pretty -->
 {#await suspend(loadGround())}
 	<!-- loading -->
@@ -348,7 +585,7 @@
 	{#if enableShaders}
 		<T is={sky} />
 
-		<T is={water} position.y={-10} />
+		<T is={water} position.y={-9.5} />
 	{/if}
 
 	<T.Group position={[0, -10, 0]}>
