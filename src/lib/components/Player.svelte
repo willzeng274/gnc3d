@@ -310,8 +310,10 @@
 		cameraForward.normalize().multiplyScalar(50);
 		bullet.resetForces(false);
 		bullet.resetTorques(false);
-		bullet.setLinvel(cameraForward, true);
-		bullet.setTranslation(new Vector3(...$playerPos), true);
+		bullet.setLinvel(cameraForward, false);
+		bullet.setTranslation(new Vector3(...$playerPos), false);
+		bullet.setAngvel({ x: 0.0, y: 0.0, z: 0.0 }, false);
+		bullet.setRotation({ w: 1.0, x: 0.0, y: 0.0, z: 0.0 }, true);
 	}
 
 	function onKeyDown(e: KeyboardEvent) {
