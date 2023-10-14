@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { RigidBody as RapierRigidBody, Collider as RapierCollider } from "@dimforge/rapier3d-compat";
 	import { T, useFrame } from "@threlte/core";
-	import { RigidBody, CollisionGroups, Collider } from "@threlte/rapier";
-	import { AudioListener, Audio, MeshLineGeometry, MeshLineMaterial } from "@threlte/extras";
+	import { RigidBody, CollisionGroups, Collider, useRapier } from "@threlte/rapier";
+	import { AudioListener, Audio, MeshLineGeometry, MeshLineMaterial, onSuspend } from "@threlte/extras";
 	import { createEventDispatcher, onDestroy, onMount } from "svelte";
 	import { PerspectiveCamera, Vector3, MeshBasicMaterial, Group, Euler, Quaternion, BoxGeometry, Raycaster, SphereGeometry } from "three";
 	import PointerLockControls from "./PointerLockControls.svelte";
@@ -31,6 +31,7 @@
 	import { arraysSize3AreEqual } from "$lib/utils";
 	import { BARRICADE_SPAWN_EVENT, BITCHLESS_EVENT, DIED_OF_DEATH } from "$lib/constants";
 	import Fish from "$lib/rapier/world/Fish.svelte";
+
 	export let skin: number;
 	export let username: string;
 	export let spectator: boolean;
@@ -146,11 +147,12 @@
 		// console.log(currentActionKey)
 	}
 
-	let prevPos = 0;
+	// let prevPos = 0;
 	// let velY = 0;
 	let camBack = false;
 	let rayCounter = Date.now();
 	let ballPos: [number, number, number] = [0, 0, 0];
+
 	// let prevVel = 0;
 	useFrame((_, deltaTime) => {
 		// console.log("FPS: ", 1 / deltaTime);
@@ -221,22 +223,21 @@
 		// finally set the velocities and wake up the body
 		const pos = rigidBody.translation();
 		const dt = Date.now();
-		if (t.y < -10 && $planeGeometry && dt - rayCounter > 100) {
-			// 10 fps cap
+		if (t.y < -5 && $planeGeometry && dt - rayCounter > 50) {
+			// 20 fps cap
 			rayCounter = dt;
-			// prevent going through the ground
 			const rayOrigin = new Vector3(pos.x, pos.y, pos.z);
 			const rayDirection = new Vector3(0, 1, 0);
 			const raycaster = new Raycaster(rayOrigin, rayDirection);
-			const intersects = raycaster.intersectObject($planeGeometry);
+			raycaster.firstHitOnly = true;
+			const intersects = raycaster.intersectObject($planeGeometry, false);
 
 			if (intersects.length > 0) {
 				pos.y += intersects[0].distance + 3;
 				rigidBody.setTranslation(pos, false);
 				t.y = 0;
-				// Ray intersects with the ground
-				// console.log("Ray intersects with the ground.");
 			}
+			// console.log("Raycaster costed", Date.now() - dt);
 		}
 		if (pos.y < -100) {
 			death.set(true);
@@ -244,12 +245,11 @@
 		}
 		// velY = (pos.y - prevPos) / deltaTime;
 		// console.log((velY - prevVel) / deltaTime);
-		prevPos = pos.y;
+		// prevPos = pos.y;
 
-		// funny wizard man
-		if (prevPos < -23 && ground) {
-			// wizard was removed
-		}
+		// if (prevPos < -23 && ground) {
+		// wizard was removed
+		// }
 
 		rigidBody.setLinvel(t, true);
 
@@ -587,6 +587,12 @@
 			// gone is implemented on barricade receive
 		}
 	}
+
+	const { world } = useRapier();
+
+	onSuspend(() => {
+		world.gravity.y = -9.81 * 2;
+	});
 </script>
 
 {#if $socket === null}

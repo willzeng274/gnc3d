@@ -1,45 +1,45 @@
 <script lang="ts">
-    import { T } from "@threlte/core";
+	import { T } from "@threlte/core";
 	import { Door, Ground, Woman } from "$lib/rapier/world";
 	import { createEventDispatcher, onMount } from "svelte";
 	import Player from "./Player.svelte";
 	import { CollisionGroups } from "@threlte/rapier";
-    import { host, playerPos } from "$lib/store";
+	import { host, playerPos } from "$lib/store";
 	import Root from "./Root.svelte";
 	import Particle from "./Particle.svelte";
 
-    let pcControls = {
-        movement: "WASD (hold shift to sprint)",
-        jump: "space",
-        dash: "f",
-        zoom: "your scroll wheel",
-        rotate: "Drag and rotate with your mouse in third person (or lock with \"r\") and use your pointer to rotate in first person!",
-        barricade: "press \"q\"",
-    };
+	let pcControls = {
+		movement: "WASD (hold shift to sprint)",
+		jump: "space",
+		dash: "f",
+		zoom: "your scroll wheel",
+		rotate: 'Drag and rotate with your mouse in third person (or lock with "r") and use your pointer to rotate in first person!',
+		barricade: 'press "q"',
+	};
 
-    let mobileControls = {
-        movement: "the joystick",
-        jump: "the larger jump button",
-        dash: "the smaller dash button on the right",
-        zoom: "the slider on the right",
-        rotate: "Drag along the screen to rotate in third person and do the same for first person!",
-        barricade: "click the smaller dash button at the bottom"
-    };
+	let mobileControls = {
+		movement: "the joystick",
+		jump: "the larger jump button",
+		dash: "the smaller dash button on the right",
+		zoom: "the slider on the right",
+		rotate: "Drag along the screen to rotate in third person and do the same for first person!",
+		barricade: "click the smaller dash button at the bottom",
+	};
 
-    let touch: number = 0;
+	let touch: number = 0;
 
-    let username: string = "Unintelligent";
+	let username: string = "Unintelligent";
 
-    let speed = 0;
+	let speed = 0;
 
-    let controls = pcControls;
+	let controls = pcControls;
 
-    let currentStage = 0;
-    let stages: string[] = [];
+	let currentStage = 0;
+	let stages: string[] = [];
 
-    onMount(() => {
-        host.set(false);
-        let mobile = false;
+	onMount(() => {
+		host.set(false);
+		let mobile = false;
 		(function (a) {
 			if (
 				/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(
@@ -52,54 +52,54 @@
 				mobile = true;
 			// @ts-ignore
 		})(navigator.userAgent || navigator.vendor || window["opera"]);
-        if (mobile) {
-            controls = mobileControls;
-        }
-        stages = [
-            "Welcome to tutorial! Let's teach you how to play in singleplayer.",
-            `Use ${controls.movement} to move and press ${controls.jump} to jump!`,
-            controls.rotate,
-            `Use ${controls.zoom} to zoom in and out of view!`,
-            `You can also use ${controls.dash} to dash!`,
-            "Dashing has a cooldown of 5 seconds",
-            `You can ${controls.barricade} to place barricades! They have a cooldown of 4 seconds, and expires after 3 seconds.`,
-            "You can unlock doors by simply walking to the front of it",
-            "Collect the normal cake that has just spawned!",
-            "Nice! Now that you have collected the cake, we are going to unleash the woman. You must run away from the woman, and when you touch her, you die.",
-            "The woman can no-clip through opaque walls, you will see the walls in singleplayer",
-            "However, it does not know how to open doors or go through solid walls",
-            "Also, you cannot swim. If you touch water you will also die.",
-            "More game features: you can select character in the main menu, set map generation seed in the seed menu, unlock more skins from the shop, and enable custom singleplayer gamemodes or just gameplay settings in general in the settings tab",
-            "Objective: run away from the women and die a couple of times to it for game experience",
-            "Click again to exit tutorial"
-        ];
+		if (mobile) {
+			controls = mobileControls;
+		}
+		stages = [
+			"Welcome to tutorial! Let's teach you how to play in singleplayer.",
+			`Use ${controls.movement} to move and press ${controls.jump} to jump!`,
+			controls.rotate,
+			`Use ${controls.zoom} to zoom in and out of view!`,
+			`You can also use ${controls.dash} to dash!`,
+			"Dashing has a cooldown of 5 seconds",
+			`You can ${controls.barricade} to place barricades! They have a cooldown of 4 seconds, and expires after 3 seconds.`,
+			"You can unlock doors by simply walking to the front of it",
+			"Collect the normal cake that has just spawned!",
+			"Nice! Now that you have collected the cake, we are going to unleash the woman. You must run away from the woman, and when you touch her, you die.",
+			"The woman can no-clip through opaque walls, you will see the walls in singleplayer",
+			"However, it does not know how to open doors or go through solid walls",
+			"Also, you cannot swim. If you touch water you will also die.",
+			"More game features: you can select character in the main menu, set map generation seed in the seed menu, unlock more skins from the shop, and enable custom singleplayer gamemodes or just gameplay settings in general in the settings tab",
+			"Objective: run away from the women and die a couple of times to it for game experience",
+			"Click again to exit tutorial",
+		];
 	});
 
-    const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
-    $: {
-        if (touch && currentStage < 9) {
-            currentStage = 9;
-            speed = 0.2;
-        }
+	$: {
+		if (touch && currentStage < 9) {
+			currentStage = 9;
+			speed = 0.2;
+		}
 
-        if (currentStage === 9 && !touch) {
-            currentStage = 8;
-        }
+		if (currentStage === 9 && !touch) {
+			currentStage = 8;
+		}
 
-        if (currentStage === 16) {
-            playerPos.set([0, 10, 3]);
-            dispatch("end");
-        }
+		if (currentStage === 16) {
+			playerPos.set([0, 10, 3]);
+			dispatch("end");
+		}
 
-        if (currentStage === 14) {
-            username = "Intelligent";
-        }
-    }
+		if (currentStage === 14) {
+			username = "Intelligent";
+		}
+	}
 </script>
 
 <Root>
-    <!-- .dialog {
+	<!-- .dialog {
         bottom: 1em;
         display: block;
         z-index: 2;
@@ -108,12 +108,12 @@
     .dialog h6 {
         margin: 2em 0 .125em 0;
     } -->
-    <button on:click={_ => currentStage++}>
-        <dialog class="max-w-[80%] lg:max-w-[40%] bottom-4 z-[2] flex flex-col py-2 px-4 rounded-md text-gray-600">
-            <p>{stages[currentStage]}</p>
-            <h6 class="mt-4 mb-0.5">Click to continue</h6>
-        </dialog>
-    </button>
+	<button on:click={(_) => currentStage++}>
+		<dialog class="max-w-[80%] lg:max-w-[40%] bottom-4 z-[2] flex flex-col py-2 px-4 rounded-md text-gray-600">
+			<p>{stages[currentStage]}</p>
+			<h6 class="mt-4 mb-0.5">Click to continue</h6>
+		</dialog>
+	</button>
 </Root>
 
 <T.DirectionalLight castShadow position={[8, 20, -3]} />
@@ -121,15 +121,15 @@
 <T.GridHelper args={[50]} position.y={0.01} />
 
 <CollisionGroups groups={[0, 15]}>
-    <Ground seed={1} enableShaders={true} />
+	<Ground seed={1} enableShaders={true} />
 </CollisionGroups>
 <CollisionGroups groups={[0]}>
-    <Player skin={0} {username} />
-    {#if currentStage >= 9}
-        <Woman selfPos={[5, 5, 5]} skin={0} initialSpeed={speed} />
-    {/if}
-    <Door />
-    {#if currentStage >= 8 && touch === 0}
-        <Particle id={0} position={[0, 10, 50]} rotation={[0, 0, 0]} bind:touch type="normal" />
-    {/if}
+	<Player skin={0} {username} spectator={false} cakeFinity={false} />
+	{#if currentStage >= 9}
+		<Woman selfPos={[5, 5, 5]} skin={0} initialSpeed={speed} />
+	{/if}
+	<Door />
+	{#if currentStage >= 8 && touch === 0}
+		<Particle id={0} position={[0, 10, 50]} rotation={[0, 0, 0]} bind:touch type="normal" />
+	{/if}
 </CollisionGroups>

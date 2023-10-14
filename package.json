@@ -40,6 +40,7 @@
     "nipplejs": "^0.10.1",
     "simplex-noise": "^4.0.1",
     "three-csg-ts": "^3.1.13",
-    "three-gltf-exporter": "^0.0.1"
+    "three-gltf-exporter": "^0.0.1",
+    "three-mesh-bvh": "^0.6.8"
   }
 }

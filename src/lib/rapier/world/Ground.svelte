@@ -12,10 +12,6 @@
 		BufferGeometry,
 		type NormalBufferAttributes,
 		Material,
-		Matrix4,
-		InstancedMesh,
-		BoxGeometry,
-		MeshBasicMaterial,
 		BufferAttribute,
 		ShaderMaterial,
 	} from "three";
@@ -32,6 +28,9 @@
 	import { useSuspense } from "@threlte/extras";
 	import { onDestroy } from "svelte";
 	import Obtainable from "./Obtainable.svelte";
+	import { MeshBVH, acceleratedRaycast } from "three-mesh-bvh";
+
+	Mesh.prototype.raycast = acceleratedRaycast;
 
 	export let seed: number | undefined;
 	export let enableShaders: boolean = true;
@@ -275,6 +274,7 @@
 		// console.log(texture);
 
 		// needed for lighting
+		geometry.boundsTree = new MeshBVH(geometry);
 		geometry.computeVertexNormals();
 		plane.set([...(vertices as number[])]);
 
@@ -371,9 +371,11 @@
 		grassUniforms.iTime.value = elapsedTime;
 	});
 
-	const grassMaterial = enableShaders && new ShaderMaterial({
-		uniforms: grassUniforms,
-		vertexShader: `
+	const grassMaterial =
+		enableShaders &&
+		new ShaderMaterial({
+			uniforms: grassUniforms,
+			vertexShader: `
 				varying vec2 vUv;
 varying vec2 cloudUV;
 
@@ -405,7 +407,7 @@ void main() {
   gl_Position = mvPosition;
 }
 				`,
-		fragmentShader: `
+			fragmentShader: `
 				uniform sampler2D texture1;
 uniform sampler2D textures[4];
 
@@ -423,9 +425,9 @@ void main() {
   gl_FragColor.a = 1.;
 }
 				`,
-		vertexColors: true,
-		side: 2,
-	});
+			vertexColors: true,
+			side: 2,
+		});
 
 	$: {
 		if (mesh) {
