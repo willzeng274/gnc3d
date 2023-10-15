@@ -62,10 +62,39 @@
 {/if}
 
 <Root>
-    <label>
-        <input type="checkbox" />
-        <span class="menu"> <span class="hamburger" /> </span>
-        <ul class="menu-ul">
+    <button
+        id="dropdownDelayButton"
+        data-dropdown-toggle="dropdownDelay"
+        data-dropdown-delay="500"
+        data-dropdown-trigger="hover"
+        class="absolute top-0 right-0 text-white bg-#325266  focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        type="button"
+        > Menu <svg
+            class="w-2.5 h-2.5 ml-2.5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 10 6"
+        >
+            <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m1 1 4 4 4-4"
+            />
+        </svg>
+    </button>
+
+    <!-- Dropdown menu -->
+    <div
+        id="dropdownDelay"
+        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
+    >
+        <ul
+            class="py-2 text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="dropdownDelayButton"
+        >
             {#if $socket === null}
                 <li>
                     <button
@@ -74,8 +103,8 @@
                             console.log("null soket");
                         }}
                     >
-                    <p>Exit Game</p>
-                </button>
+                        <p>Exit Game</p>
+                    </button>
                 </li>
             {:else}
                 <li>
@@ -91,7 +120,7 @@
             {/if}
             <li><button><p>TEST</p></button></li>
         </ul>
-    </label>
+    </div>
 </Root>
 
 <Root>
@@ -167,118 +196,5 @@
         color: green;
     }
 
-    *,
-    *:before,
-    *:after {
-        box-sizing: border-box;
-    }
-
-    label .menu {
-        position: absolute;
-        right: -100px;
-        top: -100px;
-        z-index: 100;
-        width: 200px;
-        height: 200px;
-        background: #fff;
-        border-radius: 50% 50% 50% 50%;
-        -webkit-transition: 0.5s ease-in-out;
-        transition: 0.5s ease-in-out;
-        box-shadow: 0 0 0 0 #fff, 0 0 0 0 #fff;
-        cursor: pointer;
-    }
-
-    label .hamburger {
-        position: absolute;
-        top: 135px;
-        left: 50px;
-        width: 30px;
-        height: 2px;
-        background: #69d2e7;
-        display: block;
-        -webkit-transform-origin: center;
-        transform-origin: center;
-        -webkit-transition: 0.5s ease-in-out;
-        transition: 0.5s ease-in-out;
-    }
-
-    label .hamburger:after,
-    label .hamburger:before {
-        -webkit-transition: 0.5s ease-in-out;
-        transition: 0.5s ease-in-out;
-        content: "";
-        position: absolute;
-        display: block;
-        width: 100%;
-        height: 100%;
-        background: #69d2e7;
-    }
-
-    label .hamburger:before {
-        top: -10px;
-    }
-
-    label .hamburger:after {
-        bottom: -10px;
-    }
-
-    label input {
-        display: none;
-    }
-
-    label input:checked + .menu {
-        box-shadow: 0 0 0 100vw #fff, 0 0 0 100vh #fff;
-        border-radius: 0;
-    }
-
-    label input:checked + .menu .hamburger {
-        -webkit-transform: rotate(45deg);
-        transform: rotate(45deg);
-    }
-
-    label input:checked + .menu .hamburger:after {
-        -webkit-transform: rotate(90deg);
-        transform: rotate(90deg);
-        bottom: 0;
-    }
-
-    label input:checked + .menu .hamburger:before {
-        -webkit-transform: rotate(90deg);
-        transform: rotate(90deg);
-        top: 0;
-    }
-
-    label input:checked + .menu + ul {
-        opacity: 1;
-    }
-
-    label ul {
-        size: 50ex;
-        z-index: 200;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        -webkit-transform: translate(-50%, -50%);
-        transform: translate(-50%, -50%);
-        opacity: 0;
-        -webkit-transition: 0.25s 0s ease-in-out;
-        transition: 0.25s 0s ease-in-out;
-    }
-
-    label button {
-        margin-bottom: 1em;
-        display: inline-block;
-        color: #f38630;
-        text-decoration: none;
-        
-    }
-
-    .menu-ul li{
-        text-align: center;
-        position: relative;
-    }
-    .menu-ul p:hover {
-        color: #cfd8dc;
-        /* text-colo */
-    }
+    
 </style>

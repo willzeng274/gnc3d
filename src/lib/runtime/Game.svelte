@@ -1,11 +1,5 @@
 <script lang="ts">
-    import {
-        gameConfig,
-        highScore,
-        host,
-        score,
-        socket,
-    } from "$lib/store";
+    import { gameConfig, gameEnd, highScore, host, hostWin, score, socket } from "$lib/store";
     import type {
         Barricade,
         Cake,
@@ -29,7 +23,8 @@
         Walls,
         Woman,
     } from "$lib/rapier/world";
-	import InGameUi from "./InGameUi.svelte";
+    import {  death} from "$lib/store";
+    import InGameUi from "./InGameUi.svelte";
     import Root from "$lib/components/Root.svelte";
     import TextInput from "$lib/ui/textInput.svelte";
     import Button from "$lib/ui/button.svelte";
@@ -47,11 +42,11 @@
     export let barricades: Barricade[];
     export let spectator: boolean;
     export let cakeFinity: boolean;
-    let message :string;
+    let message: string;
     const dispatch = createEventDispatcher<{
         exit: null;
         message: string;
-    }>(); 
+    }>();
 
     $: {
         if ($score > 200 && $socket === null && !cakeFinity) {
@@ -67,13 +62,14 @@
             alert("Bro is exploiting! Your scores are reset");
         }
     }
-
-
 </script>
 
 <!-- InGame Ui handled here -->
-<InGameUi 
-{playerCount}
+<InGameUi
+    {playerCount}
+    on:exit={_ => {
+        dispatch("exit")
+    }}
 />
 
 <T.DirectionalLight castShadow position={[8, 20, -3]} />
@@ -164,43 +160,43 @@
 
 <!-- messages -->
 <Root>
-<dialog
-class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-[0] max-h-[20%] rounded-md mb-2 opacity-80"
-class:hidden={!chatActive}
->
-<div class="w-full overflow-y-scroll mx-2 mt-2">
-    {#each logs as msg}
-        <p>{msg}</p>
-    {/each}
-</div>
-<TextInput
-    class="ml-2"
-    childAtStart={false}
-    type="text"
-    placeholder="Message"
-    bind:value={message}
-    on:keypress={(e) => {
-        if (e.key === "Enter") {
-            dispatch("message", message);
-            message = "";
-        }
-    }}
->
-    <Button
-        class="mr-2"
-        on:click={(_) => {
-            dispatch("message", message);
-            message = "";
-        }}>Send message</Button
+    <dialog
+        class="flex flex-col z-[2] duration-[5s] ease-in-out bottom-[0] max-h-[20%] rounded-md mb-2 opacity-80"
+        class:hidden={!chatActive}
     >
-</TextInput>
-<button
-    on:click={(_) => (chatActive = false)}
-    class="w-full h-full border-r border-[lightgrey] rounded-md
+        <div class="w-full overflow-y-scroll mx-2 mt-2">
+            {#each logs as msg}
+                <p>{msg}</p>
+            {/each}
+        </div>
+        <TextInput
+            class="ml-2"
+            childAtStart={false}
+            type="text"
+            placeholder="Message"
+            bind:value={message}
+            on:keypress={(e) => {
+                if (e.key === "Enter") {
+                    dispatch("message", message);
+                    message = "";
+                }
+            }}
+        >
+            <Button
+                class="mr-2"
+                on:click={(_) => {
+                    dispatch("message", message);
+                    message = "";
+                }}>Send message</Button
+            >
+        </TextInput>
+        <button
+            on:click={(_) => (chatActive = false)}
+            class="w-full h-full border-r border-[lightgrey] rounded-md
     py-2 text-red-500
     hover:bg-gray-100 active:bg-gray-200 transition-colors"
->
-    Close
-</button>
-</dialog>
+        >
+            Close
+        </button>
+    </dialog>
 </Root>
