@@ -67,9 +67,7 @@
 <!-- InGame Ui handled here -->
 <InGameUi
     {playerCount}
-    on:exit={_ => {
-        dispatch("exit")
-    }}
+    on:exit
 />
 
 <T.DirectionalLight castShadow position={[8, 20, -3]} />
