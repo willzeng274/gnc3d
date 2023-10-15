@@ -1,7 +1,24 @@
 <script lang="ts">
 	import { T } from "@threlte/core";
-	import { MeshLineGeometry, MeshLineMaterial, Suspense, interactivity, transitions } from "@threlte/extras";
-	import { death, freeze, playerAnimation, playerLinvel, playerPos, playerRotation, score, socket, gameConfig, azure, mobile, highScore, host, lives, hostWin, gameEnd } from "$lib/store";
+	import { Suspense, interactivity, onSuspend, transitions } from "@threlte/extras";
+	import {
+		death,
+		freeze,
+		playerAnimation,
+		playerLinvel,
+		playerPos,
+		playerRotation,
+		score,
+		socket,
+		gameConfig,
+		azure,
+		mobile,
+		highScore,
+		host,
+		lives,
+		hostWin,
+		gameEnd,
+	} from "$lib/store";
 	import { Fps, Loading, Lobby, Root, Tutorial } from "./index";
 	import { onDestroy, onMount } from "svelte";
 	import { PUBLIC_PROD } from "$env/static/public";
@@ -86,15 +103,18 @@
 	let lastUpdated = Date.now();
 
 	let spectator = false;
-	
+
 	// TODO: websocket frame rate, if frame rate drops below 3 then the host automatically disconnects
 	// we'll limit to 30 fps for now
 	// small issue: may not update latest frame
-	const { world } = useRapier() 
+	const { world } = useRapier();
 
-	const normalGravity = ()=> { world.gravity = { x:0, y:-19.62, z:0 } } 
-	const noGravity = ()=> { world.gravity = { x:0, y:-0.5, z:0 } } 
-	
+	const normalGravity = () => {
+		world.gravity = { x: 0, y: -9.81 * 2, z: 0 };
+	};
+	const noGravity = () => {
+		world.gravity = { x: 0, y: -0.5, z: 0 };
+	};
 
 	let latest_frame: number[] | null = null;
 	$: {
@@ -270,13 +290,16 @@
 							}
 						} else if (arr[0] === BARRICADE_SPAWN_EVENT) {
 							// console.log("OWNER", arr[1], "BARRICADE ID", arr[2], "ok", own_id);
-							barricades = [...barricades, {
-								id: arr[2],
-								position: [arr[3], arr[4], arr[5]],
-								rotation: [arr[6], arr[7], arr[8]],
-								dynamic: true,
-								owner: arr[1]
-							}];
+							barricades = [
+								...barricades,
+								{
+									id: arr[2],
+									position: [arr[3], arr[4], arr[5]],
+									rotation: [arr[6], arr[7], arr[8]],
+									dynamic: true,
+									owner: arr[1],
+								},
+							];
 							if (arr[1] === own_id) {
 								console.log("ok so deleting soon");
 								setTimeout(() => {
@@ -444,26 +467,28 @@
 
 	$: {
 		if ($gameEnd && $host) {
-			setTimeout(()=> $socket?.close(), 10000);
+			setTimeout(() => $socket?.close(), 10000);
 		}
 	}
 
-	$: (async _ => {
+	$: (async (_) => {
 		const key = await importEncryptionKey(jwk);
 		localStorage.setItem("zed-bra", await encrypt($azure + "", key));
 	})();
 
-
 	$: {
-		if ($gameEnd) {
-			noGravity(); 
-		} else{
-			normalGravity();
-		} 
+		// console.log("ok");
+		if (started && $socket !== null) {
+			console.log("Toggle gravity")
+			if ($gameEnd) {
+				noGravity();
+			} else {
+				normalGravity();
+			}
+		}
 	}
 
 	onMount(async () => {
-
 		if ("config" in localStorage) {
 			// there may be compatibility issues
 			gameConfig.update((gc) => ({ ...gc, ...JSON.parse(localStorage.getItem("config")!) }));
@@ -504,7 +529,7 @@
 			cam.fov = 90;
 			cam.lookAt(0, 1, 0);
 		} else if (currentCtx.name === "Shop") {
-			cam.position.set(0, z_ratio === 1 ? 2 : 0.7, $mobile ? z_ratio === 1 ? 10 : 4 : z_ratio === 1 ? 6 : 2.7);
+			cam.position.set(0, z_ratio === 1 ? 2 : 0.7, $mobile ? (z_ratio === 1 ? 10 : 4) : z_ratio === 1 ? 6 : 2.7);
 			cam.fov = 120;
 			cam.lookAt(0, 0.5, 0);
 			// cam.lookAt(5, 5, 0);
@@ -512,13 +537,19 @@
 	}
 
 	let cakeFinity: boolean = false;
+
+	$: {
+		if (!started) world.gravity.y = 0;
+	}
 </script>
 
 <Fps />
 
-<svelte:window on:resize={() => {
-	z_ratio = 2;
-}} />
+<svelte:window
+	on:resize={() => {
+		z_ratio = 2;
+	}}
+/>
 
 {#if menu}
 	<Suspense final on:load={() => (isSuspend = false)}>
@@ -587,10 +618,15 @@
 		<dialog class="block z-[2] duration-[5s] ease-in-out">Waiting for germination...</dialog>
 	</Root>
 {:else if lobby}
-	<Lobby {skin} {players} {logs} on:message={(msg) => {
-		logs = ["YOU: " + msg.detail, ...logs];
-		$socket?.send(TXT_MESSAGE_CREATE + msg.detail);
-	}} />
+	<Lobby
+		{skin}
+		{players}
+		{logs}
+		on:message={(msg) => {
+			logs = ["YOU: " + msg.detail, ...logs];
+			$socket?.send(TXT_MESSAGE_CREATE + msg.detail);
+		}}
+	/>
 {:else}
 	<Suspense final>
 		<Root slot="fallback">
@@ -611,19 +647,19 @@
 			{players}
 			{playerCount}
 			{cakeFinity}
-			on:exit={_ => {
-                menu = true;
-				hostWin.set(false)
-				gameEnd.set(false)
-                death.set(false);
-                realSeed = undefined;
-                tutorial = false;
-                lobby = false;
-                started = false;
-            }}
+			on:exit={(_) => {
+				menu = true;
+				hostWin.set(false);
+				gameEnd.set(false);
+				death.set(false);
+				realSeed = undefined;
+				tutorial = false;
+				lobby = false;
+				started = false;
+			}}
 			on:message={(m) => {
 				logs = ["YOU: " + m.detail, ...logs];
-                $socket?.send(TXT_MESSAGE_CREATE + m.detail);
+				$socket?.send(TXT_MESSAGE_CREATE + m.detail);
 			}}
 		/>
 	</Suspense>

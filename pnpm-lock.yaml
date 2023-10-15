@@ -26,6 +26,9 @@ dependencies:
   three-gltf-exporter:
     specifier: ^0.0.1
     version: 0.0.1(three@0.153.0)
+  three-mesh-bvh:
+    specifier: ^0.6.8
+    version: 0.6.8(three@0.153.0)
 
 devDependencies:
   '@dimforge/rapier3d-compat':
@@ -1520,6 +1523,14 @@ packages:
     resolution: {integrity: sha512-46CZ8c5I7nSa6TyNKjUkx2AZPNJ2K2jxGTWNtGLrxF+UZaJ+NGnjLFfPvNFIj38oPsNXJ+SPyYNZRyCmp3xLdg==}
     peerDependencies:
       three: '>=0.97.0'
+    dependencies:
+      three: 0.153.0
+    dev: false
+
+  /three-mesh-bvh@0.6.8(three@0.153.0):
+    resolution: {integrity: sha512-EGebF9DZx1S8+7OZYNNTT80GXJZVf+UYXD/HyTg/e2kR/ApofIFfUS4ZzIHNnUVIadpnLSzM4n96wX+l7GMbnQ==}
+    peerDependencies:
+      three: '>= 0.151.0'
     dependencies:
       three: 0.153.0
     dev: false
