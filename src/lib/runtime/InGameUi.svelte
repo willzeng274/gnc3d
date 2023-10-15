@@ -42,7 +42,6 @@
     });
 
     let isMenuOpen = false;
-
 </script>
 
 <Root>
@@ -130,48 +129,31 @@
 {/if}
 
 <Root>
-    <div
-        class="flex flex-col lg:flex-row absolute top-4 w-[80%] lg:w-[35%] h-[5%] items-center justify-center text-center"
-    >
-        <div
-            class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] px-4"
-        >
-            {#if $socket === null}
-                <p>
-                    Score: {$score} | Best: {$highScore} | Azure crystals owned:
-                    {$azure}
-                </p>
-            {:else if $host}
-                <p>
-                    Player progress: {$score}/{getMaxScoreByPlayerCount(
-                        playerCount
-                    )} | Azure crystals owned: {$azure}
-                </p>
-            {:else}
-                <div class="overflow-hidden relative bg-gray-100 h-3 w-full">
-                    <div
-                        class="h-full transition-all duration-300 bg-gradient-to-br from-blue-500 via-transparent to-blue-500 bg-[length:1rem_1rem]"
-                        style={`width: ${
-                            Math.floor(($score / 500) * 1000) / 10
-                        }%;`}
-                    />
-                </div>
-                <p>
-                    ROAD TO {getMaxScoreByPlayerCount(playerCount)}: {$score}/{getMaxScoreByPlayerCount(
-                        playerCount
-                    )} | Azure crystals owned: {$azure}
-                </p>
-            {/if}
+  <div class="flex flex-col lg:flex-row absolute top-4 w-[80%] lg:w-[35%] h-auto lg:h-[5%] items-center justify-center text-center">
+    <div class="lg:mr-4 flex flex-col select-none top-0 bg-white border border-solid border-black z-[1] p-4 rounded-lg shadow-lg">
+      {#if $socket === null}
+        <p class="text-xl font-semibold text-gray-700">
+          Score: {$score} | Best: {$highScore} | Azure Crystals Owned: {$azure}
+        </p>
+      {:else if $host}
+        <p class="text-xl font-semibold text-gray-700">
+          Player Progress: {$score}/{getMaxScoreByPlayerCount(playerCount)} | Azure Crystals Owned: {$azure}
+        </p>
+      {:else}
+        <div class="overflow-hidden relative bg-gray-100 h-3 w-full rounded-lg">
+          <div class="h-full transition-all duration-300 bg-gradient-to-br from-blue-500 via-transparent to-blue-500" style={`width: ${Math.floor(($score / 500) * 1000) / 10}%`}></div>
         </div>
-        <!-- Small inconvenience but it's fine! -->
-        {#if ($socket !== null && $host) || $socket === null}
-            <div
-                class="flex flex-col select-none opacity-80 top-0 bg-white border border-solid border-black z-[1] py-0 px-4"
-            >
-                <p>Frozen for: {frozen}</p>
-            </div>
-        {/if}
+        <p class="text-xl font-semibold text-gray-700 mt-2">
+          Road to {getMaxScoreByPlayerCount(playerCount)}: {$score}/{getMaxScoreByPlayerCount(playerCount)} | Azure Crystals Owned: {$azure}
+        </p>
+      {/if}
     </div>
+    {#if ($socket !== null && $host) || $socket === null}
+      <div class="lg:ml-4 mt-4 lg:mt-0 flex flex-col select-none top-0 bg-white border border-solid border-black z-[1] p-4 rounded-lg shadow-lg">
+        <p class="text-xl font-semibold text-gray-700">Frozen for: {frozen}</p>
+      </div>
+    {/if}
+  </div>
 </Root>
 
 <style lang="css">
