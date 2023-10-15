@@ -40,7 +40,75 @@
             }, unfreezeTime - now);
         }
     });
+
+    let isMenuOpen = false;
+
 </script>
+
+<Root>
+    <div class="menu-container">
+        <input
+            type="checkbox"
+            class="hidden"
+            id="menu-toggle"
+            bind:checked={isMenuOpen}
+        />
+
+        <!-- Hamburger/Cross Icon -->
+        <label for="menu-toggle" class="cursor-pointer">
+            {#if isMenuOpen}
+                <div
+                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center -rotate-45"
+                />
+                <div
+                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center opacity-0"
+                />
+                <div
+                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center rotate-45"
+                />
+            {:else}
+                <div
+                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center"
+                />
+                <div
+                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center"
+                />
+                <div
+                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center"
+                />
+            {/if}
+        </label>
+
+        <!-- Menu -->
+        <div
+            class="fixed inset-0 bg-white flex justify-center items-center z-20 transition-opacity duration-300"
+            class:hidden={!isMenuOpen}
+        >
+            <ul class="flex flex-col items-center">
+                <li>
+                    <button
+                        class="py-3 px-6 border-b border-gray-300 w-full text-left"
+                        on:click={() => {
+                            $socket === null
+                                ? dispatch("exit")
+                                : $socket?.close();
+                            console.log("exiting");
+                        }}
+                    >
+                        <p class="text-gray-700">Exit Game</p>
+                    </button>
+                </li>
+
+                <li>
+                    <button
+                        class="py-3 px-6 border-b border-gray-300 w-full text-left"
+                        ><p class="text-gray-700">TEST</p>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</Root>
 
 {#if $gameEnd}
     <Root>
@@ -60,68 +128,6 @@
         </div>
     </Root>
 {/if}
-
-<Root>
-    <button
-        id="dropdownDelayButton"
-        data-dropdown-toggle="dropdownDelay"
-        data-dropdown-delay="500"
-        data-dropdown-trigger="hover"
-        class="absolute top-0 right-0 text-white bg-#325266  focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        type="button"
-        > Menu <svg
-            class="w-2.5 h-2.5 ml-2.5"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 10 6"
-        >
-            <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m1 1 4 4 4-4"
-            />
-        </svg>
-    </button>
-
-    <!-- Dropdown menu -->
-    <div
-        id="dropdownDelay"
-        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-    >
-        <ul
-            class="py-2 text-sm text-gray-700 dark:text-gray-200"
-            aria-labelledby="dropdownDelayButton"
-        >
-            {#if $socket === null}
-                <li>
-                    <button
-                        on:click={() => {
-                            dispatch("exit");
-                            console.log("null soket");
-                        }}
-                    >
-                        <p>Exit Game</p>
-                    </button>
-                </li>
-            {:else}
-                <li>
-                    <button
-                        on:click={() => {
-                            $socket?.close();
-                            console.log("socket on");
-                        }}
-                    >
-                        <p>Exit Game</p>
-                    </button>
-                </li>
-            {/if}
-            <li><button><p>TEST</p></button></li>
-        </ul>
-    </div>
-</Root>
 
 <Root>
     <div
@@ -195,6 +201,10 @@
     .game-end p {
         color: green;
     }
-
-    
+    .menu-container {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 20;
+    }
 </style>
