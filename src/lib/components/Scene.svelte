@@ -662,6 +662,7 @@
 				tutorial = false;
 				lobby = false;
 				started = false;
+				cakeFinity = false;
 			}}
 			on:message={(m) => {
 				logs = ["YOU: " + m.detail, ...logs];
