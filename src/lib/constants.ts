@@ -107,7 +107,7 @@ export const shopItems: ShopItem[] = [
         }
     },
     {
-        skinText: "Icemage skin",
+        skinText: "Ice mage skin",
         perk: "Perks: 15% speed buff, every cake has a frozen effect",
         unlock: `Unlock with 10 pumpkins`,
         skin: 6,
