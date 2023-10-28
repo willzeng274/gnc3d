@@ -209,13 +209,19 @@
 				index += 3;
 			}
 		}
+		if (buildings.length === 0) {
+			// this can happen to the seed lmao, so we pick a random spot
+			buildings = [{
+				index: 52482,
+				i: 77,
+				j: 92
+			}];
+		}
 		// 69420 will decide where to place building
 		const ind = Math.floor(((noise(69420, 69420) + 1) / 2) * buildings.length);
 		console.log("Choosing from:", buildings.length, "Got:", ind);
-		if (buildings.length === 0) {
-			// this can happen to the seed lmao
-		}
 		let b = buildings[ind];
+		// console.log(b.index, b.i, b.j)
 		// @ts-ignore
 		vertices[b.index - 1] = 5;
 		// @ts-ignore
