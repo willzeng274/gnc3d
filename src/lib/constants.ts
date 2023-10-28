@@ -109,14 +109,14 @@ export const shopItems: ShopItem[] = [
     {
         skinText: "Icemage skin",
         perk: "Perks: 15% speed buff, every cake has a frozen effect",
-        unlock: `Unlock with 1000 pumpkins`,
+        unlock: `Unlock with 10 pumpkins`,
         skin: 6,
         index: 4,
         isUnlocked: (cfg: Config) => cfg.icemageUnlocked,
         handleClick: () => () => {
             // pumpkins.set(999);
-            if (get(pumpkins) >= 1000) {
-                pumpkins.update((p) => p - 1000);
+            if (get(pumpkins) >= 10) {
+                pumpkins.update((p) => p - 10);
                 gameConfig.update((cfg) => ({
                     ...cfg,
                     icemageUnlocked: true
