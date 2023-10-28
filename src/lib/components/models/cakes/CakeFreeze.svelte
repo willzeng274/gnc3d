@@ -20,7 +20,7 @@
 		};
 	};
 
-  const suspend = useSuspense();
+	const suspend = useSuspense();
 
 	const gltf = suspend(useGltf<GLTFResult>("/models/cake_freeze-transformed.glb", { useDraco: "/" }));
 

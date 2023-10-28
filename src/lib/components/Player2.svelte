@@ -5,7 +5,7 @@
 	import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 
 	import Username from "./Username.svelte";
-	import { Bigvegas, Boss, James, Timmy, Xbot, Ybot } from "$lib/components/models";
+	import { Bigvegas, Boss, Icemage, James, Timmy, Xbot, Ybot } from "$lib/components/models";
 	import type { ActionName } from "$lib/types";
 
 	let radius = 0.45; // used to be 0.3
@@ -44,7 +44,7 @@
 <T.Group {position}>
 	<Username ypos={position[1]} {username} color={id === 0 ? "red" : undefined} />
 	<!-- enable rotations for funny ragdoll -->
-	<RigidBody bind:rigidBody enabledRotations={[false, false, false]} userData={{ id, name: "player2" }}>
+	<RigidBody bind:rigidBody enabledRotations={[false, false, false]} userData={{ id, name: "player2", skin }}>
 		<!-- <CollisionGroups memberships={[15]} filter={[0, 7]}> -->
 		<CollisionGroups groups={[0, 5]}>
 			<Collider
@@ -83,6 +83,8 @@
 				<Boss currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
 			{:else if skin === 5}
 				<Timmy currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
+			{:else if skin === 6}
+				<Icemage currentActionKey={animation} rotation={[rotation[0], rotation[1] + Math.PI, rotation[2]]} />
 			{/if}
 			<CollisionGroups groups={[15]}>
 				<T.Group position={[0, -height / 2 + radius, 0]}>

@@ -24,6 +24,7 @@
 	import { Quaternion, type Collider as RapierCollider } from "@dimforge/rapier3d-compat";
 	import { Sky } from "three/examples/jsm/objects/Sky";
 	import { Water } from "three/examples/jsm/objects/Water";
+	// @ts-ignore
 	import { MeshSurfaceSampler } from "three/addons/math/MeshSurfaceSampler";
 	import { useSuspense } from "@threlte/extras";
 	import { onDestroy } from "svelte";
@@ -350,19 +351,30 @@
 	let grmesh: Mesh;
 
 	// Time Uniform
-	const startTime = enableShaders && Date.now();
+	const startTime = (enableShaders && Date.now()) as number;
 
-	const grassTexture = enableShaders && new TextureLoader().load("/textures/grass.jpg");
-	const cloudTexture = enableShaders && new TextureLoader().load("/textures/cloud.jpg");
+	const grassTexture = (enableShaders && new TextureLoader().load("/textures/grass.jpg")) as THREE.Texture;
+	const cloudTexture = (enableShaders && new TextureLoader().load("/textures/cloud.jpg")) as THREE.Texture;
 	if (enableShaders) {
 		cloudTexture.wrapS = cloudTexture.wrapT = 1000;
 	}
 
-	const timeUniform = enableShaders && { type: "f", value: 0.0 };
+	const timeUniform = (enableShaders && { type: "f", value: 0.0 }) as {
+		type: string;
+		value: number;
+	};
 
-	const grassUniforms = enableShaders && {
+	const grassUniforms = (enableShaders && {
 		textures: { value: [grassTexture, cloudTexture] },
 		iTime: timeUniform,
+	}) as {
+		textures: {
+			value: THREE.Texture[];
+		};
+		iTime: {
+			type: string;
+			value: number;
+		};
 	};
 
 	useFrame(() => {
@@ -371,8 +383,7 @@
 		grassUniforms.iTime.value = elapsedTime;
 	});
 
-	const grassMaterial =
-		enableShaders &&
+	const grassMaterial = (enableShaders &&
 		new ShaderMaterial({
 			uniforms: grassUniforms,
 			vertexShader: `
@@ -427,7 +438,7 @@ void main() {
 				`,
 			vertexColors: true,
 			side: 2,
-		});
+		})) as THREE.ShaderMaterial;
 
 	$: {
 		if (mesh) {
@@ -452,10 +463,10 @@ void main() {
 			// const position = new Vector3();
 			// const matrix = new Matrix4();
 
-			const allPositions = [];
-			const allUvs = [];
-			const allIndices = [];
-			const allColors = [];
+			const allPositions: number[] = [];
+			const allUvs: number[] = [];
+			const allIndices: number[] = [];
+			const allColors: number[] = [];
 
 			// Sample randomly from the surface, creating an instance of the sample
 			// geometry at each sample point.
@@ -566,12 +577,6 @@ void main() {
 	<T.Group position={[0, -0.01, 0]}>
 		<RigidBody type={"fixed"} userData={{ name: "ground" }}>
 			<AutoColliders shape="trimesh">
-				<!-- <Collider
-          shape="heightfield"
-          args={[x_units, y_units, fl, new Vector3(-100, 1, 100)]}
-          bind:collider
-          on:collisionenter={(e) => console.log("Height works", e)}
-        > -->
 				<T.Mesh
 					bind:ref={mesh}
 					receiveShadow
@@ -579,7 +584,6 @@ void main() {
 					material={new MeshStandardMaterial({ map: texture, side: 2 })}
 					rotation.x={DEG2RAD * -90}
 				/>
-				<!-- </Collider> -->
 			</AutoColliders>
 		</RigidBody>
 	</T.Group>

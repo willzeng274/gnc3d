@@ -11,3 +11,5 @@ export { default as CakeGold } from "./cakes/CakeGold.svelte";
 export { default as CakeNormal } from "./cakes/CakeNormal.svelte";
 export { default as CakePurple } from "./cakes/CakePurple.svelte";
 export { default as Fish } from "./Fish.svelte";
+export { default as Pumpkin } from "./Pumpkin.svelte";
+export { default as Icemage } from "./Icemage.svelte";

@@ -54,6 +54,7 @@ export interface Config {
     vegasUnlocked: boolean;
     bossUnlocked: boolean;
     timmyUnlocked: boolean;
+    icemageUnlocked: boolean;
     debugMode: boolean;
     femaleChaser: boolean;
 }

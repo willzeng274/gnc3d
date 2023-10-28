@@ -38,6 +38,7 @@
         Woman,
     } from "$lib/rapier/world";
 	import { getMaxScoreByPlayerCount } from "$lib/utils";
+	import Pumpkins from "$lib/components/Pumpkins.svelte";
     export let chatActive: boolean;
     export let logs: string[];
     export let players: ConnectedPlayer[];
@@ -266,6 +267,7 @@
         {/each}
     {:else}
         <CakeGen {cakeFinity} />
+        <Pumpkins />
         <Woman {skin} />
         <!-- at least 1 woman from above -->
         {#each { length: $gameConfig.womenCount - 1 } as _}

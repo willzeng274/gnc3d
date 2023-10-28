@@ -18,6 +18,7 @@
 		lives,
 		hostWin,
 		gameEnd,
+		pumpkins,
 	} from "$lib/store";
 	import { Fps, Loading, Lobby, Root, Tutorial } from "./index";
 	import { onDestroy, onMount } from "svelte";
@@ -498,6 +499,10 @@
 			highScore.set(+localStorage.getItem("highScore")!);
 		}
 
+		if ("pumpkins" in localStorage) {
+			pumpkins.set(+localStorage.getItem("pumpkins")!);
+		}
+
 		const key = await importEncryptionKey(jwk);
 
 		if ("zed-bra" in localStorage) {
@@ -508,6 +513,7 @@
 		window.addEventListener("unload", async (_) => {
 			localStorage.setItem("config", JSON.stringify($gameConfig));
 			localStorage.setItem("highScore", "" + $highScore);
+			localStorage.setItem("pumpkins", "" + $pumpkins);
 		});
 	});
 

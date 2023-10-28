@@ -4,6 +4,7 @@ import type { Object3D } from 'three';
 
 export const lives = writable<number>(Infinity);
 export const score = writable<number>(0);
+export const pumpkins = writable<number>(0);
 export const highScore = writable<number>(0);
 export const mobile = writable<boolean>(false);
 export const host = writable<boolean>(false);
@@ -28,6 +29,7 @@ export const gameConfig = writable<Config>({
     vegasUnlocked: false,
     bossUnlocked: false,
     timmyUnlocked: false,
+    icemageUnlocked: false,
     debugMode: false,
     volume: 20,
     femaleChaser: true
