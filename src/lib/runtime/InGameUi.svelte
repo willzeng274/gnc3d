@@ -40,87 +40,62 @@
             }, unfreezeTime - now);
         }
     });
-
-    let isMenuOpen = false;
 </script>
 
 <Root>
-    <div class="menu-container">
-        <input
-            type="checkbox"
-            class="hidden"
-            id="menu-toggle"
-            bind:checked={isMenuOpen}
-        />
-
-        <!-- Hamburger/Cross Icon -->
-        <label for="menu-toggle" class="cursor-pointer">
-            {#if isMenuOpen}
-                <div
-                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center -rotate-45"
-                />
-                <div
-                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center opacity-0"
-                />
-                <div
-                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center rotate-45"
-                />
-            {:else}
-                <div
-                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center"
-                />
-                <div
-                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center"
-                />
-                <div
-                    class="w-6 h-1 bg-gray-600 my-1 transition-transform duration-300 transform origin-center"
-                />
-            {/if}
-        </label>
-
-        <!-- Menu -->
-        <div
-            class="fixed inset-0 bg-white flex justify-center items-center z-20 transition-opacity duration-300"
-            class:hidden={!isMenuOpen}
+    <label class="justify-center items-center">
+        <input type="checkbox" class="hidden" />
+        <span
+            class="menu absolute right-[-100px] top-[-100px] z-[100] w-[200px] h-[200px] transition-[0.5s] duration-[ease-in-out] shadow-[0_0_0_0_#fff,0_0_0_0_#fff] cursor-pointer rounded-[50%_50%_50%_50%]"
         >
-            <ul class="flex flex-col items-center">
-                <li>
-                    <button
-                        class="py-3 px-6 border-b border-gray-300 w-full text-left"
-                        on:click={() => {
-                            $socket === null
-                                ? dispatch("exit")
-                                : $socket?.close();
-                            console.log("exiting");
-                        }}
-                    >
-                        <p class="text-gray-700">Exit Game</p>
-                    </button>
-                </li>
+            <span
+                class="hamburger absolute w-[30px] h-0.5 block origin-center transition-[0.5s] duration-[ease-in-out] left-[50px] top-[135px]"
+            />
+        </span>
+        <ul
+            class="z-[200] absolute -translate-x-2/4 -translate-y-2/4 opacity-0 transition-[0.25s] duration-[0s] ease-[ease-in-out] left-2/4 top-2/4 space-y-4"
+        >
+            <li
+                class="flex rounded-lg bg-[#157386] hover:bg-[#0b333b] justify-center items-center text-center p-2.5 border-b border-gray-300"
+            >
+                <button
+                    class="px-4 py-2 text-grey"
+                    on:click={() => {
+                        $socket === null ? dispatch("exit") : $socket?.close();
+                        console.warn("exiting");
+                    }}
+                >
+                    Exit Game
+                </button>
+            </li>
 
-                <li>
-                    <button
-                        class="py-3 px-6 border-b border-gray-300 w-full text-left"
-                        ><p class="text-gray-700">TEST</p>
-                    </button>
-                </li>
-            </ul>
-        </div>
-    </div>
+            <li
+                class="flex rounded-lg bg-[#157386] hover:bg-[#0b333b] justify-center items-center text-center p-2.5 border-b border-gray-300"
+            >
+                <button class="px-4 py-2 text-grey"> TEST </button>
+            </li>
+        </ul>
+    </label>
 </Root>
 
 {#if $gameEnd}
     <Root>
-        <div class="overlay">
-            <div class="game-end">
+        <div
+            class="hidden fixed w-full h-full bg-[rgba(0,0,0,0.7)] z-[1] flex justify-center items-center left-0 top-0"
+        >
+            <div
+                class="bg-[#1e1e1e] shadow-[0_0_10px_rgba(0,0,0,0.3)] text-center text-[white] p-5 rounded-[10px]"
+            >
                 {#if $hostWin && $host}
-                    <p>"VICTORY! The cake was a lie"</p>
+                    <p class="text-[green]">"VICTORY! The cake was a lie"</p>
                 {:else if !$hostWin && $host}
-                    <p>"DEFEAT. The cake was a lie"</p>
+                    <p class="text-[green]">"DEFEAT. The cake was a lie"</p>
                 {:else if !$hostWin && !$host}
-                    <p>"VICTORY! Cake Crusaders Prevail!"</p>
+                    <p class="text-[green]">
+                        "VICTORY! Cake Crusaders Prevail!"
+                    </p>
                 {:else}
-                    <p>"DEFEAT. Cakemania Victory"</p>
+                    <p class="text-[green]">"DEFEAT. Cakemania Victory"</p>
                 {/if}
                 <p>Game closing in 10s...</p>
             </div>
@@ -177,36 +152,69 @@
 </Root>
 
 <style lang="css">
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
+    *,
+    *:before,
+    *:after {
+        box-sizing: border-box;
+    }
+    label .menu {
+        background: #fff;
+        -webkit-transition: 0.5s ease-in-out;
+    }
+    label ul {
+        -webkit-transition: 1s ease-in-out;
+    }
+    label .hamburger {
+        background: #69d2e7;
+        -webkit-transform-origin: center;
+        transform-origin: center;
+        -webkit-transition: 0.5s ease-in-out;
+        transition: 0.5s ease-in-out;
+    }
+
+    label .hamburger:after,
+    label .hamburger:before {
+        -webkit-transition: 0.5s ease-in-out;
+        transition: 0.5s ease-in-out;
+        content: "";
+        position: absolute;
+        display: block;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        z-index: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        background: #69d2e7;
     }
 
-    .game-end {
-        background-color: #1e1e1e;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        text-align: center;
-        padding: 20px;
-        color: white;
+    label .hamburger:before {
+        top: -10px;
     }
 
-    .game-end p {
-        color: green;
+    label .hamburger:after {
+        bottom: -10px;
     }
-    .menu-container {
-        position: absolute;
+
+    label input:checked + .menu {
+        box-shadow: 0 0 0 100vw #fff, 0 0 0 100vh #fff;
+        border-radius: 0;
+    }
+
+    label input:checked + .menu .hamburger {
+        -webkit-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+
+    label input:checked + .menu .hamburger:after {
+        -webkit-transform: rotate(90deg);
+        transform: rotate(90deg);
+        bottom: 0;
+    }
+
+    label input:checked + .menu .hamburger:before {
+        -webkit-transform: rotate(90deg);
+        transform: rotate(90deg);
         top: 0;
-        right: 0;
-        z-index: 20;
+    }
+
+    label input:checked + .menu + ul {
+        opacity: 1;
     }
 </style>
