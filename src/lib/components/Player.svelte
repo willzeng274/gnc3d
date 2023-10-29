@@ -31,6 +31,7 @@
 	import { arraysSize3AreEqual } from "$lib/utils";
 	import { BARRICADE_SPAWN_EVENT, BITCHLESS_EVENT, DIED_OF_DEATH } from "$lib/constants";
 	import Fish from "$lib/rapier/world/Fish.svelte";
+	import Icemage from "./models/Icemage.svelte";
 
 	export let skin: number;
 	export let username: string;
@@ -185,6 +186,8 @@
 					? 0.85
 					: skin === 4 || skin === 5
 					? 1.1
+					: skin === 6
+					? 1.15
 					: 1
 				: skin === 2
 				? 0.6
@@ -827,6 +830,10 @@ c2.203,0.988,4.779,0.988,6.981,0c0.689-0.308,5.586-2.524,13.577-6.588C251.254,46
 							// this will kinda patch the big vegas flying bug in multiplayer
 							// although it's only going to increase the normal force
 							rigidBody?.applyImpulse(new Vector3(0, -10, 0), true);
+							if (skin === 6) {
+								// icemage
+								freeze.update(f => f+1);
+							}
 						}
 						if ($host) {
 							if (
@@ -888,6 +895,8 @@ c2.203,0.988,4.779,0.988,6.981,0c0.689-0.308,5.586-2.524,13.577-6.588C251.254,46
 					<Boss bind:currentActionKey bind:ref={model} />
 				{:else if skin === 5}
 					<Timmy bind:currentActionKey bind:ref={model} />
+				{:else if skin === 6}
+					<Icemage bind:currentActionKey bind:ref={model} />
 				{/if}
 			</T.Group>
 			<CollisionGroups groups={[15]}>

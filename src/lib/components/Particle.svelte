@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { score, socket } from "$lib/store";
+	import { freeze, score, socket } from "$lib/store";
 	import { T } from "@threlte/core";
 	import { RigidBody, Collider } from "@threlte/rapier";
 	import type * as THREE from "three";
@@ -111,10 +111,13 @@
 			// @ts-ignore
 			} else if (targetRigidBody?.userData?.name === "player2" && host) {
 				// man I wish I can do Uint16
-				// console.log("player touched cake");
 				$socket?.send(new Float32Array([CAKE_COLLIDE_EVENT, id]));
 				touch = 1;
 				score.update((score) => score + 1);
+				// @ts-ignore
+				if (targetRigidBody?.userData?.skin === 6) {
+					freeze.update(f => f+1);
+				}
 			}
 		}}
 		on:sleep={() => {

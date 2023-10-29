@@ -25,7 +25,7 @@
 		name="description"
 		content={$page.url.hostname === "iamdefinitelylearning.vercel.app"
 			? "I am definitely learning bro trust me"
-			: "Ghost and Cakes 3D - a game made with $317 billion budget, powering your mom's credit card since 2018 BC"}
+			: "Ghost and Cakes 3D - a game made with $382 billion budget, powering your mom's credit card since 2018 BC"}
 	/>
 	<title
 		>{$page.url.hostname === "iamdefinitelylearning.vercel.app"

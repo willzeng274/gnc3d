@@ -28,6 +28,7 @@
     import TextInput from "$lib/ui/textInput.svelte";
     import Button from "$lib/ui/button.svelte";
     import { createEventDispatcher } from "svelte";
+	import Pumpkins from "$lib/components/Pumpkins.svelte";
     export let chatActive: boolean;
     export let logs: string[];
     export let players: ConnectedPlayer[];
@@ -122,6 +123,7 @@
         {/each}
     {:else}
         <CakeGen {cakeFinity} />
+        <Pumpkins />
         <Woman {skin} />
         <!-- at least 1 woman from above -->
         {#each { length: $gameConfig.womenCount - 1 } as _}

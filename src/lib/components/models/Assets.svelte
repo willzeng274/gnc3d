@@ -6,6 +6,7 @@
 	import CakeNormal from "./cakes/CakeNormal.svelte";
 	import CakePurple from "./cakes/CakePurple.svelte";
 	import CakeGold from "./cakes/CakeGold.svelte";
+	import Pumpkin from "./Pumpkin.svelte";
 </script>
 
 <T.Group visible={false}>
@@ -14,4 +15,5 @@
     <CakeNormal />
     <CakePurple />
     <CakeGold />
+	<Pumpkin />
 </T.Group>

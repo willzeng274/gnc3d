@@ -21,6 +21,9 @@ export function getSkinNameByNumber(skinId: number): string {
     if (skinId === 5) {
         return "Timmy";
     }
+    if (skinId === 6) {
+        return "Ice mage";
+    }
     return "default";
 }
 

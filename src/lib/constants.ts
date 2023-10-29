@@ -1,4 +1,4 @@
-import { azure, gameConfig } from "./store";
+import { azure, gameConfig, pumpkins } from "./store";
 import { get } from 'svelte/store';
 import type { ActionName, Config } from "./types";
 
@@ -102,6 +102,24 @@ export const shopItems: ShopItem[] = [
                 gameConfig.update((cfg) => ({
                     ...cfg,
                     timmyUnlocked: true
+                }))
+            }
+        }
+    },
+    {
+        skinText: "Ice mage skin",
+        perk: "Perks: 15% speed buff, every cake has a frozen effect",
+        unlock: `Unlock with 10 pumpkins`,
+        skin: 6,
+        index: 4,
+        isUnlocked: (cfg: Config) => cfg.icemageUnlocked,
+        handleClick: () => () => {
+            // pumpkins.set(999);
+            if (get(pumpkins) >= 10) {
+                pumpkins.update((p) => p - 10);
+                gameConfig.update((cfg) => ({
+                    ...cfg,
+                    icemageUnlocked: true
                 }))
             }
         }
