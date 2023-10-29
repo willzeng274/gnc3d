@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { gameConfig, gameEnd, highScore, host, hostWin, score, socket } from "$lib/store";
+    import { gameConfig, highScore, host, score, socket } from "$lib/store";
     import type {
         Barricade,
         Cake,
@@ -23,7 +23,6 @@
         Walls,
         Woman,
     } from "$lib/rapier/world";
-    import {  death} from "$lib/store";
     import InGameUi from "./InGameUi.svelte";
     import Root from "$lib/components/Root.svelte";
     import TextInput from "$lib/ui/textInput.svelte";
