@@ -109,20 +109,21 @@ export const shopItems: ShopItem[] = [
     {
         skinText: "Ice mage skin",
         perk: "Perks: 15% speed buff, every cake has a frozen effect",
-        unlock: `Unlock with 10 pumpkins`,
+        unlock: `Obtainable through the Halloween 2023 event`,
         skin: 6,
         index: 4,
         isUnlocked: (cfg: Config) => cfg.icemageUnlocked,
-        handleClick: () => () => {
-            // pumpkins.set(999);
-            if (get(pumpkins) >= 10) {
-                pumpkins.update((p) => p - 10);
-                gameConfig.update((cfg) => ({
-                    ...cfg,
-                    icemageUnlocked: true
-                }))
-            }
-        }
+        handleClick: () => null
+        // handleClick: () => () => {
+        //     // pumpkins.set(999);
+        //     if (get(pumpkins) >= 10) {
+        //         pumpkins.update((p) => p - 10);
+        //         gameConfig.update((cfg) => ({
+        //             ...cfg,
+        //             icemageUnlocked: true
+        //         }))
+        //     }
+        // }
     }
 ];
 

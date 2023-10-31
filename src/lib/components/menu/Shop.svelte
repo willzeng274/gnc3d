@@ -27,7 +27,7 @@
 	<Root>
 		<dialog class="flex z-[2] bottom-1 bg-transparent text-white text-center">
             Azure owned: {$azure} <br />
-            Pumpkins: {$pumpkins}
+            <!-- Pumpkins: {$pumpkins} -->
         </dialog>
 	</Root>
 {/if}

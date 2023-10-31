@@ -267,7 +267,7 @@
         {/each}
     {:else}
         <CakeGen {cakeFinity} />
-        <Pumpkins />
+        <!-- <Pumpkins /> -->
         <Woman {skin} />
         <!-- at least 1 woman from above -->
         {#each { length: $gameConfig.womenCount - 1 } as _}
