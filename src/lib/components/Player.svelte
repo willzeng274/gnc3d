@@ -305,6 +305,9 @@
 
 	function onClick(e: MouseEvent) {
 		if (e.button !== 2 || chatActive || $socket) return;
+
+		// bullet is a useless feature, it got annoying
+		return;
 		const cameraForward = new Vector3();
 		cam.getWorldDirection(cameraForward);
 
