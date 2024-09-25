@@ -2,20 +2,6 @@
 
 <script lang="ts">
   import App from '$lib/components/App.svelte';
-  import { onMount } from 'svelte';
-
-  onMount(() => {
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = ''; // for most browsers
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  });
 </script>
 
 <div id="root">
