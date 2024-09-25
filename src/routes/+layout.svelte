@@ -18,6 +18,15 @@
 			// @ts-ignore
 		})(navigator.userAgent || navigator.vendor || window["opera"]);
 	});
+
+	  onMount(() => {
+	    const handleBeforeUnload = (event) => {
+	      event.preventDefault();
+	      event.returnValue = ''; // for most browsers
+	    };
+	
+	    window.addEventListener('beforeunload', handleBeforeUnload);
+	  });
 </script>
 
 <svelte:head>
